@@ -1,0 +1,87 @@
+// Animated circular progress indicator built with react-native-svg.
+// Ports the SVG ring from the prototype's home screen.
+
+import React, { useEffect, useRef } from 'react';
+import { Animated, View, Text } from 'react-native';
+import Svg, { Circle, G } from 'react-native-svg';
+import { useTheme } from '../theme';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+interface Props {
+  /** Percent done, 0..100 */
+  percent: number;
+  size?: number;
+  strokeWidth?: number;
+  /** Center label text (e.g. "42%") */
+  label?: string;
+}
+
+export default function ProgressRing({
+  percent,
+  size = 76,
+  strokeWidth = 7,
+  label,
+}: Props) {
+  const theme = useTheme();
+  const r = (size - strokeWidth) / 2;
+  const c = 2 * Math.PI * r;
+  const safePct = Math.max(0, Math.min(100, percent));
+
+  const anim = useRef(new Animated.Value(safePct)).current;
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: safePct,
+      duration: 600,
+      useNativeDriver: false,
+    }).start();
+  }, [safePct, anim]);
+
+  const offset = anim.interpolate({
+    inputRange: [0, 100],
+    outputRange: [c, 0],
+  });
+
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size}>
+        <G rotation={-90} origin={`${size / 2}, ${size / 2}`}>
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={theme.colors.bo}
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+          <AnimatedCircle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={theme.colors.pu}
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={`${c} ${c}`}
+            strokeDashoffset={offset as unknown as number}
+          />
+        </G>
+      </Svg>
+      {label ? (
+        <View
+          style={{
+            position: 'absolute',
+            inset: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 14, fontWeight: '800', color: theme.colors.th }}>
+            {label}
+          </Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
