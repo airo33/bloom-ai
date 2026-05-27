@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme';
+import { useAppStore } from '../store/useAppStore';
+import { genericFallbackPlan } from '../data/fallbackPlan';
 import type { RootStackScreenProps } from '../navigation/types';
 
 const MESSAGES = [
@@ -11,6 +13,10 @@ const MESSAGES = [
   'Writing dosage and progression criteria...',
   'Compiling red flags and safety guidelines...',
 ];
+
+// While the Supabase Edge Function isn't wired yet we always use the
+// fallback plan. Once the AI is connected, swap this for a real fetch.
+const SIMULATED_DELAY_MS = 4500;
 
 function Dot({ delay, color }: { delay: number; color: string }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -44,18 +50,22 @@ function Dot({ delay, color }: { delay: number; color: string }) {
 export default function LoadingScreen({ navigation }: RootStackScreenProps<'Loading'>) {
   const theme = useTheme();
   const [idx, setIdx] = useState(0);
+  const setPlan = useAppStore((s) => s.setPlan);
 
+  // Cycle status text every 1.8s while we "compute"
   useEffect(() => {
     const t = setInterval(() => setIdx((i) => (i + 1) % MESSAGES.length), 1800);
     return () => clearInterval(t);
   }, []);
 
-  // Placeholder: navigate to Plan after a short delay.
-  // Wire to real generatePlan() once Supabase Edge Function is set up.
+  // Inject the fallback plan and advance to Plan screen.
   useEffect(() => {
-    const t = setTimeout(() => navigation.replace('Plan'), 5000);
+    const t = setTimeout(() => {
+      setPlan(genericFallbackPlan);
+      navigation.replace('Plan');
+    }, SIMULATED_DELAY_MS);
     return () => clearTimeout(t);
-  }, [navigation]);
+  }, [navigation, setPlan]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
