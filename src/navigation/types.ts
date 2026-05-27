@@ -20,6 +20,8 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Home: undefined;
   Schedule: undefined;
+  /** Pseudo-tab that hosts the center FAB — never actually navigates */
+  _FAB: undefined;
   Progress: undefined;
   Profile: undefined;
 };

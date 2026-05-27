@@ -1,33 +1,66 @@
 import React from 'react';
-import { Pressable, Text, ViewStyle, StyleProp, ActivityIndicator } from 'react-native';
+import {
+  Pressable,
+  Text,
+  ViewStyle,
+  StyleProp,
+  ActivityIndicator,
+  View,
+} from 'react-native';
 import { useTheme } from '../theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonSize = 'lg' | 'md';
 
 interface Props {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Optional leading icon (already-sized component) — replaces the old emoji prefix pattern. */
+  icon?: React.ReactNode;
 }
+
+const HEIGHT: Record<ButtonSize, number> = {
+  lg: 54,
+  md: 46,
+};
 
 export default function Button({
   title,
   onPress,
   variant = 'primary',
+  size = 'lg',
   disabled,
   loading,
   style,
+  icon,
 }: Props) {
   const theme = useTheme();
   const isPrimary = variant === 'primary';
   const isSecondary = variant === 'secondary';
 
-  const bg = isPrimary ? theme.colors.pu : isSecondary ? theme.colors.pl : 'transparent';
-  const fg = isPrimary ? '#fff' : isSecondary ? theme.colors.pt : theme.colors.tb;
-  const border = isPrimary ? 'transparent' : isSecondary ? theme.colors.pb : theme.colors.bo2;
+  // For lime primary in dark mode the contrast text is dark, not white
+  const primaryFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
+
+  const bg = isPrimary
+    ? theme.colors.pu
+    : isSecondary
+    ? theme.colors.card2
+    : 'transparent';
+  const fg = isPrimary
+    ? primaryFg
+    : isSecondary
+    ? theme.colors.th
+    : theme.colors.tb;
+  const border = isPrimary
+    ? 'transparent'
+    : isSecondary
+    ? theme.colors.bo
+    : theme.colors.bo2;
 
   return (
     <Pressable
@@ -36,24 +69,17 @@ export default function Button({
       style={({ pressed }) => [
         {
           width: '100%',
-          paddingVertical: 14,
-          paddingHorizontal: 16,
+          height: HEIGHT[size],
+          paddingHorizontal: 18,
           backgroundColor: bg,
           borderColor: border,
-          borderWidth: 2,
-          borderRadius: theme.radius.lg,
+          borderWidth: isPrimary ? 0 : 1.5,
+          borderRadius: 16,
+          flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: 8,
           opacity: pressed || disabled ? 0.85 : 1,
-          ...(isPrimary
-            ? {
-                shadowColor: theme.colors.pu,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.35,
-                shadowRadius: 16,
-                elevation: 6,
-              }
-            : {}),
         },
         style,
       ]}
@@ -61,7 +87,20 @@ export default function Button({
       {loading ? (
         <ActivityIndicator color={fg} />
       ) : (
-        <Text style={{ color: fg, fontSize: 16, fontWeight: '700' }}>{title}</Text>
+        <>
+          {icon && <View>{icon}</View>}
+          <Text
+            style={{
+              color: fg,
+              fontSize: size === 'lg' ? 16 : 14,
+              fontWeight: '700',
+              letterSpacing: -0.2,
+            }}
+            numberOfLines={1}
+          >
+            {title}
+          </Text>
+        </>
       )}
     </Pressable>
   );

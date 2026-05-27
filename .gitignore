@@ -43,3 +43,8 @@ yarn-error.*
 # Claude Code personal settings (keep shared settings.json checked in)
 .claude/settings.local.json
 
+# Local build artifacts
+*.apk
+*.aab
+*.ipa
+
