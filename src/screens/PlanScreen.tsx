@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Sparkles, Target, AlertTriangle, ListChecks } from 'lucide-react-native';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import CategoryTile from '../components/CategoryTile';
+import SectionLabel from '../components/SectionLabel';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
@@ -19,7 +21,6 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <Text style={{ fontSize: 48, marginBottom: 12 }}>🫀</Text>
           <Text style={{ fontSize: 16, color: theme.colors.tm, textAlign: 'center' }}>
             No plan loaded yet.
           </Text>
@@ -30,26 +31,33 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
     );
   }
 
+  // Header text color flips based on lime brightness — dark text reads better on lime
+  const headerFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
+  const headerFgMuted = theme.scheme === 'dark' ? 'rgba(10,10,10,0.65)' : 'rgba(255,255,255,0.72)';
+  const headerStatBg = theme.scheme === 'dark' ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)';
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
-      <StatusBar style="light" />
+      <StatusBar style={theme.scheme === 'dark' ? 'dark' : 'light'} />
 
-      {/* Purple header */}
+      {/* Lime accent header */}
       <SafeAreaView style={{ backgroundColor: theme.colors.pu }} edges={['top']}>
-        <View style={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <Text style={{ fontSize: 14 }}>✨</Text>
-            <Text
-              style={{
-                fontSize: 12,
-                color: 'rgba(255,255,255,0.7)',
-                fontWeight: '600',
-              }}
-            >
-              AI Clinical Plan
+        <View style={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 22 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+            <Sparkles size={14} color={headerFgMuted} strokeWidth={2.4} />
+            <Text style={{ fontSize: 12, color: headerFgMuted, fontWeight: '700', letterSpacing: 0.4 }}>
+              AI CLINICAL PLAN
             </Text>
           </View>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#fff', marginBottom: 16 }}>
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: '800',
+              color: headerFg,
+              marginBottom: 18,
+              letterSpacing: -0.5,
+            }}
+          >
             {plan.title}
           </Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -64,17 +72,17 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                 key={stat.label}
                 style={{
                   flex: 1,
-                  backgroundColor: 'rgba(255,255,255,0.16)',
+                  backgroundColor: headerStatBg,
                   borderRadius: 14,
-                  paddingVertical: 12,
+                  paddingVertical: 13,
                   paddingHorizontal: 8,
                   alignItems: 'center',
                 }}
               >
-                <Text style={{ fontSize: 24, fontWeight: '800', color: '#fff' }}>
+                <Text style={{ fontSize: 24, fontWeight: '800', color: headerFg, letterSpacing: -0.5 }}>
                   {stat.value}
                 </Text>
-                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>
+                <Text style={{ fontSize: 11, color: headerFgMuted, marginTop: 1 }}>
                   {stat.label}
                 </Text>
               </View>
@@ -90,25 +98,23 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         showsVerticalScrollIndicator={false}
       >
         {/* Summary */}
-        <Card style={{ marginBottom: 13 }} padding={14}>
+        <Card style={{ marginBottom: 14 }} padding={16}>
           <Text style={{ fontSize: 14, color: theme.colors.tb, lineHeight: 22 }}>
             {plan.summary}
           </Text>
         </Card>
 
         {/* Clinical goals */}
-        <Text style={[styles.sectionLabel, { color: theme.colors.tm }]}>
-          🎯 CLINICAL GOALS
-        </Text>
+        <SectionLabel>Clinical goals</SectionLabel>
         <View
           style={{
             backgroundColor: theme.colors.bl,
             borderColor: theme.colors.bb,
-            borderWidth: 1.5,
-            borderRadius: 14,
-            paddingVertical: 12,
+            borderWidth: 1,
+            borderRadius: 16,
+            paddingVertical: 14,
             paddingHorizontal: 14,
-            marginBottom: 13,
+            marginBottom: 16,
           }}
         >
           {plan.clinicalGoals.map((g, i) => (
@@ -117,11 +123,11 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
               style={{
                 flexDirection: 'row',
                 alignItems: 'flex-start',
-                gap: 8,
-                marginBottom: i === plan.clinicalGoals.length - 1 ? 0 : 5,
+                gap: 10,
+                marginBottom: i === plan.clinicalGoals.length - 1 ? 0 : 8,
               }}
             >
-              <Text style={{ fontSize: 14 }}>🎯</Text>
+              <Target size={15} color={theme.colors.bb} strokeWidth={2.2} />
               <Text style={{ flex: 1, fontSize: 13, color: theme.colors.tb, lineHeight: 20 }}>
                 {g}
               </Text>
@@ -130,18 +136,16 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         </View>
 
         {/* Red flags */}
-        <Text style={[styles.sectionLabel, { color: theme.colors.tm }]}>
-          ⚠️ SEE A DOCTOR IF:
-        </Text>
+        <SectionLabel>See a doctor if</SectionLabel>
         <View
           style={{
             backgroundColor: theme.colors.rl,
             borderColor: theme.colors.rb,
-            borderWidth: 1.5,
-            borderRadius: 14,
-            paddingVertical: 12,
+            borderWidth: 1,
+            borderRadius: 16,
+            paddingVertical: 14,
             paddingHorizontal: 14,
-            marginBottom: 13,
+            marginBottom: 16,
           }}
         >
           {plan.redFlags.map((r, i) => (
@@ -150,11 +154,11 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
               style={{
                 flexDirection: 'row',
                 alignItems: 'flex-start',
-                gap: 8,
-                marginBottom: i === plan.redFlags.length - 1 ? 0 : 5,
+                gap: 10,
+                marginBottom: i === plan.redFlags.length - 1 ? 0 : 8,
               }}
             >
-              <Text style={{ fontSize: 13 }}>🚨</Text>
+              <AlertTriangle size={15} color={theme.colors.rd} strokeWidth={2.2} />
               <Text style={{ flex: 1, fontSize: 13, color: theme.colors.tb, lineHeight: 20 }}>
                 {r}
               </Text>
@@ -163,10 +167,8 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         </View>
 
         {/* Exercises */}
-        <Text style={[styles.sectionLabel, { color: theme.colors.tm }]}>
-          📋 ALL EXERCISES IN THIS PLAN
-        </Text>
-        <Card style={{ marginBottom: 13 }} padding={0}>
+        <SectionLabel>All exercises in this plan</SectionLabel>
+        <Card style={{ marginBottom: 18 }} padding={0}>
           {plan.exercises.map((ex, i) => {
             const c = getCategory(ex.category);
             return (
@@ -175,22 +177,14 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 10,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
+                  gap: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 12,
                   borderTopWidth: i === 0 ? 0 : 1,
                   borderTopColor: theme.colors.bo,
                 }}
               >
-                <View
-                  style={{
-                    width: 9,
-                    height: 9,
-                    borderRadius: 5,
-                    backgroundColor: c.bar,
-                  }}
-                />
-                <CategoryTile category={ex.category} size={34} />
+                <CategoryTile category={ex.category} size={36} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text
                     numberOfLines={1}
@@ -210,7 +204,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                     borderRadius: 20,
                   }}
                 >
-                  <Text style={{ fontSize: 11, color: c.ic, fontWeight: '700' }}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: c.ic }}>
                     {c.lbl}
                   </Text>
                 </View>
@@ -219,38 +213,30 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
           })}
         </Card>
 
-        {/* Disclaimer */}
+        {/* Safety note */}
         <View
           style={{
             backgroundColor: theme.colors.card2,
             borderColor: theme.colors.bo,
             borderWidth: 1,
-            borderRadius: 13,
-            paddingHorizontal: 14,
+            borderRadius: 16,
             paddingVertical: 12,
+            paddingHorizontal: 14,
             marginBottom: 18,
+            flexDirection: 'row',
+            gap: 10,
+            alignItems: 'flex-start',
           }}
         >
-          <Text style={{ fontSize: 12, color: theme.colors.tm, lineHeight: 18 }}>
-            ⚕️ Evidence-based protocol. Post-surgical: follow surgeon's restrictions
-            first. Stop any exercise causing sharp pain.
+          <ListChecks size={16} color={theme.colors.tm} strokeWidth={2} />
+          <Text style={{ flex: 1, fontSize: 12, color: theme.colors.tm, lineHeight: 18 }}>
+            Evidence-based protocol. Post-surgical: follow your surgeon's
+            restrictions first. Stop any exercise causing sharp pain.
           </Text>
         </View>
 
-        <Button
-          title="💳 Choose Your Plan →"
-          onPress={() => navigation.replace('Subscription')}
-        />
+        <Button title="Choose your plan" onPress={() => navigation.navigate('Subscription')} />
       </ScrollView>
     </View>
   );
 }
-
-const styles = {
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700' as const,
-    letterSpacing: 0.5,
-    marginBottom: 8,
-  },
-};

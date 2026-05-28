@@ -2,53 +2,72 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { ArrowRight, KeyRound } from 'lucide-react-native';
 import Button from '../components/Button';
 import { useTheme } from '../theme';
 import type { RootStackScreenProps } from '../navigation/types';
 
 export default function WelcomeScreen({ navigation }: RootStackScreenProps<'Welcome'>) {
   const theme = useTheme();
+  const onPrimary = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.pu }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
+      <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView
           contentContainerStyle={styles.hero}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.emoji}>🫀</Text>
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>RECOVA</Text>
-            <View style={styles.proBadge}>
-              <Text style={styles.proText}>👑 PRO</Text>
-            </View>
+          {/* Brand mark */}
+          <View
+            style={{
+              width: 84,
+              height: 84,
+              borderRadius: 24,
+              backgroundColor: theme.colors.pl,
+              borderWidth: 1,
+              borderColor: theme.colors.pb,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 24,
+            }}
+          >
+            <Text style={{ fontSize: 44 }}>🫀</Text>
           </View>
-          <Text style={styles.heading}>AI Recovery{'\n'}Coach</Text>
-          <Text style={styles.subhead}>
-            🏥 Clinical rehab plans · 📅 Weekly schedule{'\n'}
-            💧 Hydration · 🔔 Smart reminders
+
+          <Text
+            style={[
+              styles.brand,
+              { color: theme.colors.tm },
+            ]}
+          >
+            RECOVA
+          </Text>
+
+          <Text style={[styles.heading, { color: theme.colors.th }]}>
+            AI Recovery{'\n'}Coach
+          </Text>
+
+          <Text style={[styles.subhead, { color: theme.colors.tm }]}>
+            Clinical rehab plans, personalized daily schedules, and{'\n'}smart
+            reminders to keep your recovery on track.
           </Text>
         </ScrollView>
       </SafeAreaView>
 
-      <SafeAreaView edges={['bottom']} style={{ backgroundColor: theme.colors.card }}>
-        <View
-          style={[
-            styles.sheet,
-            { backgroundColor: theme.colors.card, borderTopColor: theme.colors.bo },
-          ]}
-        >
-          <View style={[styles.grabber, { backgroundColor: theme.colors.bo }]} />
+      <SafeAreaView edges={['bottom']} style={{ backgroundColor: theme.colors.bg }}>
+        <View style={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 12, gap: 10 }}>
           <Button
-            title="🚀 Get Started"
+            title="Get Started"
             onPress={() => navigation.navigate('Onboarding1')}
+            icon={<ArrowRight size={18} color={onPrimary} strokeWidth={2.5} />}
           />
-          <View style={{ height: 12 }} />
           <Button
-            title="🔑 I already have an account"
+            title="I already have an account"
             variant="ghost"
             onPress={() => navigation.navigate('Onboarding1')}
+            icon={<KeyRound size={16} color={theme.colors.tb} strokeWidth={2} />}
           />
         </View>
       </SafeAreaView>
@@ -64,47 +83,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingVertical: 40,
   },
-  emoji: { fontSize: 64, marginBottom: 20 },
-  labelRow: { flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 12 },
-  label: {
+  brand: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.65)',
     fontWeight: '700',
-    letterSpacing: 1.5,
+    letterSpacing: 3,
+    marginBottom: 16,
   },
-  proBadge: {
-    backgroundColor: '#FDCB6E',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 20,
-  },
-  proText: { fontSize: 10, fontWeight: '800', color: '#7A4000' },
   heading: {
-    fontSize: 30,
+    fontSize: 36,
     fontWeight: '800',
-    color: '#fff',
     textAlign: 'center',
-    lineHeight: 36,
-    marginBottom: 14,
+    lineHeight: 42,
+    letterSpacing: -0.5,
+    marginBottom: 16,
   },
   subhead: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.75)',
+    fontSize: 15,
     textAlign: 'center',
-    lineHeight: 24,
-  },
-  sheet: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 16,
-  },
-  grabber: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 22,
+    lineHeight: 22,
+    letterSpacing: -0.1,
   },
 });

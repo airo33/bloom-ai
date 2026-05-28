@@ -3,10 +3,12 @@ import { View, Text, Pressable, ScrollView, ToastAndroid, Platform, Alert } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ChevronLeft, ChevronRight, Check, Layers } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
 import CategoryTile from '../components/CategoryTile';
+import SectionLabel from '../components/SectionLabel';
 import type { RootStackParamList } from '../navigation/types';
 import type { PlanPhase, WeekdayShort } from '../types/plan';
 
@@ -15,8 +17,7 @@ const MO = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ];
 const DN: WeekdayShort[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as unknown as WeekdayShort[];
-// Note: Sunday=0 first to match Date.getDay(); store-side keys still use Mon-Sun strings.
-const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']; // Monday-anchored
 
 function showToast(msg: string) {
   if (Platform.OS === 'android') {
@@ -28,7 +29,6 @@ function showToast(msg: string) {
 
 function getWeekStart(offsetWeeks: number): Date {
   const d = new Date();
-  // Monday-anchored: shift so Monday is the start of the week
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   d.setDate(diff + offsetWeeks * 7);
@@ -62,6 +62,13 @@ function dayTypeFor(count: number): DayType {
   return 'full';
 }
 
+const DAY_TYPE_LABEL: Record<DayType, string> = {
+  rest: 'Rest day',
+  light: 'Light day',
+  regular: 'Regular',
+  full: 'Full session',
+};
+
 export default function ScheduleScreen() {
   const theme = useTheme();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -76,7 +83,6 @@ export default function ScheduleScreen() {
   const setWeekOffset = useAppStore((s) => s.setWeekOffset);
   const toggleExerciseDone = useAppStore((s) => s.toggleExerciseDone);
 
-  // Derive week start + selected date
   const weekStart = useMemo(() => getWeekStart(weekOffset), [weekOffset]);
   const weekEnd = useMemo(() => {
     const e = new Date(weekStart);
@@ -101,10 +107,8 @@ export default function ScheduleScreen() {
   );
   const isToday = diffFromToday === 0;
   const isPast = diffFromToday < 0;
-  const isFuture = diffFromToday > 0;
   const recoveryDayForSelected = day + diffFromToday;
 
-  // Exercises planned for the selected date (based on its weekday)
   const selectedPhase = findPhaseForDay(recoveryDayForSelected, plan?.phases);
   const dayWeekdayName = DN[selectedDate.getDay()];
   const dayExIds = selectedPhase?.weekdays?.[dayWeekdayName] ?? [];
@@ -116,11 +120,13 @@ export default function ScheduleScreen() {
   const log = logs.find((l) => l.day === recoveryDayForSelected);
 
   const dayTypeStyles = {
-    rest: { bg: theme.colors.gl, border: theme.colors.gb, fg: theme.colors.gn, label: '😌 Rest Day' },
-    light: { bg: theme.colors.gl, border: theme.colors.gb, fg: theme.colors.gn, label: '🌿 Light Day' },
-    regular: { bg: theme.colors.pl, border: theme.colors.pb, fg: theme.colors.pt, label: '💪 Regular' },
-    full: { bg: theme.colors.rl, border: theme.colors.rb, fg: theme.colors.rd, label: '🔥 Full Session' },
+    rest: { bg: theme.colors.gl, border: theme.colors.gb, fg: theme.colors.gn },
+    light: { bg: theme.colors.gl, border: theme.colors.gb, fg: theme.colors.gn },
+    regular: { bg: theme.colors.pl, border: theme.colors.pb, fg: theme.colors.pt },
+    full: { bg: theme.colors.rl, border: theme.colors.rb, fg: theme.colors.rd },
   } as const;
+
+  const checkFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
@@ -128,7 +134,7 @@ export default function ScheduleScreen() {
       <View
         style={{
           paddingHorizontal: 22,
-          paddingTop: 8,
+          paddingTop: 12,
           paddingBottom: 10,
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -142,113 +148,130 @@ export default function ScheduleScreen() {
               color: theme.colors.tm,
               fontWeight: '700',
               letterSpacing: 0.8,
+              textTransform: 'uppercase',
             }}
           >
-            📅 RECOVERY SCHEDULE
+            Recovery schedule
           </Text>
-          <Text style={{ fontSize: 21, fontWeight: '800', color: theme.colors.th }}>
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: '800',
+              color: theme.colors.th,
+              letterSpacing: -0.5,
+              marginTop: 2,
+            }}
+          >
             {MO[weekStart.getMonth()]} {weekStart.getDate()} – {MO[weekEnd.getMonth()]}{' '}
             {weekEnd.getDate()}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 7 }}>
-          {[-1, 1].map((d) => (
-            <Pressable
-              key={d}
-              onPress={() => setWeekOffset(weekOffset + d)}
-              style={({ pressed }) => ({
-                width: 33,
-                height: 33,
-                borderRadius: 10,
-                backgroundColor: theme.colors.card2,
-                borderWidth: 1.5,
-                borderColor: theme.colors.bo,
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: pressed ? 0.7 : 1,
-              })}
-            >
-              <Text style={{ fontSize: 16, color: theme.colors.tb }}>
-                {d === -1 ? '‹' : '›'}
-              </Text>
-            </Pressable>
-          ))}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Pressable
+            onPress={() => setWeekOffset(weekOffset - 1)}
+            style={({ pressed }) => ({
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              backgroundColor: theme.colors.card,
+              borderWidth: 1,
+              borderColor: theme.colors.bo,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <ChevronLeft size={18} color={theme.colors.tb} strokeWidth={2} />
+          </Pressable>
+          <Pressable
+            onPress={() => setWeekOffset(weekOffset + 1)}
+            style={({ pressed }) => ({
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              backgroundColor: theme.colors.card,
+              borderWidth: 1,
+              borderColor: theme.colors.bo,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <ChevronRight size={18} color={theme.colors.tb} strokeWidth={2} />
+          </Pressable>
         </View>
       </View>
 
       {/* Day pills */}
-      <View style={{ paddingHorizontal: 22, paddingBottom: 10 }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={{ flexDirection: 'row', gap: 5 }}>
-            {Array.from({ length: 7 }).map((_, i) => {
-              const d = new Date(weekStart);
-              d.setDate(weekStart.getDate() + i);
-              const isTodayPill = d.getTime() === today.getTime();
-              const isSel = i === selectedDayIndex;
-              const pDay = day + Math.round((d.getTime() - today.getTime()) / 86400000);
-              const hasLog = logs.some((l) => l.day === pDay);
+      <View style={{ paddingHorizontal: 22, paddingBottom: 12 }}>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          {Array.from({ length: 7 }).map((_, i) => {
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
+            const isTodayPill = d.getTime() === today.getTime();
+            const isSel = i === selectedDayIndex;
+            const pDay = day + Math.round((d.getTime() - today.getTime()) / 86400000);
+            const hasLog = logs.some((l) => l.day === pDay);
 
-              return (
-                <Pressable
-                  key={i}
-                  onPress={() => setSelectedDay(i)}
+            return (
+              <Pressable
+                key={i}
+                onPress={() => setSelectedDay(i)}
+                style={{
+                  flex: 1,
+                  paddingVertical: 10,
+                  borderRadius: 14,
+                  borderWidth: 1,
+                  borderColor: isTodayPill && !isSel ? theme.colors.pu : isSel ? theme.colors.pu : theme.colors.bo,
+                  backgroundColor: isSel ? theme.colors.pu : theme.colors.card,
+                  alignItems: 'center',
+                  gap: 3,
+                }}
+              >
+                <Text
                   style={{
-                    width: 44,
-                    paddingVertical: 9,
-                    borderRadius: 14,
-                    borderWidth: 1.5,
-                    borderColor: isTodayPill && !isSel ? theme.colors.pu : 'transparent',
-                    backgroundColor: isSel ? theme.colors.pu : 'transparent',
-                    alignItems: 'center',
-                    gap: 2,
+                    fontSize: 10,
+                    fontWeight: '700',
+                    color: isSel
+                      ? (theme.scheme === 'dark' ? 'rgba(10,10,10,0.55)' : 'rgba(255,255,255,0.75)')
+                      : isTodayPill
+                      ? theme.colors.pu
+                      : theme.colors.tm,
                   }}
                 >
-                  <Text
+                  {DAY_LETTERS[i]}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '800',
+                    color: isSel
+                      ? (theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF')
+                      : isTodayPill
+                      ? theme.colors.pu
+                      : theme.colors.th,
+                    letterSpacing: -0.3,
+                  }}
+                >
+                  {d.getDate()}
+                </Text>
+                {hasLog && !isSel && (
+                  <View
                     style={{
-                      fontSize: 9,
-                      fontWeight: '700',
-                      color: isSel
-                        ? 'rgba(255,255,255,0.75)'
-                        : isTodayPill
-                        ? theme.colors.pu
-                        : theme.colors.tm,
+                      width: 5,
+                      height: 5,
+                      borderRadius: 3,
+                      backgroundColor: theme.colors.pu,
+                      marginTop: 1,
                     }}
-                  >
-                    {/* Mon-Sun letter layout */}
-                    {DAY_LETTERS[(i + 1) % 7]}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: '800',
-                      color: isSel
-                        ? '#fff'
-                        : isTodayPill
-                        ? theme.colors.pu
-                        : theme.colors.th,
-                    }}
-                  >
-                    {d.getDate()}
-                  </Text>
-                  {hasLog && !isSel && (
-                    <View
-                      style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: 3,
-                        backgroundColor: theme.colors.pu,
-                        marginTop: 1,
-                      }}
-                    />
-                  )}
-                </Pressable>
-              );
-            })}
-          </View>
-        </ScrollView>
+                  />
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
-      {/* Body */}
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }}
@@ -257,15 +280,14 @@ export default function ScheduleScreen() {
         {!plan ? (
           <View
             style={{
-              padding: 20,
+              padding: 22,
               alignItems: 'center',
               backgroundColor: theme.colors.card,
-              borderRadius: 18,
-              borderWidth: 1.5,
+              borderRadius: 20,
+              borderWidth: 1,
               borderColor: theme.colors.bo,
             }}
           >
-            <Text style={{ fontSize: 32, marginBottom: 8 }}>📅</Text>
             <Text style={{ fontSize: 15, color: theme.colors.tm, textAlign: 'center' }}>
               Complete onboarding to see your schedule.
             </Text>
@@ -276,73 +298,49 @@ export default function ScheduleScreen() {
             <View
               style={{
                 backgroundColor: theme.colors.card,
-                borderRadius: 18,
-                borderWidth: 1.5,
+                borderRadius: 20,
+                borderWidth: 1,
                 borderColor: theme.colors.bo,
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                marginBottom: 11,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 13,
+                paddingHorizontal: 18,
+                paddingVertical: 16,
+                marginBottom: 12,
               }}
             >
-              <View
-                style={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: 14,
-                  backgroundColor: isToday
-                    ? theme.colors.pl
-                    : isPast
-                    ? theme.colors.gl
-                    : theme.colors.card2,
-                  borderWidth: 1.5,
-                  borderColor: isToday
-                    ? theme.colors.pb
-                    : isPast
-                    ? theme.colors.gb
-                    : theme.colors.bo,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text style={{ fontSize: 24 }}>
-                  {isToday ? '📅' : isPast ? (log ? '✅' : '📋') : '🔮'}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: theme.colors.th }}>
-                  {isToday ? 'Today — ' : ''}
-                  {selectedDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </Text>
-                <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }}>
-                  Day {recoveryDayForSelected > 0 ? recoveryDayForSelected : '—'}
-                </Text>
-              </View>
-              <View
-                style={{
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  backgroundColor: dayTypeStyles[dayType].bg,
-                  borderColor: dayTypeStyles[dayType].border,
-                }}
-              >
-                <Text
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.3 }}>
+                    {isToday ? 'Today — ' : ''}
+                    {selectedDate.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 3 }}>
+                    Day {recoveryDayForSelected > 0 ? recoveryDayForSelected : '—'}
+                  </Text>
+                </View>
+                <View
                   style={{
-                    fontSize: 11,
-                    fontWeight: '800',
-                    color: dayTypeStyles[dayType].fg,
+                    paddingHorizontal: 12,
+                    paddingVertical: 5,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    backgroundColor: dayTypeStyles[dayType].bg,
+                    borderColor: dayTypeStyles[dayType].border,
                   }}
                 >
-                  {dayTypeStyles[dayType].label}
-                </Text>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: '800',
+                      color: dayTypeStyles[dayType].fg,
+                      letterSpacing: 0.3,
+                    }}
+                  >
+                    {DAY_TYPE_LABEL[dayType]}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -352,19 +350,19 @@ export default function ScheduleScreen() {
                 style={{
                   backgroundColor: theme.colors.pl,
                   borderColor: theme.colors.pb,
-                  borderWidth: 1.5,
-                  borderRadius: 13,
+                  borderWidth: 1,
+                  borderRadius: 14,
                   paddingHorizontal: 14,
-                  paddingVertical: 11,
-                  marginBottom: 11,
+                  paddingVertical: 12,
+                  marginBottom: 14,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 10,
                 }}
               >
-                <Text style={{ fontSize: 18 }}>📊</Text>
-                <View>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.pt }}>
+                <Layers size={18} color={theme.colors.pt} strokeWidth={2} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.pt, letterSpacing: -0.2 }}>
                     {selectedPhase.name}
                   </Text>
                   <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 1 }}>
@@ -374,45 +372,32 @@ export default function ScheduleScreen() {
               </View>
             )}
 
-            {/* Tasks section label */}
-            <Text
-              style={{
-                fontSize: 11,
-                fontWeight: '700',
-                color: theme.colors.tm,
-                letterSpacing: 0.5,
-                marginBottom: 9,
-              }}
-            >
-              {isToday
-                ? "TODAY'S EXERCISES"
-                : isPast
-                ? 'PLANNED EXERCISES'
-                : 'UPCOMING EXERCISES'}
-            </Text>
+            <SectionLabel>
+              {isToday ? "Today's exercises" : isPast ? 'Planned exercises' : 'Upcoming exercises'}
+            </SectionLabel>
 
             {dayExercises.length === 0 ? (
               <View
                 style={{
-                  padding: 20,
+                  padding: 22,
                   alignItems: 'center',
                   backgroundColor: theme.colors.card,
-                  borderRadius: 18,
-                  borderWidth: 1.5,
+                  borderRadius: 20,
+                  borderWidth: 1,
                   borderColor: theme.colors.bo,
-                  marginBottom: 11,
+                  marginBottom: 12,
                 }}
               >
-                <Text style={{ fontSize: 36, marginBottom: 8 }}>😌</Text>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: theme.colors.th }}>
-                  Rest Day
+                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.colors.th }}>
+                  Rest day
                 </Text>
                 <Text
                   style={{
                     fontSize: 13,
                     color: theme.colors.tm,
-                    marginTop: 4,
+                    marginTop: 5,
                     textAlign: 'center',
+                    lineHeight: 19,
                   }}
                 >
                   Recovery happens during rest. Hydrate well and sleep 7-9h tonight.
@@ -438,70 +423,58 @@ export default function ScheduleScreen() {
                     }}
                     style={({ pressed }) => ({
                       backgroundColor: theme.colors.card,
-                      borderRadius: 16,
-                      borderWidth: 1.5,
+                      borderRadius: 18,
+                      borderWidth: 1,
                       borderColor: theme.colors.bo,
                       flexDirection: 'row',
-                      overflow: 'hidden',
+                      alignItems: 'center',
+                      gap: 12,
+                      paddingHorizontal: 14,
+                      paddingVertical: 12,
                       marginBottom: 9,
                       opacity: pressed ? 0.85 : isDoneToday ? 0.55 : 1,
                     })}
                   >
-                    <View style={{ width: 5, backgroundColor: c.bar }} />
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 12,
-                        paddingHorizontal: 14,
-                        paddingVertical: 13,
-                      }}
-                    >
-                      <CategoryTile category={ex.category} size={44} />
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text
-                          numberOfLines={1}
-                          style={{
-                            fontSize: 14,
-                            fontWeight: '700',
-                            color: theme.colors.th,
-                          }}
-                        >
-                          {ex.name}
-                        </Text>
-                        <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 3 }}>
-                          {c.em} {ex.time ?? '—'} · {ex.dosage ?? ex.reps ?? '—'}
-                        </Text>
-                      </View>
-                      {isToday ? (
-                        <Pressable
-                          hitSlop={10}
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            toggleExerciseDone(ex.id);
-                          }}
-                          style={{
-                            width: 26,
-                            height: 26,
-                            borderRadius: 8,
-                            borderWidth: 2,
-                            borderColor: isDoneToday ? theme.colors.pu : theme.colors.bo2,
-                            backgroundColor: isDoneToday ? theme.colors.pu : theme.colors.card2,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {isDoneToday && (
-                            <Text style={{ color: '#fff', fontSize: 13 }}>✓</Text>
-                          )}
-                        </Pressable>
-                      ) : isPast ? (
-                        <Text style={{ fontSize: 18 }}>{log ? '✅' : '—'}</Text>
-                      ) : (
-                        <Text style={{ fontSize: 16 }}>🔮</Text>
-                      )}
+                    <CategoryTile category={ex.category} size={40} />
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          fontSize: 14,
+                          fontWeight: '700',
+                          color: theme.colors.th,
+                          letterSpacing: -0.2,
+                        }}
+                      >
+                        {ex.name}
+                      </Text>
+                      <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }}>
+                        {ex.time ?? '—'} · {ex.dosage ?? ex.reps ?? '—'} · {c.lbl}
+                      </Text>
                     </View>
+                    {isToday ? (
+                      <Pressable
+                        hitSlop={10}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          toggleExerciseDone(ex.id);
+                        }}
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: 8,
+                          borderWidth: 1.5,
+                          borderColor: isDoneToday ? theme.colors.pu : theme.colors.bo2,
+                          backgroundColor: isDoneToday ? theme.colors.pu : 'transparent',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {isDoneToday && <Check size={15} color={checkFg} strokeWidth={3} />}
+                      </Pressable>
+                    ) : (
+                      <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
+                    )}
                   </Pressable>
                 );
               })
@@ -513,10 +486,10 @@ export default function ScheduleScreen() {
                 style={{
                   backgroundColor: theme.colors.card,
                   borderRadius: 18,
-                  borderWidth: 1.5,
+                  borderWidth: 1,
                   borderColor: theme.colors.bo,
-                  paddingHorizontal: 15,
-                  paddingVertical: 13,
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
                   marginTop: 4,
                   marginBottom: 14,
                 }}
@@ -526,16 +499,16 @@ export default function ScheduleScreen() {
                     fontSize: 13,
                     fontWeight: '700',
                     color: theme.colors.th,
-                    marginBottom: 8,
+                    marginBottom: 10,
                   }}
                 >
-                  📓 Day {log.day} Log
+                  Day {log.day} log
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 7, flexWrap: 'wrap' }}>
                   <View
                     style={{
                       paddingHorizontal: 10,
-                      paddingVertical: 3,
+                      paddingVertical: 4,
                       borderRadius: 20,
                       backgroundColor:
                         log.pain <= 3
@@ -553,17 +526,17 @@ export default function ScheduleScreen() {
                           log.pain <= 3
                             ? theme.colors.gn
                             : log.pain <= 6
-                            ? '#C06000'
+                            ? theme.colors.yb
                             : theme.colors.rd,
                       }}
                     >
-                      🤕 Pain {log.pain}/10
+                      Pain {log.pain}/10
                     </Text>
                   </View>
                   <View
                     style={{
                       paddingHorizontal: 10,
-                      paddingVertical: 3,
+                      paddingVertical: 4,
                       borderRadius: 20,
                       backgroundColor: theme.colors.card2,
                     }}
@@ -573,13 +546,13 @@ export default function ScheduleScreen() {
                   <View
                     style={{
                       paddingHorizontal: 10,
-                      paddingVertical: 3,
+                      paddingVertical: 4,
                       borderRadius: 20,
                       backgroundColor: theme.colors.bl,
                     }}
                   >
-                    <Text style={{ fontSize: 12, color: '#0984E3' }}>
-                      💧 {log.water}/8
+                    <Text style={{ fontSize: 12, color: theme.colors.bb, fontWeight: '700' }}>
+                      {log.water}/8 water
                     </Text>
                   </View>
                 </View>
@@ -589,7 +562,7 @@ export default function ScheduleScreen() {
                       fontSize: 13,
                       color: theme.colors.tb,
                       lineHeight: 20,
-                      marginTop: 7,
+                      marginTop: 9,
                     }}
                   >
                     {log.notes}

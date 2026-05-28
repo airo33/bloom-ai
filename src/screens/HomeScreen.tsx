@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Flame, Stethoscope, Lock } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import {
   useAppStore,
@@ -11,13 +12,14 @@ import {
 import ProgressRing from '../components/ProgressRing';
 import HydrationTracker from '../components/HydrationTracker';
 import TaskItem from '../components/TaskItem';
+import Card from '../components/Card';
 import type { RootStackParamList } from '../navigation/types';
 
 const SUB_TIER_BADGE = {
-  weekly: { label: 'WEEKLY', bg: '#E3F2FD', fg: '#0044AA' },
-  monthly: { label: 'MONTHLY', bg: '#FDCB6E', fg: '#7A4000' },
-  annual: { label: 'ANNUAL', bg: '#FFF0D4', fg: '#8A4A00' },
-  trial: { label: 'TRIAL', bg: '#EEE9FF', fg: '#5248C8' },
+  weekly: 'WEEKLY',
+  monthly: 'MONTHLY',
+  annual: 'ANNUAL',
+  trial: 'TRIAL',
 } as const;
 
 function greetingFor(hour: number) {
@@ -39,7 +41,7 @@ export default function HomeScreen() {
   const toggleExerciseDone = useAppStore((s) => s.toggleExerciseDone);
   const advanceDay = useAppStore((s) => s.advanceDay);
 
-  // Advance recovery day once per calendar day (the store guards against double-fires)
+  // Advance recovery day once per calendar day (store guards against double-fires)
   useEffect(() => {
     advanceDay();
   }, [advanceDay]);
@@ -62,8 +64,9 @@ export default function HomeScreen() {
 
   const subBadge = tier ? SUB_TIER_BADGE[tier as keyof typeof SUB_TIER_BADGE] : null;
   const isPaid = tier === 'monthly' || tier === 'annual';
+  const ctaIconColor = isPaid ? theme.colors.pt : theme.colors.tm;
 
-  // Water tap: tap-to-toggle pattern from prototype — tapping the current count "unfills" it
+  // Tap-to-toggle: tapping current count "unfills" it (mirrors prototype)
   const onWaterTap = (idx: number) => {
     setWater(idx + 1 === progress.water ? idx : idx + 1);
   };
@@ -71,7 +74,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 30 }}
+        contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 12, paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting header */}
@@ -80,98 +83,143 @@ export default function HomeScreen() {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 15,
+            marginBottom: 20,
           }}
         >
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, color: theme.colors.tm }}>{greeting}</Text>
+            <Text style={{ fontSize: 13, color: theme.colors.tm, letterSpacing: -0.1 }}>
+              {greeting}
+            </Text>
             <Text
               style={{
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: '800',
                 color: theme.colors.th,
                 marginTop: 2,
+                letterSpacing: -0.5,
               }}
             >
-              {profile.name || 'Friend'} 👋
+              {profile.name || 'Friend'}
             </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 7, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             {subBadge && (
               <View
                 style={{
                   paddingHorizontal: 10,
-                  paddingVertical: 4,
+                  paddingVertical: 5,
                   borderRadius: 20,
-                  backgroundColor: subBadge.bg,
+                  backgroundColor: theme.colors.pl,
+                  borderWidth: 1,
+                  borderColor: theme.colors.pb,
                 }}
               >
-                <Text style={{ fontSize: 10, fontWeight: '800', color: subBadge.fg }}>
-                  {subBadge.label}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    fontWeight: '800',
+                    color: theme.colors.pt,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {subBadge}
                 </Text>
               </View>
             )}
-            <Pressable
-              onPress={() => nav.navigate('Main', undefined as never)}
+            <View
               style={{
                 width: 40,
                 height: 40,
                 borderRadius: 20,
-                backgroundColor: theme.colors.pu,
+                backgroundColor: theme.colors.card,
+                borderWidth: 1,
+                borderColor: theme.colors.bo,
                 alignItems: 'center',
                 justifyContent: 'center',
-                shadowColor: theme.colors.pu,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.35,
-                shadowRadius: 14,
-                elevation: 5,
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800' }}>
+              <Text
+                style={{
+                  color: theme.colors.th,
+                  fontSize: 15,
+                  fontWeight: '700',
+                }}
+              >
                 {(profile.name || 'F')[0].toUpperCase()}
               </Text>
-            </Pressable>
+            </View>
           </View>
         </View>
 
-        {/* Progress ring card */}
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            borderRadius: 18,
-            borderWidth: 1.5,
-            borderColor: theme.colors.bo,
-            padding: 16,
-            marginBottom: 11,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 18,
-          }}
-        >
-          <ProgressRing percent={pct} label={`${pct}%`} />
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.colors.th }}>
-              {doneToday}
-              <Text style={{ fontSize: 14, fontWeight: '500', color: theme.colors.tm }}>
-                {' / '}{totalToday}
+        {/* Progress + stats card */}
+        <Card style={{ marginBottom: 12 }} padding={18}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+            <ProgressRing percent={pct} label={`${pct}%`} size={84} strokeWidth={8} />
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 11,
+                  color: theme.colors.tm,
+                  fontWeight: '700',
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Today
               </Text>
-            </Text>
-            <Text style={{ fontSize: 13, color: theme.colors.tm, marginTop: 4 }}>
-              🔥 {progress.streak}d streak · 📅 Day {progress.day}
-            </Text>
-            <Text
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: '800',
+                  color: theme.colors.th,
+                  marginTop: 2,
+                  letterSpacing: -0.5,
+                }}
+              >
+                {doneToday}
+                <Text style={{ fontSize: 15, fontWeight: '500', color: theme.colors.tm }}>
+                  {' / '}{totalToday} done
+                </Text>
+              </Text>
+              <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 4 }}>
+                Day {progress.day} · {dayLabel}
+              </Text>
+            </View>
+          </View>
+
+          {/* Streak row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              marginTop: 14,
+              paddingTop: 14,
+              borderTopWidth: 1,
+              borderTopColor: theme.colors.bo,
+            }}
+          >
+            <View
               style={{
-                fontSize: 11,
-                color: theme.colors.pu,
-                fontWeight: '600',
-                marginTop: 3,
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: theme.colors.ol,
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {dayLabel}
+              <Flame size={18} color={theme.colors.or} fill={theme.colors.or} strokeWidth={2} />
+            </View>
+            <Text style={{ fontSize: 14, color: theme.colors.tb, flex: 1 }}>
+              <Text style={{ fontWeight: '800', color: theme.colors.th }}>
+                {progress.streak}-day streak
+              </Text>
+              {progress.streak > 1 ? ' — keep it going' : ' — start your run'}
             </Text>
           </View>
-        </View>
+        </Card>
 
         {/* Hydration */}
         <HydrationTracker glasses={progress.water} onTap={onWaterTap} />
@@ -182,34 +230,30 @@ export default function HomeScreen() {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginTop: 6,
-            marginBottom: 9,
+            marginTop: 14,
+            marginBottom: 10,
           }}
         >
-          <Text style={{ fontSize: 15, fontWeight: '700', color: theme.colors.th }}>
-            {totalToday === 0 ? 'Rest Day 😌' : "Today's Tasks"}
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: '800',
+              color: theme.colors.th,
+              letterSpacing: -0.3,
+            }}
+          >
+            {totalToday === 0 ? 'Rest day' : "Today's tasks"}
           </Text>
           {totalToday > 0 && (
             <Text style={{ fontSize: 13, color: theme.colors.tm }}>
-              {doneToday === totalToday ? 'All done! 🎉' : `${totalToday - doneToday} left`}
+              {doneToday === totalToday ? 'All done' : `${totalToday - doneToday} left`}
             </Text>
           )}
         </View>
 
         {/* Tasks list */}
         {!plan ? (
-          <View
-            style={{
-              padding: 20,
-              alignItems: 'center',
-              backgroundColor: theme.colors.card,
-              borderRadius: 18,
-              borderWidth: 1.5,
-              borderColor: theme.colors.bo,
-              marginBottom: 11,
-            }}
-          >
-            <Text style={{ fontSize: 36, marginBottom: 8 }}>🫀</Text>
+          <Card padding={20} style={{ alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ fontSize: 14, fontWeight: '700', color: theme.colors.th }}>
               No plan yet
             </Text>
@@ -223,22 +267,11 @@ export default function HomeScreen() {
             >
               Complete onboarding to generate your AI clinical plan.
             </Text>
-          </View>
+          </Card>
         ) : totalToday === 0 ? (
-          <View
-            style={{
-              padding: 20,
-              alignItems: 'center',
-              backgroundColor: theme.colors.card,
-              borderRadius: 18,
-              borderWidth: 1.5,
-              borderColor: theme.colors.bo,
-              marginBottom: 11,
-            }}
-          >
-            <Text style={{ fontSize: 36, marginBottom: 8 }}>😌</Text>
+          <Card padding={20} style={{ alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.colors.th }}>
-              Rest Day
+              Rest day
             </Text>
             <Text
               style={{
@@ -246,11 +279,12 @@ export default function HomeScreen() {
                 color: theme.colors.tm,
                 marginTop: 5,
                 textAlign: 'center',
+                lineHeight: 19,
               }}
             >
               Your body repairs during rest. Stay hydrated and sleep well tonight.
             </Text>
-          </View>
+          </Card>
         ) : (
           todayExercises.map((ex) => (
             <TaskItem
@@ -271,9 +305,9 @@ export default function HomeScreen() {
           }}
           style={({ pressed }) => ({
             marginTop: 6,
-            padding: 13,
+            padding: 14,
             borderRadius: 16,
-            borderWidth: 1.5,
+            borderWidth: 1,
             borderColor: isPaid ? theme.colors.pb : theme.colors.bo,
             backgroundColor: isPaid ? theme.colors.pl : theme.colors.card2,
             flexDirection: 'row',
@@ -283,15 +317,20 @@ export default function HomeScreen() {
             opacity: pressed ? 0.85 : 1,
           })}
         >
-          <Text style={{ fontSize: isPaid ? 20 : 18 }}>{isPaid ? '🩺' : '🔒'}</Text>
+          {isPaid ? (
+            <Stethoscope size={18} color={ctaIconColor} strokeWidth={2} />
+          ) : (
+            <Lock size={16} color={ctaIconColor} strokeWidth={2} />
+          )}
           <Text
             style={{
               fontSize: 14,
-              fontWeight: isPaid ? '700' : '600',
+              fontWeight: '700',
               color: isPaid ? theme.colors.pt : theme.colors.tm,
+              letterSpacing: -0.2,
             }}
           >
-            {isPaid ? 'Ask AI Physio anything' : 'AI Physio Chat — Subscribe to unlock'}
+            {isPaid ? 'Ask AI Physio anything' : 'AI Physio Chat — subscribe to unlock'}
           </Text>
         </Pressable>
       </ScrollView>

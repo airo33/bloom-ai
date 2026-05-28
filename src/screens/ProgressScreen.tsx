@@ -1,10 +1,75 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Calendar, Flame, Activity, Droplet } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
+import SectionLabel from '../components/SectionLabel';
 import PainChart from '../components/PainChart';
+
+interface StatCardProps {
+  label: string;
+  value: string;
+  unit?: string;
+  Icon: React.FC<{ size: number; color: string; strokeWidth?: number; fill?: string }>;
+  iconBg: string;
+  iconFg: string;
+  filledIcon?: boolean;
+}
+
+function StatCard({ label, value, unit, Icon, iconBg, iconFg, filledIcon }: StatCardProps) {
+  const theme = useTheme();
+  return (
+    <Card style={{ flex: 1 }} padding={14}>
+      <View
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: 10,
+          backgroundColor: iconBg,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 10,
+        }}
+      >
+        <Icon
+          size={17}
+          color={iconFg}
+          strokeWidth={2.2}
+          fill={filledIcon ? iconFg : undefined}
+        />
+      </View>
+      <Text
+        style={{
+          fontSize: 11,
+          color: theme.colors.tm,
+          fontWeight: '700',
+          letterSpacing: 0.4,
+          textTransform: 'uppercase',
+          marginBottom: 3,
+        }}
+      >
+        {label}
+      </Text>
+      <Text
+        style={{
+          fontSize: 26,
+          fontWeight: '800',
+          color: theme.colors.th,
+          letterSpacing: -0.5,
+        }}
+      >
+        {value}
+        {unit ? (
+          <Text style={{ fontSize: 14, color: theme.colors.tm, fontWeight: '500' }}>
+            {' '}{unit}
+          </Text>
+        ) : null}
+      </Text>
+    </Card>
+  );
+}
 
 export default function ProgressScreen() {
   const theme = useTheme();
@@ -22,7 +87,7 @@ export default function ProgressScreen() {
 
   const avgWater = useMemo(() => {
     const history = waterHistory.slice(-7);
-    if (!history.length) return water;
+    if (!history.length) return water.toFixed(1);
     const sum = history.reduce((s, h) => s + h.glasses, 0);
     return (sum / history.length).toFixed(1);
   }, [waterHistory, water]);
@@ -31,20 +96,21 @@ export default function ProgressScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 13 }}>
+      <View style={{ paddingHorizontal: 22, paddingTop: 12, paddingBottom: 14 }}>
         <Text
           style={{
             fontSize: 11,
             color: theme.colors.tm,
             fontWeight: '700',
             letterSpacing: 0.8,
+            textTransform: 'uppercase',
             marginBottom: 3,
           }}
         >
-          📊 ANALYTICS
+          Analytics
         </Text>
-        <Text style={{ fontSize: 23, fontWeight: '800', color: theme.colors.th }}>
-          Your Progress
+        <Text style={{ fontSize: 26, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.5 }}>
+          Your progress
         </Text>
       </View>
 
@@ -53,108 +119,56 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* 2x2 stats grid */}
-        <View style={{ flexDirection: 'row', gap: 11, marginBottom: 11 }}>
-          <Card style={{ flex: 1 }} padding={16}>
-            <Text
-              style={{
-                fontSize: 11,
-                color: theme.colors.tm,
-                fontWeight: '700',
-                marginBottom: 5,
-              }}
-            >
-              📅 DAYS
-            </Text>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: theme.colors.pu }}>
-              {day}
-            </Text>
-          </Card>
-          <Card style={{ flex: 1 }} padding={16}>
-            <Text
-              style={{
-                fontSize: 11,
-                color: theme.colors.tm,
-                fontWeight: '700',
-                marginBottom: 5,
-              }}
-            >
-              🔥 STREAK
-            </Text>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: '#E17055' }}>
-              {streak}
-            </Text>
-          </Card>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
+          <StatCard
+            label="Days"
+            value={String(day)}
+            Icon={Calendar}
+            iconBg={theme.colors.pl}
+            iconFg={theme.colors.pt}
+          />
+          <StatCard
+            label="Streak"
+            value={String(streak)}
+            Icon={Flame}
+            iconBg={theme.colors.ol}
+            iconFg={theme.colors.or}
+            filledIcon
+          />
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 11, marginBottom: 15 }}>
-          <Card style={{ flex: 1 }} padding={16}>
-            <Text
-              style={{
-                fontSize: 11,
-                color: theme.colors.tm,
-                fontWeight: '700',
-                marginBottom: 5,
-              }}
-            >
-              🤕 AVG PAIN
-            </Text>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: theme.colors.gn }}>
-              {avgPain ?? '—'}
-            </Text>
-          </Card>
-          <Card style={{ flex: 1 }} padding={16}>
-            <Text
-              style={{
-                fontSize: 11,
-                color: theme.colors.tm,
-                fontWeight: '700',
-                marginBottom: 5,
-              }}
-            >
-              💧 HYDRATION
-            </Text>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: '#0984E3' }}>
-              {avgWater}
-            </Text>
-            <Text style={{ fontSize: 10, color: theme.colors.tm, marginTop: 1 }}>
-              avg / day
-            </Text>
-          </Card>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+          <StatCard
+            label="Avg pain"
+            value={avgPain ?? '—'}
+            unit={avgPain ? '/ 10' : undefined}
+            Icon={Activity}
+            iconBg={theme.colors.gl}
+            iconFg={theme.colors.gn}
+          />
+          <StatCard
+            label="Hydration"
+            value={avgWater}
+            unit="avg / day"
+            Icon={Droplet}
+            iconBg={theme.colors.bl}
+            iconFg={theme.colors.bb}
+            filledIcon
+          />
         </View>
 
         {/* Pain over time */}
-        <Text
-          style={{
-            fontSize: 11,
-            color: theme.colors.tm,
-            fontWeight: '700',
-            letterSpacing: 0.5,
-            marginBottom: 9,
-          }}
-        >
-          📉 PAIN OVER TIME
-        </Text>
-        <Card style={{ marginBottom: 15 }} padding={15}>
+        <SectionLabel>Pain over time</SectionLabel>
+        <Card style={{ marginBottom: 16 }} padding={16}>
           <PainChart points={painPoints} />
         </Card>
 
         {/* Log history */}
-        <Text
-          style={{
-            fontSize: 11,
-            color: theme.colors.tm,
-            fontWeight: '700',
-            letterSpacing: 0.5,
-            marginBottom: 9,
-          }}
-        >
-          📓 LOG HISTORY
-        </Text>
+        <SectionLabel>Log history</SectionLabel>
 
         {logs.length === 0 ? (
-          <Card padding={18}>
+          <Card padding={20}>
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: 32, marginBottom: 8 }}>📓</Text>
               <Text style={{ fontSize: 14, color: theme.colors.tl, fontWeight: '600' }}>
                 No logs yet
               </Text>
@@ -164,24 +178,26 @@ export default function ProgressScreen() {
                   color: theme.colors.tm,
                   textAlign: 'center',
                   marginTop: 5,
+                  lineHeight: 18,
                 }}
               >
-                Tap the journal icon to log your first entry.
+                Tap the plus button on the nav bar to log your first entry.
               </Text>
             </View>
           </Card>
         ) : (
           [...logs].reverse().map((log) => (
-            <Card key={`${log.day}-${log.createdAt}`} style={{ marginBottom: 9 }} padding={13}>
+            <Card key={`${log.day}-${log.createdAt}`} style={{ marginBottom: 9 }} padding={14}>
               <Text
                 style={{
                   fontSize: 13,
                   fontWeight: '700',
                   color: theme.colors.th,
-                  marginBottom: 6,
+                  marginBottom: 8,
+                  letterSpacing: -0.2,
                 }}
               >
-                📓 Day {log.day} ·{' '}
+                Day {log.day} ·{' '}
                 <Text style={{ fontWeight: '400', color: theme.colors.tm }}>
                   {new Date(log.createdAt).toLocaleDateString('en-US', {
                     month: 'short',
@@ -189,11 +205,11 @@ export default function ProgressScreen() {
                   })}
                 </Text>
               </Text>
-              <View style={{ flexDirection: 'row', gap: 7, flexWrap: 'wrap' }}>
+              <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                 <View
                   style={{
                     paddingHorizontal: 10,
-                    paddingVertical: 3,
+                    paddingVertical: 4,
                     borderRadius: 20,
                     backgroundColor:
                       log.pain <= 3
@@ -211,17 +227,17 @@ export default function ProgressScreen() {
                         log.pain <= 3
                           ? theme.colors.gn
                           : log.pain <= 6
-                          ? '#C06000'
+                          ? theme.colors.yb
                           : theme.colors.rd,
                     }}
                   >
-                    🤕 {log.pain}/10
+                    Pain {log.pain}/10
                   </Text>
                 </View>
                 <View
                   style={{
                     paddingHorizontal: 10,
-                    paddingVertical: 3,
+                    paddingVertical: 4,
                     borderRadius: 20,
                     backgroundColor: theme.colors.card2,
                   }}
@@ -231,12 +247,14 @@ export default function ProgressScreen() {
                 <View
                   style={{
                     paddingHorizontal: 10,
-                    paddingVertical: 3,
+                    paddingVertical: 4,
                     borderRadius: 20,
                     backgroundColor: theme.colors.bl,
                   }}
                 >
-                  <Text style={{ fontSize: 12, color: '#0984E3' }}>💧 {log.water}/8</Text>
+                  <Text style={{ fontSize: 12, color: theme.colors.bb, fontWeight: '700' }}>
+                    {log.water}/8 water
+                  </Text>
                 </View>
               </View>
               {log.notes && (
@@ -245,7 +263,7 @@ export default function ProgressScreen() {
                     fontSize: 13,
                     color: theme.colors.tb,
                     lineHeight: 20,
-                    marginTop: 7,
+                    marginTop: 9,
                   }}
                 >
                   {log.notes}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ArrowLeft, Stethoscope, BrainCircuit } from 'lucide-react-native';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import ProgressBar from '../components/ProgressBar';
@@ -9,7 +10,7 @@ import { useAppStore } from '../store/useAppStore';
 import type { RootStackScreenProps } from '../navigation/types';
 
 const INJURY_PLACEHOLDER =
-  'Include: What happened, when (days/weeks ago), exact location, any surgery/diagnosis, current pain (0-10), what makes it better/worse...\n\n' +
+  'Include: what happened, when (days/weeks ago), exact location, any surgery/diagnosis, current pain (0-10), what makes it better/worse...\n\n' +
   'e.g. ACL reconstruction 10 days ago, right knee. Full weight-bearing with crutches OK. Pain 3/10 rest, 6/10 stairs. Significant swelling. Pre-injury: running 40km/week.';
 
 export default function Onboarding2Screen({
@@ -33,30 +34,41 @@ export default function Onboarding2Screen({
     navigation.navigate('Loading');
   };
 
+  const onPrimary = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 14 }}>
+        <View style={{ paddingHorizontal: 22, paddingTop: 12, paddingBottom: 18 }}>
           <ProgressBar steps={[true, true]} />
           <Text
             style={{
               fontSize: 11,
               color: theme.colors.pu,
               fontWeight: '700',
-              letterSpacing: 0.6,
+              letterSpacing: 0.8,
+              textTransform: 'uppercase',
               marginBottom: 4,
             }}
           >
-            🩺 STEP 2 / 2
+            Step 2 of 2
           </Text>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: theme.colors.th, marginBottom: 3 }}>
-            Describe Your Case
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: '800',
+              color: theme.colors.th,
+              marginBottom: 4,
+              letterSpacing: -0.5,
+            }}
+          >
+            Describe your case
           </Text>
           <Text style={{ fontSize: 14, color: theme.colors.tm }}>
-            More detail = more specific exercises.
+            More detail means more specific exercises.
           </Text>
         </View>
 
@@ -73,30 +85,45 @@ export default function Onboarding2Screen({
             placeholder={INJURY_PLACEHOLDER}
             multiline
             invalid={invalid}
-            style={{ marginBottom: 13 }}
+            style={{ marginBottom: 16, minHeight: 180 }}
           />
 
           <View
             style={{
               backgroundColor: theme.colors.pl,
               borderColor: theme.colors.pb,
-              borderWidth: 1.5,
-              borderRadius: 14,
+              borderWidth: 1,
+              borderRadius: 16,
               paddingHorizontal: 14,
-              paddingVertical: 12,
+              paddingVertical: 14,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 12,
-              marginBottom: 14,
+              gap: 14,
+              marginBottom: 16,
             }}
           >
-            <Text style={{ fontSize: 28 }}>🧠</Text>
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                backgroundColor: theme.colors.pu,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <BrainCircuit
+                size={20}
+                color={theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF'}
+                strokeWidth={2}
+              />
+            </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.pt }}>
-                AI Clinical Plan
+              <Text style={{ fontSize: 13, fontWeight: '800', color: theme.colors.pt, letterSpacing: -0.2 }}>
+                AI clinical plan
               </Text>
-              <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 1 }}>
-                Injury-specific · Varied daily schedule · Red flags
+              <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }}>
+                Injury-specific · varied daily schedule · red flags
               </Text>
             </View>
           </View>
@@ -112,13 +139,18 @@ export default function Onboarding2Screen({
         >
           <View style={{ flex: 0.42 }}>
             <Button
-              title="⬅️ Back"
+              title="Back"
               variant="secondary"
               onPress={() => navigation.goBack()}
+              icon={<ArrowLeft size={16} color={theme.colors.th} strokeWidth={2.2} />}
             />
           </View>
           <View style={{ flex: 1 }}>
-            <Button title="🏥 Create My Plan" onPress={onCreate} />
+            <Button
+              title="Create my plan"
+              onPress={onCreate}
+              icon={<Stethoscope size={18} color={onPrimary} strokeWidth={2.4} />}
+            />
           </View>
         </View>
       </KeyboardAvoidingView>

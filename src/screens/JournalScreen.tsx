@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
@@ -34,7 +35,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
   };
 
   const painColor =
-    pain <= 3 ? theme.colors.gn : pain <= 6 ? '#C06000' : theme.colors.rd;
+    pain <= 3 ? theme.colors.gn : pain <= 6 ? theme.colors.yb : theme.colors.rd;
   const painBg = pain <= 3 ? theme.colors.gl : pain <= 6 ? theme.colors.yl : theme.colors.rl;
   const painBorder = pain <= 3 ? theme.colors.gb : pain <= 6 ? theme.colors.yb : theme.colors.rb;
 
@@ -47,8 +48,8 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
         <View
           style={{
             paddingHorizontal: 22,
-            paddingTop: 8,
-            paddingBottom: 13,
+            paddingTop: 12,
+            paddingBottom: 16,
             flexDirection: 'row',
             alignItems: 'center',
             gap: 12,
@@ -58,18 +59,18 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             onPress={() => navigation.goBack()}
             hitSlop={10}
             style={({ pressed }) => ({
-              width: 38,
-              height: 38,
-              borderRadius: 12,
+              width: 40,
+              height: 40,
+              borderRadius: 14,
               backgroundColor: theme.colors.card,
-              borderWidth: 2,
-              borderColor: theme.colors.bo2,
+              borderWidth: 1,
+              borderColor: theme.colors.bo,
               alignItems: 'center',
               justifyContent: 'center',
               opacity: pressed ? 0.7 : 1,
             })}
           >
-            <Text style={{ fontSize: 18 }}>⬅️</Text>
+            <ChevronLeft size={20} color={theme.colors.tb} strokeWidth={2.2} />
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text
@@ -78,11 +79,12 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 color: theme.colors.tm,
                 fontWeight: '700',
                 letterSpacing: 0.5,
+                textTransform: 'uppercase',
               }}
             >
-              📝 DAILY LOG
+              Daily log
             </Text>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.colors.th }}>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.3 }}>
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',
@@ -96,33 +98,33 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
           contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Pain card */}
-          <Card style={{ marginBottom: 11 }} padding={17}>
+          {/* Pain */}
+          <Card style={{ marginBottom: 12 }} padding={18}>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 12,
+                marginBottom: 14,
               }}
             >
-              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.colors.th }}>
-                🤕 Pain Level
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.colors.th, letterSpacing: -0.2 }}>
+                Pain level
               </Text>
               <View
                 style={{
-                  width: 42,
-                  height: 42,
+                  paddingHorizontal: 14,
+                  paddingVertical: 6,
                   borderRadius: 12,
                   backgroundColor: painBg,
-                  borderWidth: 2,
+                  borderWidth: 1,
                   borderColor: painBorder,
+                  minWidth: 56,
                   alignItems: 'center',
-                  justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 20, fontWeight: '800', color: painColor }}>
-                  {pain}
+                <Text style={{ fontSize: 18, fontWeight: '800', color: painColor, letterSpacing: -0.3 }}>
+                  {pain}/10
                 </Text>
               </View>
             </View>
@@ -141,25 +143,26 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                marginTop: 5,
+                marginTop: 4,
               }}
             >
-              <Text style={{ fontSize: 11, color: theme.colors.tl }}>😌 No pain</Text>
-              <Text style={{ fontSize: 11, color: theme.colors.tl }}>😣 Severe</Text>
+              <Text style={{ fontSize: 11, color: theme.colors.tl }}>No pain</Text>
+              <Text style={{ fontSize: 11, color: theme.colors.tl }}>Severe</Text>
             </View>
           </Card>
 
-          {/* Mood card */}
-          <Card style={{ marginBottom: 11 }} padding={17}>
+          {/* Mood */}
+          <Card style={{ marginBottom: 12 }} padding={18}>
             <Text
               style={{
                 fontSize: 14,
                 fontWeight: '700',
                 color: theme.colors.th,
                 marginBottom: 12,
+                letterSpacing: -0.2,
               }}
             >
-              😊 How do you feel?
+              How do you feel?
             </Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {MOOD_OPTIONS.map((m) => {
@@ -170,15 +173,15 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                     onPress={() => setMood(m)}
                     style={{
                       flex: 1,
-                      paddingVertical: 12,
-                      borderRadius: 13,
-                      borderWidth: 2,
-                      borderColor: selected ? theme.colors.pu : theme.colors.bo2,
-                      backgroundColor: selected ? theme.colors.pl : theme.colors.card,
+                      paddingVertical: 14,
+                      borderRadius: 14,
+                      borderWidth: selected ? 2 : 1,
+                      borderColor: selected ? theme.colors.pu : theme.colors.bo,
+                      backgroundColor: selected ? theme.colors.pl : theme.colors.card2,
                       alignItems: 'center',
                     }}
                   >
-                    <Text style={{ fontSize: 22 }}>{m}</Text>
+                    <Text style={{ fontSize: 24 }}>{m}</Text>
                   </Pressable>
                 );
               })}
@@ -186,16 +189,17 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
           </Card>
 
           {/* Notes */}
-          <Card style={{ marginBottom: 13 }} padding={17}>
+          <Card style={{ marginBottom: 14 }} padding={18}>
             <Text
               style={{
                 fontSize: 14,
                 fontWeight: '700',
                 color: theme.colors.th,
-                marginBottom: 9,
+                marginBottom: 10,
+                letterSpacing: -0.2,
               }}
             >
-              📝 Notes{' '}
+              Notes{' '}
               <Text style={{ fontSize: 12, color: theme.colors.tm, fontWeight: '400' }}>
                 (optional)
               </Text>
@@ -208,7 +212,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             />
           </Card>
 
-          <Button title="💾 Save Entry" onPress={save} />
+          <Button title="Save entry" onPress={save} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

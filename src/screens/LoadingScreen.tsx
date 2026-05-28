@@ -47,18 +47,49 @@ function Dot({ delay, color }: { delay: number; color: string }) {
   );
 }
 
+function PulsingBrand({ color }: { color: string }) {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(anim, { toValue: 1, duration: 900, useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0, duration: 900, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [anim]);
+  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] });
+  return (
+    <Animated.View
+      style={{
+        width: 96,
+        height: 96,
+        borderRadius: 28,
+        backgroundColor: color,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 28,
+        transform: [{ scale }],
+        opacity,
+      }}
+    >
+      <Text style={{ fontSize: 48 }}>🫀</Text>
+    </Animated.View>
+  );
+}
+
 export default function LoadingScreen({ navigation }: RootStackScreenProps<'Loading'>) {
   const theme = useTheme();
   const [idx, setIdx] = useState(0);
   const setPlan = useAppStore((s) => s.setPlan);
 
-  // Cycle status text every 1.8s while we "compute"
   useEffect(() => {
     const t = setInterval(() => setIdx((i) => (i + 1) % MESSAGES.length), 1800);
     return () => clearInterval(t);
   }, []);
 
-  // Inject the fallback plan and advance to Plan screen.
   useEffect(() => {
     const t = setTimeout(() => {
       setPlan(genericFallbackPlan);
@@ -70,14 +101,15 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-        <Text style={{ fontSize: 64, marginBottom: 20 }}>🫀</Text>
+        <PulsingBrand color={theme.colors.pl} />
         <Text
           style={{
             fontSize: 22,
             fontWeight: '800',
             color: theme.colors.th,
-            marginBottom: 8,
+            marginBottom: 10,
             textAlign: 'center',
+            letterSpacing: -0.4,
           }}
         >
           Analyzing your case
@@ -97,7 +129,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
           <Dot delay={200} color={theme.colors.pu} />
           <Dot delay={400} color={theme.colors.pu} />
         </View>
-        <Text style={{ fontSize: 12, color: theme.colors.tl, marginTop: 22 }}>
+        <Text style={{ fontSize: 12, color: theme.colors.tl, marginTop: 24, letterSpacing: 0.2 }}>
           Building personalized clinical protocol
         </Text>
       </View>

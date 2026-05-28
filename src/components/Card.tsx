@@ -1,3 +1,6 @@
+// Cleaner card: subtle 1px border, no shadows. Matches the Kalo aesthetic
+// where surfaces are differentiated by background tone alone.
+
 import React from 'react';
 import { View, ViewProps, StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '../theme';
@@ -15,15 +18,10 @@ export default function Card({ children, style, padding = 16, ...rest }: Props) 
       style={[
         {
           backgroundColor: theme.colors.card,
-          borderRadius: theme.radius.xxl,
-          borderWidth: 1.5,
+          borderRadius: 20,
+          borderWidth: 1,
           borderColor: theme.colors.bo,
           padding,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: theme.scheme === 'dark' ? 0.35 : 0.06,
-          shadowRadius: 12,
-          elevation: 2,
         },
         style,
       ]}
