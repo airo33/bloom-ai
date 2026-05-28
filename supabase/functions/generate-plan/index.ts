@@ -1,15 +1,11 @@
 // supabase/functions/generate-plan/index.ts
 //
-// Generates a personalized rehab plan via Claude Sonnet 4.6.
+// Generates a personalized rehab plan via Groq (Llama 3.3 70B).
 // Input: { name, age, fitnessLevel, injury }
 // Output: a RehabPlan JSON matching src/types/plan.ts
 
 import { preflight, json } from '../_shared/cors.ts';
-import {
-  callAnthropic,
-  extractText,
-  parseJsonFromLLM,
-} from '../_shared/anthropic.ts';
+import { callLLM, parseJsonFromLLM } from '../_shared/llm.ts';
 
 interface RequestBody {
   name?: string;
@@ -18,7 +14,9 @@ interface RequestBody {
   injury: string;
 }
 
-const MODEL = 'claude-sonnet-4-6';
+// Llama 3.3 70B Versatile — Groq's flagship general-purpose model.
+// Strong at structured JSON output + clinical reasoning.
+const MODEL = 'llama-3.3-70b-versatile';
 
 function buildPrompt(body: RequestBody): string {
   const name = body.name?.trim() || 'Patient';
@@ -41,7 +39,7 @@ CRITICAL REQUIREMENTS:
 7. Use real physio exercise names (e.g. "Terminal Knee Extension", "VMO Squats 0-45°", "McGill Bird Dog")
 8. Each phase has PROGRESSIVELY harder weekday schedules
 
-Reply ONLY with valid JSON, no markdown fences, no commentary:
+Reply with a JSON object matching this exact schema:
 {
   "title": "Specific Protocol Name for THIS injury",
   "totalWeeks": number,
@@ -125,19 +123,26 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const resp = await callAnthropic({
+    const resp = await callLLM({
       model: MODEL,
       maxTokens: 4096,
-      messages: [{ role: 'user', content: buildPrompt(body) }],
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a senior physiotherapist. Respond only with valid JSON matching the provided schema.',
+        },
+        { role: 'user', content: buildPrompt(body) },
+      ],
       temperature: 0.7,
+      jsonMode: true,
     });
 
-    const text = extractText(resp);
-    const parsed = parseJsonFromLLM(text);
+    const parsed = parseJsonFromLLM(resp.text);
 
     if (!isPlausiblePlan(parsed)) {
       return json(
-        { error: 'AI returned a malformed plan', raw: text.slice(0, 800) },
+        { error: 'AI returned a malformed plan', raw: resp.text.slice(0, 800) },
         502,
       );
     }

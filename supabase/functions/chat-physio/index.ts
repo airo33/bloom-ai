@@ -1,21 +1,21 @@
 // supabase/functions/chat-physio/index.ts
 //
-// AI Physio chat — back-and-forth conversation grounded on the user's plan.
-// Uses Claude Haiku 4.5 (fast + cheap) since chat needs quick turnaround.
-//
-// Input: { plan, history: [{role, content}], userMessage }
-// Output: { reply, usage }
+// AI Physio chat — short back-and-forth conversation grounded on the user's
+// plan. Uses Llama 3.1 8B Instant on Groq for low-latency chat.
 
 import { preflight, json } from '../_shared/cors.ts';
-import { callAnthropic, extractText, type MessagePart } from '../_shared/anthropic.ts';
+import { callLLM, type MessagePart } from '../_shared/llm.ts';
 
 interface RequestBody {
   plan?: unknown;
-  history?: MessagePart[];
+  history?: Array<{ role: 'user' | 'assistant'; content: string }>;
   userMessage: string;
 }
 
-const MODEL = 'claude-haiku-4-5-20251001';
+// Llama 3.1 8B Instant — Groq's fastest model. Good enough for short
+// clinical Q&A grounded on the plan; swap to llama-3.3-70b-versatile if
+// quality becomes an issue.
+const MODEL = 'llama-3.1-8b-instant';
 const MAX_HISTORY = 12;
 
 function buildSystem(plan: unknown): string {
@@ -44,18 +44,19 @@ Deno.serve(async (req: Request) => {
     return json({ error: 'userMessage is required' }, 400);
   }
 
-  // Trim history to the last MAX_HISTORY turns to keep token cost predictable
-  const history = (body.history ?? []).slice(-MAX_HISTORY).filter(
-    (m): m is MessagePart =>
-      !!m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string',
-  );
+  const history: MessagePart[] = (body.history ?? [])
+    .slice(-MAX_HISTORY)
+    .filter(
+      (m): m is { role: 'user' | 'assistant'; content: string } =>
+        !!m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string',
+    );
 
   try {
-    const resp = await callAnthropic({
+    const resp = await callLLM({
       model: MODEL,
       maxTokens: 600,
-      system: buildSystem(body.plan),
       messages: [
+        { role: 'system', content: buildSystem(body.plan) },
         ...history,
         { role: 'user', content: body.userMessage },
       ],
@@ -63,7 +64,7 @@ Deno.serve(async (req: Request) => {
     });
 
     return json({
-      reply: extractText(resp),
+      reply: resp.text,
       usage: resp.usage,
       model: MODEL,
     });
