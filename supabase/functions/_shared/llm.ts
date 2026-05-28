@@ -35,7 +35,11 @@ interface OpenAICompatResponse {
 }
 
 export async function callLLM(opts: CallOptions): Promise<LLMResponse> {
-  const apiKey = Deno.env.get('GROQ_API_KEY');
+  // .trim() defends against trailing whitespace / newlines that creep in
+  // when the secret is pasted via the dashboard or via `supabase secrets
+  // set` from a copied-from-browser string. Such characters make the
+  // outgoing fetch fail with "not a valid ByteString".
+  const apiKey = Deno.env.get('GROQ_API_KEY')?.trim();
   if (!apiKey) {
     throw new Error('GROQ_API_KEY not configured in Supabase secrets');
   }

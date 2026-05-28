@@ -113,7 +113,10 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : String(err);
         console.warn('[generate-plan] failed, using fallback:', msg);
-        toast('AI unavailable — using generic protocol');
+        // Surface the real error in dev so we can debug; truncate so it
+        // fits the toast.
+        const short = msg.length > 110 ? msg.slice(0, 110) + '…' : msg;
+        toast(`AI error — fallback: ${short}`);
         setPlan(genericFallbackPlan);
         navigation.replace('Plan');
       }
