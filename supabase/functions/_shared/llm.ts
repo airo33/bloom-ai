@@ -35,13 +35,30 @@ interface OpenAICompatResponse {
 }
 
 export async function callLLM(opts: CallOptions): Promise<LLMResponse> {
-  // .trim() defends against trailing whitespace / newlines that creep in
-  // when the secret is pasted via the dashboard or via `supabase secrets
-  // set` from a copied-from-browser string. Such characters make the
-  // outgoing fetch fail with "not a valid ByteString".
-  const apiKey = Deno.env.get('GROQ_API_KEY')?.trim();
+  // Defensively sanitize the API key. HTTP headers are ByteStrings — they
+  // can't contain newlines, carriage returns, smart quotes or anything
+  // outside 0x20-0x7E. We strip whitespace at the edges, then any char
+  // outside the printable-ASCII range so a copy-pasted key with a stray
+  // unicode character still works.
+  const rawKey = Deno.env.get('GROQ_API_KEY') ?? '';
+  const apiKey = rawKey.trim().replace(/[^\x20-\x7E]/g, '');
+
   if (!apiKey) {
-    throw new Error('GROQ_API_KEY not configured in Supabase secrets');
+    throw new Error(
+      `GROQ_API_KEY not configured (raw length=${rawKey.length}, cleaned length=${apiKey.length})`,
+    );
+  }
+  if (apiKey.length < 20) {
+    throw new Error(
+      `GROQ_API_KEY looks too short (cleaned length=${apiKey.length}). ` +
+        `Make sure you set the full secret with: supabase secrets set GROQ_API_KEY=gsk_...`,
+    );
+  }
+  if (!apiKey.startsWith('gsk_')) {
+    throw new Error(
+      `GROQ_API_KEY format unexpected (starts with "${apiKey.slice(0, 4)}"). ` +
+        `Groq keys start with "gsk_". Did you paste the wrong key?`,
+    );
   }
 
   const body: Record<string, unknown> = {
