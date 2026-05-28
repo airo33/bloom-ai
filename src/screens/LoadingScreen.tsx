@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Animated } from 'react-native';
+import { View, Text, Animated, ToastAndroid, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { genericFallbackPlan } from '../data/fallbackPlan';
+import { generatePlan } from '../lib/api';
 import type { RootStackScreenProps } from '../navigation/types';
 
 const MESSAGES = [
@@ -14,9 +15,10 @@ const MESSAGES = [
   'Compiling red flags and safety guidelines...',
 ];
 
-// While the Supabase Edge Function isn't wired yet we always use the
-// fallback plan. Once the AI is connected, swap this for a real fetch.
-const SIMULATED_DELAY_MS = 4500;
+function toast(msg: string) {
+  if (Platform.OS === 'android') ToastAndroid.show(msg, ToastAndroid.LONG);
+  // iOS: silent fallback — would use a Snackbar lib in prod
+}
 
 function Dot({ delay, color }: { delay: number; color: string }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -84,19 +86,44 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
   const theme = useTheme();
   const [idx, setIdx] = useState(0);
   const setPlan = useAppStore((s) => s.setPlan);
+  const profile = useAppStore((s) => s.profile);
 
+  // Cycle status text every 1.8s while we wait
   useEffect(() => {
     const t = setInterval(() => setIdx((i) => (i + 1) % MESSAGES.length), 1800);
     return () => clearInterval(t);
   }, []);
 
+  // Fire the Edge Function on mount. Falls back to the static plan on any error.
   useEffect(() => {
-    const t = setTimeout(() => {
-      setPlan(genericFallbackPlan);
-      navigation.replace('Plan');
-    }, SIMULATED_DELAY_MS);
-    return () => clearTimeout(t);
-  }, [navigation, setPlan]);
+    let cancelled = false;
+
+    async function run() {
+      try {
+        const result = await generatePlan({
+          name: profile.name,
+          age: profile.age,
+          fitnessLevel: profile.fitnessLevel,
+          injury: profile.injury,
+        });
+        if (cancelled) return;
+        setPlan(result.plan);
+        navigation.replace('Plan');
+      } catch (err) {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn('[generate-plan] failed, using fallback:', msg);
+        toast('AI unavailable — using generic protocol');
+        setPlan(genericFallbackPlan);
+        navigation.replace('Plan');
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation, profile, setPlan]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>

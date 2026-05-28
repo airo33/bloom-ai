@@ -1,0 +1,10 @@
+# Supabase project config — used by the CLI to know which Edge Functions
+# to build/deploy. The project_id matches the URL: vzprhzwoeaycqemxofgk.supabase.co
+
+project_id = "vzprhzwoeaycqemxofgk"
+
+[functions.generate-plan]
+verify_jwt = true
+
+[functions.chat-physio]
+verify_jwt = true
