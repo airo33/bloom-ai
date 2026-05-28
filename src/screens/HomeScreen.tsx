@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Flame, Stethoscope, Lock } from 'lucide-react-native';
+import { useShallow } from 'zustand/react/shallow';
 import { useTheme } from '../theme';
 import {
   useAppStore,
@@ -46,7 +47,10 @@ export default function HomeScreen() {
     advanceDay();
   }, [advanceDay]);
 
-  const todayExercises = useAppStore(selectTodayExercises);
+  // useShallow prevents the infinite-render loop: the selector returns a
+  // freshly-built array each call, so without shallow equality Zustand
+  // would see "changed" every render and re-trigger us forever.
+  const todayExercises = useAppStore(useShallow(selectTodayExercises));
   const greeting = useMemo(() => greetingFor(new Date().getHours()), []);
 
   const totalToday = todayExercises.length;
