@@ -277,6 +277,18 @@ function humanizeAuthError(raw: string): string {
       ? `Too many attempts — wait ${seconds} seconds and try again`
       : 'Too many attempts — wait a minute and try again';
   }
+  // Network conditions — keep the user oriented, hint at the likely fix
+  if (
+    r.includes('timed out') ||
+    r.includes('timeout') ||
+    r.includes('network request failed') ||
+    r.includes('fetch failed') ||
+    r.includes('failed to fetch') ||
+    r.includes('aborterror') ||
+    r.includes('network is slow')
+  ) {
+    return 'Network is slow or unreachable — check your connection (or VPN) and try again';
+  }
   if (r.includes('network')) return 'Network error — check your connection';
   return raw;
 }

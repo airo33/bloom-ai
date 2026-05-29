@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 
+const SESSION_LOOKUP_TIMEOUT_MS = 6_000;
+
 export interface AuthState {
   /** True while we're still resolving the initial session. */
   loading: boolean;
@@ -16,6 +18,14 @@ export interface AuthState {
 /**
  * Subscribe to Supabase auth state. Returns loading=true until the very
  * first session lookup resolves so we don't flash the wrong screen.
+ *
+ * The initial getSession() can race against a stale token refresh that
+ * needs a real HTTP round-trip — on a 17-KB/s mobile connection that
+ * round-trip can take >30s, during which the app appears frozen on a
+ * spinner. We cap the wait at SESSION_LOOKUP_TIMEOUT_MS and treat the
+ * timeout as "no session" so the AuthScreen renders and the user can
+ * at least try to sign in. The onAuthStateChange listener still fires
+ * later if the network catches up.
  */
 export function useAuth(): AuthState {
   const [state, setState] = useState<AuthState>({
@@ -26,19 +36,31 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     let mounted = true;
+    let resolved = false;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
+    const resolve = (session: Session | null) => {
+      if (!mounted || resolved) return;
+      resolved = true;
       setState({ loading: false, session, user: session?.user ?? null });
-    });
+    };
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => resolve(session))
+      .catch(() => resolve(null));
+
+    // Hard ceiling — never hang on a slow network forever
+    const timer = setTimeout(() => resolve(null), SESSION_LOOKUP_TIMEOUT_MS);
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
+      // After the initial resolve, we still want to react to login/logout
       setState({ loading: false, session, user: session?.user ?? null });
     });
 
     return () => {
       mounted = false;
+      clearTimeout(timer);
       sub.subscription.unsubscribe();
     };
   }, []);
