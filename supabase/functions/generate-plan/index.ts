@@ -18,57 +18,134 @@ interface RequestBody {
 // Strong at structured JSON output + clinical reasoning.
 const MODEL = 'llama-3.3-70b-versatile';
 
+// -----------------------------------------------------------------------------
+// System message: high-quality clinical persona with explicit reasoning rules.
+// -----------------------------------------------------------------------------
+const SYSTEM_PROMPT = `You are a senior physiotherapist with 20+ years of clinical experience across orthopaedics, sports rehab, and post-surgical care. You write rehab protocols that are:
+
+1. SPECIFIC to the exact diagnosis and tissue, not generic "do strengthening exercises"
+2. PHASED to match the biology of tissue healing (inflammation → proliferation → remodelling)
+3. EVIDENCE-BASED — use named, real-world protocols (Stanish eccentric, McGill big 3, ACL bridge program, MDT for spine, etc.) when appropriate
+4. CONSERVATIVE early, progressive late — early exercises must be safe even if the patient self-administered them at home
+
+You MUST respond with a single JSON object matching the provided schema. No prose, no fence, no commentary outside the JSON.
+
+When designing exercises:
+- Use real physiotherapy exercise names ("Terminal Knee Extension", "Standing Calf Raise with Eccentric Lower", "Bird Dog with Reach", "Pendulum Swing", "Hip Hinge with Dowel")
+- DO NOT default to vague entries like "Stretching", "Walking", "Pool Walking" unless they're genuinely the right intervention for this injury
+- Each exercise has ONE clinical purpose — don't blur it
+- Dosage must reflect the rehab phase (isometric 30-45s holds in acute, 3×10-12 reps in proliferation, low-rep heavier load in remodelling)
+- Tempo notation X/X/X = concentric/pause/eccentric in seconds; for tendinopathy use slow eccentrics (e.g. "1/0/3")
+
+When writing red flags, write SYMPTOM-LEVEL warnings the patient can act on, not vague "see a doctor". Example: "Calf pain with sudden onset shortness of breath — possible DVT/PE, call emergency services immediately", not "see a doctor if it gets worse".`;
+
+// -----------------------------------------------------------------------------
+// Injury classification cheat-sheet, injected into the user message so the
+// model has the right frame before writing.
+// -----------------------------------------------------------------------------
+const INJURY_PLAYBOOK = `Use this internal classification before writing the plan:
+
+A. POST-SURGICAL (e.g. ACL reconstruction, rotator cuff repair, meniscectomy)
+   - Phases tied to graft/tissue protection windows
+   - Weeks 0-2: protected motion, swelling control, isometric activation only
+   - Weeks 2-6: progressive ROM, gentle loading, scar mobility
+   - Weeks 6-12: progressive resistance, functional patterns
+   - Weeks 12+: sport/job-specific return, plyometrics
+   - Red flags MUST mention: signs of infection (fever, increasing redness, pus), DVT (calf swelling + pain), neurovascular compromise (numbness, cold)
+   - Total weeks: 12-16
+
+B. ACUTE SOFT TISSUE (sprains, muscle strains, ligament injuries <6 weeks)
+   - Phase 1 (days 0-7): PEACE protocol — Protect, Elevate, Avoid anti-inflammatories early, Compress, Educate. Pain-free isometrics if tolerated.
+   - Phase 2 (weeks 1-3): LOVE — Load gradually, Optimism, Vascularisation (cardio), Exercise
+   - Phase 3 (weeks 3-6): graded return to function
+   - Phase 4 (weeks 6+): return to sport with sport-specific drills
+   - Red flags: rapid swelling, joint instability ("gives way"), inability to bear weight, mechanical block
+   - Total weeks: 6-10
+
+C. CHRONIC OVERUSE / TENDINOPATHY (Achilles, patellar, rotator cuff tendinopathy, plantar fasciitis)
+   - Load IS medicine — rest makes this worse
+   - Phase 1 (weeks 1-3): isometric loading at 70% MVC, 5 × 45s holds — analgesic effect
+   - Phase 2 (weeks 3-6): heavy slow resistance, 3-4 × 6-8 reps, 3s eccentric
+   - Phase 3 (weeks 6-10): energy storage (plyometrics if tolerated)
+   - Phase 4 (weeks 10-12): return to sport
+   - Red flags: sudden sharp tear sensation (rupture), night pain that wakes from sleep
+   - Total weeks: 10-14
+
+D. SPINE (acute LBP, disc-related, sciatica)
+   - Use McKenzie MDT principles: directional preference, centralisation matters
+   - Avoid flexion-loaded exercise early if disc-related
+   - Phase 1 (weeks 1-2): symptom modulation, neutral spine, walking
+   - Phase 2 (weeks 2-5): McGill big 3 (curl-up, side plank, bird dog), motor control
+   - Phase 3 (weeks 5-8): graded hip hinge, deadlift progression
+   - Phase 4 (weeks 8-12): return to load
+   - Red flags MUST include cauda equina symptoms: saddle anaesthesia, bowel/bladder dysfunction, bilateral leg weakness — emergency
+   - Total weeks: 8-12
+
+E. JOINT MOBILITY / FROZEN SHOULDER / STIFFNESS
+   - Slow, daily, end-range work
+   - Heat before, ice after if needed
+   - Total weeks: 12-24 (frozen shoulder is long)
+
+If the description doesn't clearly fit one bucket, pick the closest and adapt — but never default to category A's aggressive protection unless surgical.`;
+
 function buildPrompt(body: RequestBody): string {
   const name = body.name?.trim() || 'Patient';
   const age = body.age || '?';
   const level = body.fitnessLevel || 'moderate';
   const injury = body.injury.trim();
 
-  return `You are a senior physiotherapist (20+ years). Create a TRULY PERSONALIZED rehabilitation protocol for this specific injury.
+  return `PATIENT
+- Name: ${name}
+- Age: ${age}
+- Pre-injury fitness: ${level}
+- Condition described in their words: "${injury}"
 
-Patient: ${name}, ${age}yo, pre-injury fitness: ${level}
-Condition: "${injury}"
+${INJURY_PLAYBOOK}
 
-CRITICAL REQUIREMENTS:
-1. Exercises must be SPECIFIC to THIS injury (ACL needs completely different exercises than shoulder or back)
-2. Create 8-10 DIFFERENT exercises in the pool
-3. Different exercises for DIFFERENT days of the week (Mon is not same as Tue)
-4. Full session days (Mon/Wed/Fri): 4-5 exercises
-5. Light days (Tue/Thu): 2-3 exercises
-6. Recovery days (Sat/Sun): 1-2 restorative exercises
-7. Use real physio exercise names (e.g. "Terminal Knee Extension", "VMO Squats 0-45°", "McGill Bird Dog")
-8. Each phase has PROGRESSIVELY harder weekday schedules
+YOUR TASK
+Internally classify the injury (A/B/C/D/E) and write a TRULY PERSONALIZED rehab protocol. Then output a single JSON object matching this exact schema:
 
-Reply with a JSON object matching this exact schema:
 {
-  "title": "Specific Protocol Name for THIS injury",
-  "totalWeeks": number,
-  "summary": "4 sentences specific to this exact injury — why these exercises, what tissue is healing, prognosis",
-  "clinicalGoals": ["Measurable goal 1", "goal 2", "goal 3"],
-  "redFlags": ["Specific warning 1", "warning 2", "warning 3", "warning 4"],
+  "title": "Specific protocol name including the diagnosis (e.g. 'Post-Op ACL Reconstruction — Right Knee')",
+  "totalWeeks": <integer, matches the playbook for the chosen category>,
+  "summary": "4 sentences SPECIFIC to this exact injury — what tissue is healing, biological process, why this protocol structure, prognosis",
+  "clinicalGoals": [
+    "Specific MEASURABLE goal with a metric and target week, e.g. 'Achieve 0-90° knee flexion by week 4'",
+    "Second measurable goal",
+    "Third measurable goal"
+  ],
+  "redFlags": [
+    "Symptom-level warning + suggested action — at least 4 of these, MUST cover the category-specific emergencies"
+  ],
   "exercises": [
     {
       "id": "ex1",
-      "name": "Specific exercise name",
+      "name": "Real exercise name (no generic stretching)",
       "category": "exercise|physio|nutrition|rest|mobility|strength|cardio",
-      "emoji": "🏃",
+      "emoji": "single emoji",
       "time": "X min",
-      "dosage": "X sets × Y reps",
-      "tempo": "Xs/Xs/Xs",
+      "dosage": "e.g. '3 sets × 12 reps' or '5 × 45 s holds'",
+      "tempo": "concentric/pause/eccentric in seconds, e.g. '2/0/3'",
       "level": "Easy|Moderate|Hard",
-      "steps": ["Position: exact", "Movement: exact", "End range: what correct looks like", "Return: how", "Key cue: most important point"],
-      "clinicalRationale": "Why this for this exact injury — tissue and biological process",
-      "benefit": "Mechanism how this helps THIS injury",
-      "warning": "Specific contraindication",
-      "redFlag": "Seek care if: specific symptom"
+      "steps": [
+        "Position: precise starting position",
+        "Movement: precise movement description",
+        "End range: what 'correct' looks like at the top of the rep",
+        "Return: how to come back to start",
+        "Key cue: the ONE thing that matters most"
+      ],
+      "clinicalRationale": "WHY this exercise for THIS injury — name the tissue and the biological mechanism",
+      "benefit": "What functional outcome this drives toward",
+      "warning": "Specific contraindication or 'don't do if'",
+      "redFlag": "Specific symptom that means stop and seek care"
     }
   ],
   "phases": [
     {
-      "name": "Phase name",
+      "name": "Phase name including the biology (e.g. 'Phase 1: Inflammation & Protection (Days 0-14)')",
       "weekNumbers": "1-2",
-      "goals": ["measurable goal"],
-      "progressionCriteria": "Advance when: specific criteria",
+      "goals": ["Measurable goal"],
+      "progressionCriteria": "Advance to next phase WHEN: specific objective criteria",
       "weekdays": {
         "Mon": ["ex1", "ex2", "ex3", "ex4"],
         "Tue": ["ex1", "ex5"],
@@ -80,30 +157,82 @@ Reply with a JSON object matching this exact schema:
       }
     }
   ],
-  "tips": ["evidence-based tip"]
+  "tips": [
+    "Evidence-based tip the user should know",
+    "Second tip",
+    "Third tip"
+  ]
 }
 
-REQUIREMENTS:
-- 4 phases total
+HARD REQUIREMENTS
+- 4 phases that progress through the biology
 - 8-10 exercises total
+- Full days (Mon/Wed/Fri) have 4-5 exercises, light days (Tue/Thu) have 2-3, weekend has 1-2 restorative
+- Each phase's weekday schedule MUST differ from other phases — weekday lists evolve as the patient progresses
+- At least 4 red flags, and at least ONE of them must be category-specific (e.g. cauda equina for spine, DVT for post-op leg, rupture for tendinopathy)
 - 3 evidence-based tips
-- 4 red flags
 - 3 clinical goals
-- Phase weekday schedules must DIFFER from each other
-- ALL content specific to the described injury`;
+- ALL exercise names must be real, named physio interventions — no "Stretching", no bare "Walking"`;
 }
 
-function isPlausiblePlan(obj: unknown): boolean {
-  if (!obj || typeof obj !== 'object') return false;
+// -----------------------------------------------------------------------------
+// Server-side quality checks. If a clearly bad plan slips through, return 502
+// so the client falls back rather than showing a poor plan.
+// -----------------------------------------------------------------------------
+function planQualityIssues(obj: unknown): string[] {
+  if (!obj || typeof obj !== 'object') return ['not an object'];
   const p = obj as Record<string, unknown>;
-  return (
-    typeof p.title === 'string' &&
-    typeof p.summary === 'string' &&
-    Array.isArray(p.exercises) &&
-    Array.isArray(p.phases) &&
-    p.exercises.length > 0 &&
-    p.phases.length > 0
-  );
+  const issues: string[] = [];
+
+  if (typeof p.title !== 'string' || p.title.length < 4) {
+    issues.push('missing/short title');
+  }
+  if (typeof p.summary !== 'string' || p.summary.length < 80) {
+    issues.push('summary too short (<80 chars)');
+  }
+  if (!Array.isArray(p.clinicalGoals) || p.clinicalGoals.length < 3) {
+    issues.push('need >= 3 clinical goals');
+  }
+  if (!Array.isArray(p.redFlags) || p.redFlags.length < 4) {
+    issues.push('need >= 4 red flags');
+  }
+
+  const exercises = Array.isArray(p.exercises) ? p.exercises : null;
+  if (!exercises || exercises.length < 6) {
+    issues.push('need >= 6 exercises');
+  } else {
+    // Catch lazy generic names — these were the failure mode in the old prompt
+    const GENERIC_NAMES = /^(stretching|walking|pool walking|exercise|rest)$/i;
+    const bad = exercises.filter(
+      (e) =>
+        e && typeof e === 'object' && typeof (e as { name?: unknown }).name === 'string' &&
+        GENERIC_NAMES.test(((e as { name: string }).name).trim()),
+    );
+    if (bad.length > 0) issues.push(`generic exercise names: ${bad.length}`);
+
+    // Steps should be ~5 actionable bullets
+    const shortStepsCount = exercises.filter((e) => {
+      const steps = (e as { steps?: unknown }).steps;
+      return !Array.isArray(steps) || steps.length < 4;
+    }).length;
+    if (shortStepsCount > 1) issues.push(`>1 exercise with <4 step bullets`);
+  }
+
+  const phases = Array.isArray(p.phases) ? p.phases : null;
+  if (!phases || phases.length < 3) {
+    issues.push('need >= 3 phases');
+  } else {
+    // Each phase's weekdays must not be empty AND must differ from at least
+    // one neighbour so the user isn't doing identical sets the whole protocol
+    const weekdaySigs = phases.map((ph) => {
+      const wd = (ph as { weekdays?: Record<string, unknown> }).weekdays ?? {};
+      return JSON.stringify(wd);
+    });
+    const distinctSigs = new Set(weekdaySigs);
+    if (distinctSigs.size < 2) issues.push('all phases use identical weekday schedules');
+  }
+
+  return issues;
 }
 
 Deno.serve(async (req: Request) => {
@@ -125,24 +254,27 @@ Deno.serve(async (req: Request) => {
   try {
     const resp = await callLLM({
       model: MODEL,
-      maxTokens: 4096,
+      maxTokens: 6000,
       messages: [
-        {
-          role: 'system',
-          content:
-            'You are a senior physiotherapist. Respond only with valid JSON matching the provided schema.',
-        },
+        { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildPrompt(body) },
       ],
-      temperature: 0.7,
+      // Lower temperature for clinical accuracy. The schema is highly
+      // structured so creativity is not what we need.
+      temperature: 0.4,
       jsonMode: true,
     });
 
     const parsed = parseJsonFromLLM(resp.text);
+    const issues = planQualityIssues(parsed);
 
-    if (!isPlausiblePlan(parsed)) {
+    if (issues.length > 0) {
       return json(
-        { error: 'AI returned a malformed plan', raw: resp.text.slice(0, 800) },
+        {
+          error: 'AI returned a low-quality plan',
+          issues,
+          raw: resp.text.slice(0, 1200),
+        },
         502,
       );
     }
