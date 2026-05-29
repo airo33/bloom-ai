@@ -67,7 +67,9 @@ export default function HomeScreen() {
   }, []);
 
   const subBadge = tier ? SUB_TIER_BADGE[tier as keyof typeof SUB_TIER_BADGE] : null;
-  const isPaid = tier === 'monthly' || tier === 'annual';
+  // Chat is part of all paid tiers per subscriptionTiers.ts; "trial" is the
+  // skip-onboarding path which gets read-only access.
+  const isPaid = tier === 'weekly' || tier === 'monthly' || tier === 'annual';
   const ctaIconColor = isPaid ? theme.colors.pt : theme.colors.tm;
 
   // Tap-to-toggle: tapping current count "unfills" it (mirrors prototype)
