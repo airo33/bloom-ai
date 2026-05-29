@@ -262,7 +262,21 @@ function humanizeAuthError(raw: string): string {
   if (r.includes('user already registered')) return 'This email is already in use — sign in instead';
   if (r.includes('password should be at least')) return 'Password is too short (min 6 characters)';
   if (r.includes('invalid email')) return 'Email looks invalid';
-  if (r.includes('email rate limit')) return 'Too many attempts — wait a minute and try again';
+  // Supabase's "for security purposes, you can only request this after N seconds"
+  // and any other rate-limit / too-many-requests language.
+  if (
+    r.includes('for security purposes') ||
+    r.includes('email rate limit') ||
+    r.includes('over_email_send_rate_limit') ||
+    r.includes('rate limit') ||
+    r.includes('too many requests')
+  ) {
+    // Try to surface the cool-down number Supabase included, if any
+    const seconds = raw.match(/(\d+)\s*seconds?/i)?.[1];
+    return seconds
+      ? `Too many attempts — wait ${seconds} seconds and try again`
+      : 'Too many attempts — wait a minute and try again';
+  }
   if (r.includes('network')) return 'Network error — check your connection';
   return raw;
 }
