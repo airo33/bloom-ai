@@ -12,6 +12,7 @@ import {
   reapplyAllFromStore,
 } from './src/lib/notifications';
 import { useAppStore } from './src/store/useAppStore';
+import { useSyncBootstrap } from './src/lib/useSyncBootstrap';
 
 export default function App() {
   return (
@@ -40,6 +41,8 @@ export default function App() {
 function NotificationsBootstrap(): null {
   const hydrated = useAppStore((s) => s.hydrated);
   const notifications = useAppStore((s) => s.notifications);
+
+  useSyncBootstrap();
 
   useEffect(() => {
     setupNotificationHandler();

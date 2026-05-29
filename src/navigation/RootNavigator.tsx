@@ -1,10 +1,13 @@
 import React from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
+import { useAuth } from '../lib/auth';
 
+import AuthScreen from '../screens/AuthScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import Onboarding1Screen from '../screens/Onboarding1Screen';
 import Onboarding2Screen from '../screens/Onboarding2Screen';
@@ -23,21 +26,36 @@ export default function RootNavigator() {
   const hydrated = useAppStore((s) => s.hydrated);
   const plan = useAppStore((s) => s.plan);
   const tier = useAppStore((s) => s.subscriptionTier);
+  const auth = useAuth();
 
-  // Determine the initial route after hydration:
-  // - No plan => Welcome
-  // - Has plan but no subscription => Plan (so user sees it then goes to Sub)
-  // - Otherwise => Main
-  const initialRoute: keyof RootStackParamList = !plan
+  // Wait for both Zustand hydration AND the initial auth lookup so we
+  // never flash the wrong stack.
+  if (!hydrated || auth.loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.bg,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActivityIndicator color={theme.colors.pu} />
+      </View>
+    );
+  }
+
+  const isAuthenticated = !!auth.user;
+
+  // Compute the start screen of the authenticated flow:
+  //   no plan       -> Welcome (run onboarding)
+  //   plan, no tier -> Plan    (show the plan, then prompt to subscribe)
+  //   else          -> Main
+  const authedInitial: keyof RootStackParamList = !plan
     ? 'Welcome'
     : !tier
       ? 'Plan'
       : 'Main';
-
-  if (!hydrated) {
-    // Avoid a flicker — render nothing until persist hydration finishes
-    return null;
-  }
 
   return (
     <NavigationContainer
@@ -54,19 +72,44 @@ export default function RootNavigator() {
       }}
     >
       <Stack.Navigator
-        initialRouteName={initialRoute}
-        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.bg } }}
+        initialRouteName={isAuthenticated ? authedInitial : 'Auth'}
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: theme.colors.bg },
+        }}
       >
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="Onboarding1" component={Onboarding1Screen} />
-        <Stack.Screen name="Onboarding2" component={Onboarding2Screen} />
-        <Stack.Screen name="Loading" component={LoadingScreen} options={{ gestureEnabled: false }} />
-        <Stack.Screen name="Plan" component={PlanScreen} />
-        <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-        <Stack.Screen name="Main" component={MainTabs} options={{ gestureEnabled: false }} />
-        <Stack.Screen name="Exercise" component={ExerciseScreen} options={{ presentation: 'card' }} />
-        <Stack.Screen name="Journal" component={JournalScreen} options={{ presentation: 'modal' }} />
-        <Stack.Screen name="Chat" component={ChatScreen} options={{ presentation: 'card' }} />
+        {isAuthenticated ? (
+          // Authenticated stack — all screens registered, initialRouteName
+          // picks where we land.
+          <Stack.Group key="authed">
+            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            <Stack.Screen name="Onboarding1" component={Onboarding1Screen} />
+            <Stack.Screen name="Onboarding2" component={Onboarding2Screen} />
+            <Stack.Screen
+              name="Loading"
+              component={LoadingScreen}
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen name="Plan" component={PlanScreen} />
+            <Stack.Screen name="Subscription" component={SubscriptionScreen} />
+            <Stack.Screen
+              name="Main"
+              component={MainTabs}
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen name="Exercise" component={ExerciseScreen} />
+            <Stack.Screen
+              name="Journal"
+              component={JournalScreen}
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen name="Chat" component={ChatScreen} />
+          </Stack.Group>
+        ) : (
+          <Stack.Group key="auth">
+            <Stack.Screen name="Auth" component={AuthScreen} />
+          </Stack.Group>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

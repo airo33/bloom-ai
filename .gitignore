@@ -48,3 +48,7 @@ yarn-error.*
 *.aab
 *.ipa
 
+# Supabase CLI runtime files
+supabase/.temp/
+supabase/.branches/
+

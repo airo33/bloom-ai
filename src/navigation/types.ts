@@ -5,6 +5,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 
 export type RootStackParamList = {
+  Auth: undefined;
   Welcome: undefined;
   Onboarding1: undefined;
   Onboarding2: undefined;

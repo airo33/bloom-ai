@@ -9,12 +9,14 @@ import {
   BookOpen,
   RefreshCw,
   ChevronRight,
+  LogOut,
 } from 'lucide-react-native';
 import { useTheme, useThemeControls } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
 import { applyReminderToggle, type ReminderCategory } from '../lib/notifications';
+import { useAuth, signOut, displayNameFor } from '../lib/auth';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -24,6 +26,22 @@ export default function ProfileScreen() {
   const notifications = useAppStore((s) => s.notifications);
   const setNotificationPref = useAppStore((s) => s.setNotificationPref);
   const resetAll = useAppStore((s) => s.resetAll);
+  const { user } = useAuth();
+
+  const handleSignOut = useCallback(() => {
+    Alert.alert(
+      'Sign out',
+      "You'll have to sign back in to access your plan on this device.",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign out',
+          style: 'destructive',
+          onPress: () => signOut().catch(() => {}),
+        },
+      ],
+    );
+  }, []);
 
   // Per-category busy flag so two rapid toggles don't race
   const [pending, setPending] = useState<ReminderCategory | null>(null);
@@ -82,10 +100,18 @@ export default function ProfileScreen() {
             marginBottom: 20,
           }}
         >
-          {profile.name || 'Friend'}
+          {profile.name || displayNameFor(user)}
         </Text>
 
         <Card style={{ marginBottom: 20 }} padding={16}>
+          {user?.email && (
+            <Text style={{ fontSize: 13, color: theme.colors.tm, marginBottom: 6 }}>
+              Signed in as{' '}
+              <Text style={{ fontWeight: '700', color: theme.colors.th }}>
+                {user.email}
+              </Text>
+            </Text>
+          )}
           <Text style={{ fontSize: 13, color: theme.colors.tb }}>
             {profile.fitnessLevel || 'Fitness level not set'} · {profile.age || '—'} years old
           </Text>
@@ -179,6 +205,8 @@ export default function ProfileScreen() {
               alignItems: 'center',
               gap: 14,
               padding: 14,
+              borderBottomWidth: user ? 1 : 0,
+              borderBottomColor: theme.colors.bo,
               opacity: pressed ? 0.7 : 1,
             })}
           >
@@ -207,6 +235,43 @@ export default function ProfileScreen() {
             </Text>
             <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
           </Pressable>
+          {user && (
+            <Pressable
+              onPress={handleSignOut}
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 14,
+                padding: 14,
+                opacity: pressed ? 0.7 : 1,
+              })}
+            >
+              <View
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 12,
+                  backgroundColor: theme.colors.card2,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <LogOut size={17} color={theme.colors.tb} strokeWidth={2.2} />
+              </View>
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 15,
+                  color: theme.colors.th,
+                  fontWeight: '700',
+                  letterSpacing: -0.2,
+                }}
+              >
+                Sign out
+              </Text>
+              <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
+            </Pressable>
+          )}
         </Card>
       </ScrollView>
     </SafeAreaView>
