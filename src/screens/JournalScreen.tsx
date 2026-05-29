@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
-import Slider from '@react-native-community/slider';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Input from '../components/Input';
+import PainScale from '../components/PainScale';
 import type { RootStackScreenProps } from '../navigation/types';
 
 const MOOD_OPTIONS = ['😔', '😐', '🙂', '😄'];
@@ -128,22 +128,12 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 </Text>
               </View>
             </View>
-            <Slider
-              value={pain}
-              minimumValue={0}
-              maximumValue={10}
-              step={1}
-              minimumTrackTintColor={theme.colors.pu}
-              maximumTrackTintColor={theme.colors.bo2}
-              thumbTintColor={theme.colors.pu}
-              onValueChange={(v) => setPain(Math.round(v))}
-              style={{ width: '100%' }}
-            />
+            <PainScale value={pain} onChange={setPain} />
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                marginTop: 4,
+                marginTop: 8,
               }}
             >
               <Text style={{ fontSize: 11, color: theme.colors.tl }}>No pain</Text>
