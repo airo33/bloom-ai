@@ -1,21 +1,58 @@
 import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from './src/theme';
 import RootNavigator from './src/navigation/RootNavigator';
+import {
+  setupNotificationHandler,
+  ensureAndroidChannel,
+  reapplyAllFromStore,
+} from './src/lib/notifications';
+import { useAppStore } from './src/store/useAppStore';
 
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider>
+          <NotificationsBootstrap />
           <StatusBar style="auto" />
           <RootNavigator />
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
+}
+
+/**
+ * One-time global init for notifications:
+ *  - install the foreground handler (must run before any notification is
+ *    processed)
+ *  - ensure the Android channel exists
+ *  - re-apply persisted toggles so reminders survive cold starts
+ *
+ * Mounted as a component (not raw useEffect in App) so it has access to
+ * the Zustand store's hydration state via the persist middleware.
+ */
+function NotificationsBootstrap(): null {
+  const hydrated = useAppStore((s) => s.hydrated);
+  const notifications = useAppStore((s) => s.notifications);
+
+  useEffect(() => {
+    setupNotificationHandler();
+    ensureAndroidChannel().catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    reapplyAllFromStore(notifications).catch(() => {});
+    // We intentionally only re-apply on hydration — individual toggles
+    // schedule/cancel themselves via applyReminderToggle in Profile.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+
+  return null;
 }

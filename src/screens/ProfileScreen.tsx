@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable, Switch } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, ScrollView, Pressable, Switch, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Moon,
@@ -14,6 +14,7 @@ import { useTheme, useThemeControls } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
+import { applyReminderToggle, type ReminderCategory } from '../lib/notifications';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -23,6 +24,33 @@ export default function ProfileScreen() {
   const notifications = useAppStore((s) => s.notifications);
   const setNotificationPref = useAppStore((s) => s.setNotificationPref);
   const resetAll = useAppStore((s) => s.resetAll);
+
+  // Per-category busy flag so two rapid toggles don't race
+  const [pending, setPending] = useState<ReminderCategory | null>(null);
+
+  const onToggleReminder = useCallback(
+    async (category: ReminderCategory, value: boolean) => {
+      if (pending) return;
+      setPending(category);
+      // Optimistic: update the store first so the switch flips immediately
+      setNotificationPref(category, value);
+      const ok = await applyReminderToggle(category, value);
+      if (!ok && value) {
+        // Permission denied — revert the toggle and explain
+        setNotificationPref(category, false);
+        Alert.alert(
+          'Notifications disabled',
+          'Enable notifications for RECOVA in your system settings to use reminders.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open settings', onPress: () => Linking.openSettings().catch(() => {}) },
+          ],
+        );
+      }
+      setPending(null);
+    },
+    [pending, setNotificationPref],
+  );
 
   const switchTrackColors = { true: theme.colors.pu, false: theme.colors.bo2 };
   const switchThumbColor = theme.scheme === 'dark' ? theme.colors.th : '#FFFFFF';
@@ -95,11 +123,12 @@ export default function ProfileScreen() {
             iconColor={theme.colors.pt}
             Icon={Activity}
             title="Exercise reminders"
-            subtitle="Every 3 hours"
+            subtitle="5 times a day · 9 AM – 9 PM"
             control={
               <Switch
                 value={notifications.exercise}
-                onValueChange={(v) => setNotificationPref('exercise', v)}
+                disabled={pending === 'exercise'}
+                onValueChange={(v) => onToggleReminder('exercise', v)}
                 trackColor={switchTrackColors}
                 thumbColor={switchThumbColor}
               />
@@ -111,11 +140,12 @@ export default function ProfileScreen() {
             iconColor={theme.colors.bb}
             Icon={Droplet}
             title="Hydration reminders"
-            subtitle="Every 90 minutes"
+            subtitle="Every 90 min · 9 AM – 7:30 PM"
             control={
               <Switch
                 value={notifications.water}
-                onValueChange={(v) => setNotificationPref('water', v)}
+                disabled={pending === 'water'}
+                onValueChange={(v) => onToggleReminder('water', v)}
                 trackColor={switchTrackColors}
                 thumbColor={switchThumbColor}
               />
@@ -127,11 +157,12 @@ export default function ProfileScreen() {
             iconColor={theme.colors.gn}
             Icon={BookOpen}
             title="Journal reminder"
-            subtitle="Evening"
+            subtitle="Evening · 8 PM"
             control={
               <Switch
                 value={notifications.journal}
-                onValueChange={(v) => setNotificationPref('journal', v)}
+                disabled={pending === 'journal'}
+                onValueChange={(v) => onToggleReminder('journal', v)}
                 trackColor={switchTrackColors}
                 thumbColor={switchThumbColor}
               />
