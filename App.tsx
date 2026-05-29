@@ -13,6 +13,8 @@ import {
 } from './src/lib/notifications';
 import { useAppStore } from './src/store/useAppStore';
 import { useSyncBootstrap } from './src/lib/useSyncBootstrap';
+import { setupIap, setIapUser } from './src/lib/iap';
+import { useAuth } from './src/lib/auth';
 
 export default function App() {
   return (
@@ -41,21 +43,28 @@ export default function App() {
 function NotificationsBootstrap(): null {
   const hydrated = useAppStore((s) => s.hydrated);
   const notifications = useAppStore((s) => s.notifications);
+  const { user } = useAuth();
 
   useSyncBootstrap();
 
   useEffect(() => {
     setupNotificationHandler();
     ensureAndroidChannel().catch(() => {});
+    setupIap({ userId: null }).catch(() => {});
   }, []);
 
+  // Reapply notification schedules once Zustand hydrates
   useEffect(() => {
     if (!hydrated) return;
     reapplyAllFromStore(notifications).catch(() => {});
-    // We intentionally only re-apply on hydration — individual toggles
-    // schedule/cancel themselves via applyReminderToggle in Profile.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
+
+  // Tell RevenueCat who the user is once we know — keeps purchase history
+  // attached to the correct identity across re-installs.
+  useEffect(() => {
+    setIapUser(user?.id ?? null).catch(() => {});
+  }, [user]);
 
   return null;
 }
