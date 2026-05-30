@@ -64,14 +64,24 @@ export async function setupIap(opts: { userId?: string | null }): Promise<void> 
   initialized = true;
 
   const key = platformKey();
-  const purchases = loadPurchases();
 
-  if (!key || !purchases) {
+  // Skip loading the native module entirely when there's no API key.
+  // Loading react-native-purchases triggers its Android JNI init which on
+  // some devices (Huawei/Xiaomi without Google Mobile Services, certain
+  // Russian-market ROMs) crashes the process before our try/catch fires.
+  // The mock path doesn't need the SDK at all.
+  if (!key) {
     mode = 'mock';
     // eslint-disable-next-line no-console
-    console.log(
-      `[iap] running in MOCK mode (${!key ? 'no RC API key' : 'native module missing'})`,
-    );
+    console.log('[iap] running in MOCK mode (no RC API key)');
+    return;
+  }
+
+  const purchases = loadPurchases();
+  if (!purchases) {
+    mode = 'mock';
+    // eslint-disable-next-line no-console
+    console.log('[iap] running in MOCK mode (native module missing)');
     return;
   }
 
