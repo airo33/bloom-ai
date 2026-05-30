@@ -9,6 +9,7 @@ import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
 import CategoryTile from '../components/CategoryTile';
 import SectionLabel from '../components/SectionLabel';
+import { moodFor } from '../data/moods';
 import type { RootStackParamList } from '../navigation/types';
 import type { PlanPhase, WeekdayShort } from '../types/plan';
 
@@ -533,16 +534,27 @@ export default function ScheduleScreen() {
                       Pain {log.pain}/10
                     </Text>
                   </View>
-                  <View
-                    style={{
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 20,
-                      backgroundColor: theme.colors.card2,
-                    }}
-                  >
-                    <Text style={{ fontSize: 12, color: theme.colors.tb }}>{log.mood}</Text>
-                  </View>
+                  {(() => {
+                    const m = moodFor(log.mood);
+                    return (
+                      <View
+                        style={{
+                          paddingHorizontal: 10,
+                          paddingVertical: 4,
+                          borderRadius: 20,
+                          backgroundColor: theme.colors.card2,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 5,
+                        }}
+                      >
+                        <m.Icon size={12} color={theme.colors.tb} strokeWidth={2.2} />
+                        <Text style={{ fontSize: 12, color: theme.colors.tb, fontWeight: '600' }}>
+                          {m.label}
+                        </Text>
+                      </View>
+                    );
+                  })()}
                   <View
                     style={{
                       paddingHorizontal: 10,

@@ -7,6 +7,7 @@ import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
 import PainChart from '../components/PainChart';
+import { moodFor } from '../data/moods';
 
 interface StatCardProps {
   label: string;
@@ -234,16 +235,27 @@ export default function ProgressScreen() {
                     Pain {log.pain}/10
                   </Text>
                 </View>
-                <View
-                  style={{
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                    borderRadius: 20,
-                    backgroundColor: theme.colors.card2,
-                  }}
-                >
-                  <Text style={{ fontSize: 12, color: theme.colors.tb }}>{log.mood}</Text>
-                </View>
+                {(() => {
+                  const m = moodFor(log.mood);
+                  return (
+                    <View
+                      style={{
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 20,
+                        backgroundColor: theme.colors.card2,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 5,
+                      }}
+                    >
+                      <m.Icon size={12} color={theme.colors.tb} strokeWidth={2.2} />
+                      <Text style={{ fontSize: 12, color: theme.colors.tb, fontWeight: '600' }}>
+                        {m.label}
+                      </Text>
+                    </View>
+                  );
+                })()}
                 <View
                   style={{
                     paddingHorizontal: 10,

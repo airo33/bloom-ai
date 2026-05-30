@@ -5,6 +5,7 @@ import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { genericFallbackPlan } from '../data/fallbackPlan';
 import { generatePlan } from '../lib/api';
+import Logo from '../components/Logo';
 import type { RootStackScreenProps } from '../navigation/types';
 
 const MESSAGES = [
@@ -49,7 +50,7 @@ function Dot({ delay, color }: { delay: number; color: string }) {
   );
 }
 
-function PulsingBrand({ color }: { color: string }) {
+function PulsingBrand() {
   const anim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -61,23 +62,17 @@ function PulsingBrand({ color }: { color: string }) {
     loop.start();
     return () => loop.stop();
   }, [anim]);
-  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] });
   const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] });
   return (
     <Animated.View
       style={{
-        width: 96,
-        height: 96,
-        borderRadius: 28,
-        backgroundColor: color,
-        alignItems: 'center',
-        justifyContent: 'center',
         marginBottom: 28,
         transform: [{ scale }],
         opacity,
       }}
     >
-      <Text style={{ fontSize: 48 }}>🫀</Text>
+      <Logo size={96} variant="filled" />
     </Animated.View>
   );
 }
@@ -131,7 +126,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-        <PulsingBrand color={theme.colors.pl} />
+        <PulsingBrand />
         <Text
           style={{
             fontSize: 22,

@@ -7,14 +7,9 @@ import Input from '../components/Input';
 import ProgressBar from '../components/ProgressBar';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
+import { FITNESS_LEVELS } from '../data/fitnessLevels';
 import type { RootStackScreenProps } from '../navigation/types';
 import type { FitnessLevel } from '../types/plan';
-
-const LEVELS: { id: FitnessLevel; emoji: string; label: string }[] = [
-  { id: 'Sedentary', emoji: '🛋️', label: 'Sedentary' },
-  { id: 'Moderate', emoji: '🚴', label: 'Moderate' },
-  { id: 'Athletic', emoji: '🏅', label: 'Athletic' },
-];
 
 export default function Onboarding1Screen({
   navigation,
@@ -96,25 +91,41 @@ export default function Onboarding1Screen({
 
           <FieldLabel>Fitness level before injury</FieldLabel>
           <View style={{ flexDirection: 'row', gap: 10 }}>
-            {LEVELS.map((lv) => {
+            {FITNESS_LEVELS.map((lv) => {
               const selected = level === lv.id;
+              const iconColor = selected ? theme.colors.pt : theme.colors.tb;
               return (
                 <Pressable
                   key={lv.id}
                   onPress={() => setLevel(lv.id)}
                   style={{
                     flex: 1,
-                    paddingVertical: 16,
-                    paddingHorizontal: 4,
+                    paddingVertical: 18,
+                    paddingHorizontal: 6,
                     borderRadius: 16,
                     borderWidth: selected ? 2 : 1,
                     borderColor: selected ? theme.colors.pu : theme.colors.bo,
                     backgroundColor: selected ? theme.colors.pl : theme.colors.card,
                     alignItems: 'center',
-                    gap: 6,
+                    gap: 8,
                   }}
                 >
-                  <Text style={{ fontSize: 24 }}>{lv.emoji}</Text>
+                  <View
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 12,
+                      backgroundColor: selected ? theme.colors.pu : theme.colors.card2,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <lv.Icon
+                      size={20}
+                      color={selected ? (theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF') : iconColor}
+                      strokeWidth={2}
+                    />
+                  </View>
                   <Text
                     style={{
                       fontSize: 12,

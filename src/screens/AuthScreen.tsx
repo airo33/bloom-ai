@@ -12,6 +12,7 @@ import { Mail, Lock, User as UserIcon, ArrowRight } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import Logo from '../components/Logo';
 import { signInWithEmail, signUpWithEmail } from '../lib/auth';
 
 type Mode = 'signin' | 'signup';
@@ -78,20 +79,8 @@ export default function AuthScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Brand mark */}
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 22,
-              backgroundColor: theme.colors.pl,
-              borderWidth: 1,
-              borderColor: theme.colors.pb,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 24,
-            }}
-          >
-            <Text style={{ fontSize: 38 }}>🫀</Text>
+          <View style={{ marginBottom: 24 }}>
+            <Logo size={72} variant="filled" />
           </View>
 
           <Text

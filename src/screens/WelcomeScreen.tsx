@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowRight, KeyRound } from 'lucide-react-native';
 import Button from '../components/Button';
+import Logo from '../components/Logo';
 import { useTheme } from '../theme';
 import type { RootStackScreenProps } from '../navigation/types';
 
@@ -20,20 +21,8 @@ export default function WelcomeScreen({ navigation }: RootStackScreenProps<'Welc
           showsVerticalScrollIndicator={false}
         >
           {/* Brand mark */}
-          <View
-            style={{
-              width: 84,
-              height: 84,
-              borderRadius: 24,
-              backgroundColor: theme.colors.pl,
-              borderWidth: 1,
-              borderColor: theme.colors.pb,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 24,
-            }}
-          >
-            <Text style={{ fontSize: 44 }}>🫀</Text>
+          <View style={{ marginBottom: 24 }}>
+            <Logo size={84} variant="filled" />
           </View>
 
           <Text

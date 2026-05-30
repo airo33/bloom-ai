@@ -8,9 +8,8 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import Input from '../components/Input';
 import PainScale from '../components/PainScale';
+import { MOOD_OPTIONS } from '../data/moods';
 import type { RootStackScreenProps } from '../navigation/types';
-
-const MOOD_OPTIONS = ['😔', '😐', '🙂', '😄'];
 
 export default function JournalScreen({ navigation }: RootStackScreenProps<'Journal'>) {
   const theme = useTheme();
@@ -27,7 +26,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
       day,
       date: new Date().toISOString().slice(0, 10),
       pain,
-      mood: mood ?? '🙂',
+      mood: mood ?? MOOD_OPTIONS[2].value, // default "Good"
       water,
       notes: notes.trim() || undefined,
     });
@@ -156,22 +155,28 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             </Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {MOOD_OPTIONS.map((m) => {
-                const selected = mood === m;
+                const selected = mood === m.value;
+                const iconColor = selected
+                  ? theme.scheme === 'dark'
+                    ? '#0A0A0A'
+                    : '#FFFFFF'
+                  : theme.colors.tb;
                 return (
                   <Pressable
-                    key={m}
-                    onPress={() => setMood(m)}
+                    key={m.id}
+                    onPress={() => setMood(m.value)}
                     style={{
                       flex: 1,
                       paddingVertical: 14,
                       borderRadius: 14,
                       borderWidth: selected ? 2 : 1,
                       borderColor: selected ? theme.colors.pu : theme.colors.bo,
-                      backgroundColor: selected ? theme.colors.pl : theme.colors.card2,
+                      backgroundColor: selected ? theme.colors.pu : theme.colors.card2,
                       alignItems: 'center',
+                      gap: 4,
                     }}
                   >
-                    <Text style={{ fontSize: 24 }}>{m}</Text>
+                    <m.Icon size={26} color={iconColor} strokeWidth={2} />
                   </Pressable>
                 );
               })}
