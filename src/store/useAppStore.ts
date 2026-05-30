@@ -74,6 +74,7 @@ interface AppState {
   setWeekOffset: (off: number) => void;
   advanceDay: () => void;          // call once per calendar day
   resetAll: () => void;
+  clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
   clearChat: () => void;
 }
@@ -115,9 +116,17 @@ export const useAppStore = create<AppState>()(
       setPlan: (plan) => set({ plan }),
 
       setSubscription: (tier) =>
-        set({
-          subscriptionTier: tier,
-          progress: { ...initialProgress, lastResetDate: todayISO() },
+        set((s) => {
+          // If the user already had a tier, this is an upgrade/change —
+          // preserve recovery progress (day, streak, water, logs). The
+          // initial-progress reset was always a no-op anyway because the
+          // user is at day 1 on first subscribe, so we get the same
+          // outcome without trampling later state.
+          if (s.subscriptionTier) return { subscriptionTier: tier };
+          return {
+            subscriptionTier: tier,
+            progress: { ...initialProgress, lastResetDate: todayISO() },
+          };
         }),
 
       toggleExerciseDone: (id) =>
@@ -165,15 +174,26 @@ export const useAppStore = create<AppState>()(
           const today = todayISO();
           if (s.progress.lastResetDate === today) return s;
           const previousDate = s.progress.lastResetDate;
-          // Streak: increment only if previous reset was yesterday
-          let nextStreak = s.progress.streak;
-          if (previousDate) {
-            const prev = new Date(previousDate);
-            const diff = Math.round(
-              (Date.parse(today) - prev.getTime()) / 86400000,
-            );
-            nextStreak = diff === 1 ? s.progress.streak + 1 : 1;
+
+          // First-ever launch: there's no previous date to advance from,
+          // so today IS day 1 (or whatever day they're on). Just stamp
+          // the reset marker without incrementing.
+          if (!previousDate) {
+            return {
+              progress: {
+                ...s.progress,
+                lastResetDate: today,
+              },
+            };
           }
+
+          // Streak: +1 if the previous calendar day, otherwise reset to 1
+          const prev = new Date(previousDate);
+          const diff = Math.round(
+            (Date.parse(today) - prev.getTime()) / 86400000,
+          );
+          const nextStreak = diff === 1 ? s.progress.streak + 1 : 1;
+
           return {
             progress: {
               ...s.progress,
@@ -183,7 +203,7 @@ export const useAppStore = create<AppState>()(
               water: 0,
               waterHistory: [
                 ...s.progress.waterHistory.slice(-29),
-                { date: today, glasses: s.progress.water },
+                { date: previousDate, glasses: s.progress.water },
               ],
               lastResetDate: today,
             },
@@ -199,6 +219,21 @@ export const useAppStore = create<AppState>()(
           subscriptionTier: null,
           chatHistory: [],
           notifications: { exercise: false, water: false, journal: false },
+        }),
+
+      // Sign-out cleanup: drop everything that's user-specific so the next
+      // user doesn't see the previous user's data while the cloud pull
+      // runs. We keep notification PREFERENCE booleans alone since the
+      // notification system is responsible for cancelling its own scheduled
+      // entries on sign-out (see ProfileScreen).
+      clearUserData: () =>
+        set({
+          profile: initialProfile,
+          plan: null,
+          progress: initialProgress,
+          logs: [],
+          subscriptionTier: null,
+          chatHistory: [],
         }),
 
       appendChat: (role, content) =>

@@ -241,11 +241,14 @@ function InputWithIcon({ Icon, ...inputProps }: InputWithIconProps) {
   return (
     <View style={{ position: 'relative', justifyContent: 'center' }}>
       <View
+        // pointerEvents on the View prop (not in style) is the supported
+        // way in our RN; without it the icon swallows the tap that should
+        // focus the input.
+        pointerEvents="none"
         style={{
           position: 'absolute',
           left: 14,
           zIndex: 1,
-          pointerEvents: 'none' as never,
         }}
       >
         <Icon size={18} color={theme.colors.tm} strokeWidth={2} />

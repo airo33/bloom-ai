@@ -70,9 +70,14 @@ export default function ProgressRing({
       </Svg>
       {label ? (
         <View
+          // `inset: 0` is a web-only CSS shorthand — RN expects each side
+          // spelled out, otherwise the label doesn't center over the ring.
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             alignItems: 'center',
             justifyContent: 'center',
           }}

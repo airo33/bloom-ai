@@ -195,3 +195,21 @@ export async function reapplyAllFromStore(prefs: {
     }
   }
 }
+
+/**
+ * Cancel every scheduled notification for this app + drop our stored
+ * id-map. Called on sign-out so reminders we scheduled for user A
+ * don't keep firing on the device for user B.
+ */
+export async function cancelAllReminders(): Promise<void> {
+  try {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  } catch {
+    // ignore — best-effort cleanup
+  }
+  try {
+    await AsyncStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}

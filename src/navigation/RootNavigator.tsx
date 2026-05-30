@@ -72,6 +72,11 @@ export default function RootNavigator() {
       }}
     >
       <Stack.Navigator
+        // Force a fresh navigator on auth transitions. Without this, React
+        // Navigation can keep stale routes when we swap Stack.Groups, and
+        // the new initialRouteName silently doesn't apply since it's only
+        // honoured at mount time.
+        key={auth.user?.id ?? 'anon'}
         initialRouteName={isAuthenticated ? authedInitial : 'Auth'}
         screenOptions={{
           headerShown: false,

@@ -15,7 +15,11 @@ import { useTheme, useThemeControls } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
-import { applyReminderToggle, type ReminderCategory } from '../lib/notifications';
+import {
+  applyReminderToggle,
+  cancelAllReminders,
+  type ReminderCategory,
+} from '../lib/notifications';
 import { useAuth, signOut, displayNameFor } from '../lib/auth';
 
 export default function ProfileScreen() {
@@ -26,6 +30,7 @@ export default function ProfileScreen() {
   const notifications = useAppStore((s) => s.notifications);
   const setNotificationPref = useAppStore((s) => s.setNotificationPref);
   const resetAll = useAppStore((s) => s.resetAll);
+  const clearUserData = useAppStore((s) => s.clearUserData);
   const { user } = useAuth();
 
   const handleSignOut = useCallback(() => {
@@ -37,11 +42,18 @@ export default function ProfileScreen() {
         {
           text: 'Sign out',
           style: 'destructive',
-          onPress: () => signOut().catch(() => {}),
+          onPress: async () => {
+            // Tear down BEFORE auth fires so the next session lands on a
+            // clean slate. Order: cancel OS-scheduled reminders, then drop
+            // local user-scoped state, then sign Supabase out.
+            await cancelAllReminders();
+            clearUserData();
+            await signOut().catch(() => {});
+          },
         },
       ],
     );
-  }, []);
+  }, [clearUserData]);
 
   // Per-category busy flag so two rapid toggles don't race
   const [pending, setPending] = useState<ReminderCategory | null>(null);
