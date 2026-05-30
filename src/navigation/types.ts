@@ -16,6 +16,7 @@ export type RootStackParamList = {
   Exercise: { exerciseId: string };
   Journal: undefined;
   Chat: undefined;
+  Legal: { kind: 'privacy' | 'terms' };
 };
 
 export type MainTabParamList = {

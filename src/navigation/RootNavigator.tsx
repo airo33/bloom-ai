@@ -17,6 +17,7 @@ import SubscriptionScreen from '../screens/SubscriptionScreen';
 import ExerciseScreen from '../screens/ExerciseScreen';
 import JournalScreen from '../screens/JournalScreen';
 import ChatScreen from '../screens/ChatScreen';
+import LegalScreen from '../screens/LegalScreen';
 import MainTabs from './MainTabs';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -109,6 +110,7 @@ export default function RootNavigator() {
               options={{ presentation: 'modal' }}
             />
             <Stack.Screen name="Chat" component={ChatScreen} />
+            <Stack.Screen name="Legal" component={LegalScreen} />
           </Stack.Group>
         ) : (
           <Stack.Group key="auth">

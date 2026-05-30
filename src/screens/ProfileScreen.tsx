@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, ScrollView, Pressable, Switch, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   Moon,
   Sun,
@@ -10,6 +12,8 @@ import {
   RefreshCw,
   ChevronRight,
   LogOut,
+  Shield,
+  FileText,
 } from 'lucide-react-native';
 import { useTheme, useThemeControls } from '../theme';
 import { useAppStore } from '../store/useAppStore';
@@ -21,6 +25,7 @@ import {
   type ReminderCategory,
 } from '../lib/notifications';
 import { useAuth, signOut, displayNameFor } from '../lib/auth';
+import type { RootStackParamList } from '../navigation/types';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -32,6 +37,7 @@ export default function ProfileScreen() {
   const resetAll = useAppStore((s) => s.resetAll);
   const clearUserData = useAppStore((s) => s.clearUserData);
   const { user } = useAuth();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleSignOut = useCallback(() => {
     Alert.alert(
@@ -208,6 +214,25 @@ export default function ProfileScreen() {
           />
         </Card>
 
+        <SectionLabel>About</SectionLabel>
+        <Card padding={0} style={{ marginBottom: 20 }}>
+          <NavRow
+            iconBg={theme.colors.bl}
+            iconColor={theme.colors.bb}
+            Icon={Shield}
+            title="Privacy Policy"
+            onPress={() => nav.navigate('Legal', { kind: 'privacy' })}
+            divider
+          />
+          <NavRow
+            iconBg={theme.colors.card2}
+            iconColor={theme.colors.tb}
+            Icon={FileText}
+            title="Terms of Service"
+            onPress={() => nav.navigate('Legal', { kind: 'terms' })}
+          />
+        </Card>
+
         <SectionLabel>Settings</SectionLabel>
         <Card padding={0} style={{ marginBottom: 24 }}>
           <Pressable
@@ -298,6 +323,58 @@ interface RowProps {
   subtitle: string;
   control: React.ReactNode;
   divider?: boolean;
+}
+
+interface NavRowProps {
+  iconBg: string;
+  iconColor: string;
+  Icon: React.FC<{ size: number; color: string; strokeWidth?: number }>;
+  title: string;
+  onPress: () => void;
+  divider?: boolean;
+}
+
+function NavRow({ iconBg, iconColor, Icon, title, onPress, divider }: NavRowProps) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        padding: 14,
+        borderBottomWidth: divider ? 1 : 0,
+        borderBottomColor: theme.colors.bo,
+        opacity: pressed ? 0.7 : 1,
+      })}
+    >
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 12,
+          backgroundColor: iconBg,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon size={17} color={iconColor} strokeWidth={2.2} />
+      </View>
+      <Text
+        style={{
+          flex: 1,
+          fontSize: 15,
+          color: theme.colors.th,
+          fontWeight: '700',
+          letterSpacing: -0.2,
+        }}
+      >
+        {title}
+      </Text>
+      <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
+    </Pressable>
+  );
 }
 
 function Row({ iconBg, iconColor, Icon, title, subtitle, control, divider }: RowProps) {
