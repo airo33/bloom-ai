@@ -1,11 +1,11 @@
 // Supabase client — uses AsyncStorage for session persistence on the device.
-// URL and anon key come from EXPO_PUBLIC_ env vars (set in .env). Both are
-// public/safe to ship.
+// URL and anon key come from EXPO_PUBLIC_ env vars (set in .env).
 //
-// We install a custom fetch that ALWAYS times out after a fixed budget so
-// slow / lossy mobile networks (think 17 KB/s through a VPN tunnel) can't
-// hang the UI forever. Without this, requests can sit in the queue for
-// minutes before the OS gives up.
+// Defensive note: this module is loaded at app start. Anything that throws
+// here would crash the app before any UI renders. We wrap initialization
+// in a try/catch and fall back to a no-op placeholder client. Any code
+// that actually uses Supabase (auth/sync) will then fail at call time
+// with a clear error — much easier to debug than a generic launch crash.
 
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,13 +31,11 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   );
 }
 
-/** fetch wrapper with a hard timeout + a clean error name we can match on. */
 const fetchWithTimeout: typeof fetch = (input, init) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   return fetch(input, { ...init, signal: controller.signal })
     .catch((err: unknown) => {
-      // AbortError on timeout → re-throw with a user-friendly name
       if (
         err &&
         typeof err === 'object' &&
@@ -55,21 +53,35 @@ const fetchWithTimeout: typeof fetch = (input, init) => {
     .finally(() => clearTimeout(timer));
 };
 
-export const supabase: SupabaseClient = createClient(
-  SUPABASE_URL ?? 'https://placeholder.supabase.co',
-  SUPABASE_ANON_KEY ?? 'placeholder',
-  {
-    auth: {
-      storage: AsyncStorage,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
+// Create the client lazily inside a try/catch. If createClient itself
+// throws at import time (e.g. a polyfill issue on certain Android ROMs),
+// we still keep the module exports defined so consumers don't blow up.
+let _supabase: SupabaseClient;
+try {
+  _supabase = createClient(
+    SUPABASE_URL ?? 'https://placeholder.supabase.co',
+    SUPABASE_ANON_KEY ?? 'placeholder',
+    {
+      auth: {
+        storage: AsyncStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+      },
+      global: {
+        fetch: fetchWithTimeout,
+      },
     },
-    global: {
-      fetch: fetchWithTimeout,
-    },
-  },
-);
+  );
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.error('[supabase] createClient failed:', err);
+  // Minimum-viable stub so module-level imports don't crash. Any real
+  // call (auth/getSession etc.) will throw and be caught by useAuth or
+  // the api wrappers.
+  _supabase = createClient('https://placeholder.supabase.co', 'placeholder') as SupabaseClient;
+}
 
+export const supabase = _supabase;
 export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 export { SUPABASE_URL };
