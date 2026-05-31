@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Sparkles, Target, AlertTriangle, ListChecks } from 'lucide-react-native';
+import { Sparkles, Target, TriangleAlert as AlertTriangle, ListChecks } from 'lucide-react-native';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import CategoryTile from '../components/CategoryTile';

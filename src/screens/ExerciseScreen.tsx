@@ -10,7 +10,7 @@ import {
   ClipboardList,
   FlaskConical,
   Sprout,
-  AlertTriangle,
+  TriangleAlert as AlertTriangle,
   Siren,
   Check,
   RotateCcw,

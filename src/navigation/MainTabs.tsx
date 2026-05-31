@@ -1,7 +1,16 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, Calendar, BarChart3, User, Plus } from 'lucide-react-native';
+// lucide-react-native >=1.x renamed several icons. Alias the new names
+// back to the ones used below so the JSX stays unchanged:
+//   Home -> House, BarChart3 -> ChartColumn
+import {
+  House as Home,
+  Calendar,
+  ChartColumn as BarChart3,
+  User,
+  Plus,
+} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainTabParamList, RootStackParamList } from './types';
