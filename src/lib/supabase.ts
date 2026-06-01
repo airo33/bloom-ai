@@ -14,15 +14,17 @@ import Constants from 'expo-constants';
 
 const FETCH_TIMEOUT_MS = 25_000;
 
-function readConfig(key: string): string | undefined {
-  return (
-    process.env[`EXPO_PUBLIC_${key}`] ??
-    (Constants.expoConfig?.extra as Record<string, string> | undefined)?.[key]
-  );
-}
-
-const SUPABASE_URL = readConfig('SUPABASE_URL');
-const SUPABASE_ANON_KEY = readConfig('SUPABASE_ANON_KEY');
+// IMPORTANT: must use LITERAL property access on process.env, not
+// dynamic indexing. Metro's babel transform only inlines literal lookups
+// at build time — `process.env[`EXPO_PUBLIC_${key}`]` stays in the
+// bundle and resolves to `undefined` at runtime because React Native
+// has no real process.env.
+const SUPABASE_URL =
+  process.env.EXPO_PUBLIC_SUPABASE_URL ??
+  (Constants.expoConfig?.extra as Record<string, string> | undefined)?.SUPABASE_URL;
+const SUPABASE_ANON_KEY =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ??
+  (Constants.expoConfig?.extra as Record<string, string> | undefined)?.SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   // eslint-disable-next-line no-console
