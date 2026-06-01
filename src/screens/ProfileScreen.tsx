@@ -26,6 +26,7 @@ import {
 } from '../lib/notifications';
 import { useAuth, signOut, displayNameFor } from '../lib/auth';
 import type { RootStackParamList } from '../navigation/types';
+import type { SubscriptionTier, FitnessLevel } from '../types/plan';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -97,49 +98,14 @@ export default function ProfileScreen() {
         contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 12, paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text
-          style={{
-            fontSize: 11,
-            color: theme.colors.tm,
-            fontWeight: '700',
-            letterSpacing: 0.8,
-            textTransform: 'uppercase',
-            marginBottom: 3,
-          }}
-        >
-          Profile
-        </Text>
-        <Text
-          style={{
-            fontSize: 26,
-            fontWeight: '800',
-            color: theme.colors.th,
-            letterSpacing: -0.5,
-            marginBottom: 20,
-          }}
-        >
-          {profile.name || displayNameFor(user)}
-        </Text>
+        <ProfileHeader
+          name={profile.name || displayNameFor(user)}
+          email={user?.email ?? null}
+          fitnessLevel={profile.fitnessLevel || null}
+          age={profile.age || null}
+          tier={tier}
+        />
 
-        <Card style={{ marginBottom: 20 }} padding={16}>
-          {user?.email && (
-            <Text style={{ fontSize: 13, color: theme.colors.tm, marginBottom: 6 }}>
-              Signed in as{' '}
-              <Text style={{ fontWeight: '700', color: theme.colors.th }}>
-                {user.email}
-              </Text>
-            </Text>
-          )}
-          <Text style={{ fontSize: 13, color: theme.colors.tb }}>
-            {profile.fitnessLevel || 'Fitness level not set'} · {profile.age || '—'} years old
-          </Text>
-          <Text style={{ fontSize: 13, color: theme.colors.tm, marginTop: 4 }}>
-            Subscription:{' '}
-            <Text style={{ fontWeight: '700', color: theme.colors.th }}>
-              {tier ?? 'none'}
-            </Text>
-          </Text>
-        </Card>
 
         <SectionLabel>Appearance</SectionLabel>
         <Card padding={0} style={{ marginBottom: 20 }}>
@@ -409,6 +375,185 @@ function Row({ iconBg, iconColor, Icon, title, subtitle, control, divider }: Row
         <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 1 }}>{subtitle}</Text>
       </View>
       {control}
+    </View>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Profile header card — avatar + name + email + tier badge + stats pills.
+// Pulled out as its own component to keep the main screen body tidy and
+// give the design space to breathe at the top of the scroll.
+// ────────────────────────────────────────────────────────────────────────────
+
+interface ProfileHeaderProps {
+  name: string;
+  email: string | null;
+  fitnessLevel: FitnessLevel | null;
+  age: string | null;
+  tier: SubscriptionTier;
+}
+
+function ProfileHeader({ name, email, fitnessLevel, age, tier }: ProfileHeaderProps) {
+  const theme = useTheme();
+  const initial = (name?.trim() || 'F').charAt(0).toUpperCase();
+  const onPrimary = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
+
+  // Tier badge styling — each tier gets its own pill aesthetic so the
+  // subscription status reads at a glance.
+  const tierStyle = (() => {
+    switch (tier) {
+      case 'monthly':
+      case 'annual':
+        return { label: tier === 'annual' ? 'PRO · ANNUAL' : 'PRO · MONTHLY', bg: theme.colors.pu, fg: onPrimary };
+      case 'weekly':
+        return { label: 'TRIAL · WEEKLY', bg: theme.colors.pl, fg: theme.colors.pt };
+      case 'trial':
+        return { label: 'TRIAL', bg: theme.colors.card2, fg: theme.colors.tb };
+      default:
+        return { label: 'FREE', bg: theme.colors.card2, fg: theme.colors.tm };
+    }
+  })();
+
+  return (
+    <View style={{ marginBottom: 22 }}>
+      <Text
+        style={{
+          fontSize: 11,
+          color: theme.colors.tm,
+          fontWeight: '700',
+          letterSpacing: 0.8,
+          textTransform: 'uppercase',
+          marginBottom: 12,
+        }}
+      >
+        Account
+      </Text>
+
+      {/* Top row: avatar + name/email block + tier chip */}
+      <View
+        style={{
+          backgroundColor: theme.colors.card,
+          borderRadius: 22,
+          borderWidth: 1,
+          borderColor: theme.colors.bo,
+          padding: 18,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 28,
+              backgroundColor: theme.colors.pu,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ color: onPrimary, fontSize: 22, fontWeight: '800', letterSpacing: -0.5 }}>
+              {initial}
+            </Text>
+          </View>
+
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text
+              numberOfLines={1}
+              style={{
+                fontSize: 19,
+                fontWeight: '800',
+                color: theme.colors.th,
+                letterSpacing: -0.4,
+                marginBottom: 2,
+              }}
+            >
+              {name}
+            </Text>
+            {email && (
+              <Text
+                numberOfLines={1}
+                style={{ fontSize: 13, color: theme.colors.tm, letterSpacing: -0.1 }}
+              >
+                {email}
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {/* Tier chip — full-width, easy to tap visually */}
+        <View
+          style={{
+            marginTop: 14,
+            backgroundColor: tierStyle.bg,
+            borderRadius: 14,
+            paddingVertical: 10,
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            style={{
+              color: tierStyle.fg,
+              fontSize: 11,
+              fontWeight: '800',
+              letterSpacing: 0.8,
+            }}
+          >
+            {tierStyle.label}
+          </Text>
+        </View>
+
+        {/* Stats pills — fitness level + age, only render the ones we have */}
+        {(fitnessLevel || age) && (
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 8,
+              marginTop: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            {fitnessLevel && (
+              <View
+                style={{
+                  backgroundColor: theme.colors.card2,
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Text style={{ fontSize: 10, color: theme.colors.tm, fontWeight: '700', letterSpacing: 0.4 }}>
+                  FITNESS
+                </Text>
+                <Text style={{ fontSize: 13, color: theme.colors.th, fontWeight: '700', letterSpacing: -0.2 }}>
+                  {fitnessLevel}
+                </Text>
+              </View>
+            )}
+            {age && (
+              <View
+                style={{
+                  backgroundColor: theme.colors.card2,
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Text style={{ fontSize: 10, color: theme.colors.tm, fontWeight: '700', letterSpacing: 0.4 }}>
+                  AGE
+                </Text>
+                <Text style={{ fontSize: 13, color: theme.colors.th, fontWeight: '700', letterSpacing: -0.2 }}>
+                  {age}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
     </View>
   );
 }
