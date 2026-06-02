@@ -24,7 +24,22 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#B5E550",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "imageWidth": 220,
+            "resizeMode": "contain",
+            "backgroundColor": "#0A0A0A"
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {
