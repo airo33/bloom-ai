@@ -14,6 +14,7 @@ import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import TypingDots from '../components/TypingDots';
 import { chatPhysio } from '../lib/api';
+import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
 
 const SUGGESTED_PROMPTS = [
@@ -48,6 +49,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
       appendChat('user', trimmed);
       setInput('');
       setSending(true);
+      track('chat_sent', { length: trimmed.length });
 
       try {
         const result = await chatPhysio({

@@ -51,6 +51,12 @@ export interface JournalLog {
   pain: number;               // 0-10
   mood: string;               // emoji
   water: number;              // glasses 0-8
+  /** Optional subjective sleep quality 0-10 (added later, may be missing on old rows) */
+  sleepQuality?: number;
+  /** Optional subjective energy 0-10 */
+  energy?: number;
+  /** Optional subjective stress 0-10 */
+  stress?: number;
   notes?: string;
   createdAt: string;          // ISO
 }

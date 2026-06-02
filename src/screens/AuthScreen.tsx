@@ -14,6 +14,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Logo from '../components/Logo';
 import { signInWithEmail, signUpWithEmail } from '../lib/auth';
+import { track } from '../lib/analytics';
 
 type Mode = 'signin' | 'signup';
 
@@ -45,8 +46,10 @@ export default function AuthScreen() {
     try {
       if (mode === 'signup') {
         await signUpWithEmail({ email, password, name });
+        track('user_signed_up');
       } else {
         await signInWithEmail(email, password);
+        track('user_signed_in');
       }
       // Successful auth flips the session in supabase client → useAuth fires →
       // RootNavigator swaps to the main app. Nothing to do here.

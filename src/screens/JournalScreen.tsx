@@ -9,6 +9,7 @@ import Card from '../components/Card';
 import Input from '../components/Input';
 import PainScale from '../components/PainScale';
 import { MOOD_OPTIONS } from '../data/moods';
+import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
 
 export default function JournalScreen({ navigation }: RootStackScreenProps<'Journal'>) {
@@ -20,6 +21,9 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
   const [pain, setPain] = useState(0);
   const [mood, setMood] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
+  const [sleep, setSleep] = useState<number | null>(null);
+  const [energy, setEnergy] = useState<number | null>(null);
+  const [stress, setStress] = useState<number | null>(null);
 
   const save = () => {
     addLog({
@@ -28,7 +32,17 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
       pain,
       mood: mood ?? MOOD_OPTIONS[2].value, // default "Good"
       water,
+      sleepQuality: sleep ?? undefined,
+      energy: energy ?? undefined,
+      stress: stress ?? undefined,
       notes: notes.trim() || undefined,
+    });
+    track('journal_saved', {
+      pain,
+      has_sleep: sleep !== null,
+      has_energy: energy !== null,
+      has_stress: stress !== null,
+      has_notes: notes.trim().length > 0,
     });
     navigation.goBack();
   };
@@ -183,6 +197,26 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             </View>
           </Card>
 
+          {/* Sleep / Energy / Stress — optional sliders, render only if user wants */}
+          <Card style={{ marginBottom: 12 }} padding={18}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '700',
+                color: theme.colors.th,
+                marginBottom: 12,
+                letterSpacing: -0.2,
+              }}
+            >
+              How are you feeling? <Text style={{ color: theme.colors.tm, fontWeight: '400' }}>(optional)</Text>
+            </Text>
+            <OptionalScale label="Sleep quality" value={sleep} onChange={setSleep} bandLow="Poor" bandHigh="Great" />
+            <View style={{ height: 12 }} />
+            <OptionalScale label="Energy" value={energy} onChange={setEnergy} bandLow="Drained" bandHigh="Energized" />
+            <View style={{ height: 12 }} />
+            <OptionalScale label="Stress" value={stress} onChange={setStress} bandLow="Calm" bandHigh="Stressed" />
+          </Card>
+
           {/* Notes */}
           <Card style={{ marginBottom: 14 }} padding={18}>
             <Text
@@ -211,5 +245,69 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+interface OptionalScaleProps {
+  label: string;
+  value: number | null;
+  onChange: (v: number | null) => void;
+  bandLow: string;
+  bandHigh: string;
+}
+
+function OptionalScale({ label, value, onChange, bandLow, bandHigh }: OptionalScaleProps) {
+  const theme = useTheme();
+  return (
+    <View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+        <Text style={{ fontSize: 13, color: theme.colors.tb, fontWeight: '600' }}>{label}</Text>
+        {value !== null && (
+          <Pressable hitSlop={10} onPress={() => onChange(null)}>
+            <Text style={{ fontSize: 11, color: theme.colors.tm }}>clear</Text>
+          </Pressable>
+        )}
+      </View>
+      <View style={{ flexDirection: 'row', gap: 4 }}>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => {
+          const selected = value === n;
+          return (
+            <Pressable
+              key={n}
+              hitSlop={4}
+              onPress={() => onChange(selected ? null : n)}
+              style={{
+                flex: 1,
+                aspectRatio: 1,
+                borderRadius: 8,
+                borderWidth: selected ? 0 : 1,
+                borderColor: theme.colors.bo,
+                backgroundColor: selected ? theme.colors.pu : theme.colors.card2,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: '800',
+                  color: selected
+                    ? theme.scheme === 'dark'
+                      ? '#0A0A0A'
+                      : '#FFFFFF'
+                    : theme.colors.tb,
+                }}
+              >
+                {n}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
+        <Text style={{ fontSize: 10, color: theme.colors.tl }}>{bandLow}</Text>
+        <Text style={{ fontSize: 10, color: theme.colors.tl }}>{bandHigh}</Text>
+      </View>
+    </View>
   );
 }

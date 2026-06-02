@@ -36,7 +36,18 @@ interface JournalRow {
   pain: number;
   mood: string;
   water: number;
+  sleep_quality: number | null;
+  energy: number | null;
+  stress: number | null;
   notes: string | null;
+  created_at: string;
+}
+
+interface ChatRow {
+  id: string;
+  user_id: string;
+  role: 'user' | 'assistant';
+  content: string;
   created_at: string;
 }
 
@@ -125,6 +136,9 @@ export async function pullFromCloud(userId: string): Promise<void> {
         pain: r.pain,
         mood: r.mood,
         water: r.water,
+        sleepQuality: r.sleep_quality ?? undefined,
+        energy: r.energy ?? undefined,
+        stress: r.stress ?? undefined,
         notes: r.notes ?? undefined,
         createdAt: r.created_at,
       }));
@@ -136,6 +150,10 @@ export async function pullFromCloud(userId: string): Promise<void> {
       });
     }
   }
+
+  // Chat history: pulled in a separate function so the initial sync
+  // request stays fast (chat can have many rows).
+  await pullChatHistory(userId).catch(() => {});
 
   // Water history
   const waterRows = (waterResp.data ?? []) as WaterRow[];
@@ -204,8 +222,49 @@ export async function pushJournalEntry(userId: string, log: JournalLog): Promise
     pain: log.pain,
     mood: log.mood,
     water: log.water,
+    sleep_quality: log.sleepQuality ?? null,
+    energy: log.energy ?? null,
+    stress: log.stress ?? null,
     notes: log.notes ?? null,
   });
+}
+
+export async function pushChatMessage(
+  userId: string,
+  role: 'user' | 'assistant',
+  content: string,
+): Promise<void> {
+  await supabase.from('chat_messages').insert({
+    user_id: userId,
+    role,
+    content,
+  });
+}
+
+/**
+ * Pull chat history from cloud and merge into Zustand. We always pull
+ * because the chat is small (capped at 200 rows) and conflict resolution
+ * is "cloud + local de-duped by content+role+created_at".
+ */
+export async function pullChatHistory(userId: string): Promise<void> {
+  const { data } = await supabase
+    .from('chat_messages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+    .limit(200);
+  if (!data) return;
+  const rows = data as ChatRow[];
+  const store = useAppStore.getState();
+  const seen = new Set(store.chatHistory.map((m) => `${m.role}|${m.content}`));
+  const incoming = rows
+    .filter((r) => !seen.has(`${r.role}|${r.content}`))
+    .map((r) => ({ role: r.role, content: r.content, ts: Date.parse(r.created_at) }));
+  if (incoming.length) {
+    useAppStore.setState({
+      chatHistory: [...store.chatHistory, ...incoming].sort((a, b) => a.ts - b.ts),
+    });
+  }
 }
 
 export async function pushWaterToday(userId: string, glasses: number): Promise<void> {

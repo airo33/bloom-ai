@@ -1,20 +1,75 @@
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, ScrollView, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Sparkles, Target, TriangleAlert as AlertTriangle, ListChecks } from 'lucide-react-native';
+import {
+  Sparkles,
+  Target,
+  TriangleAlert as AlertTriangle,
+  ListChecks,
+  Wand2,
+  X,
+} from 'lucide-react-native';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import CategoryTile from '../components/CategoryTile';
 import SectionLabel from '../components/SectionLabel';
+import Input from '../components/Input';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
+import { adjustPlan, ApiError } from '../lib/api';
+import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
 
 export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>) {
   const theme = useTheme();
   const plan = useAppStore((s) => s.plan);
+  const profile = useAppStore((s) => s.profile);
+  const setPlan = useAppStore((s) => s.setPlan);
+
+  // Plan customization modal state
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustText, setAdjustText] = useState('');
+  const [adjustBusy, setAdjustBusy] = useState(false);
+  const [adjustError, setAdjustError] = useState<string | null>(null);
+
+  const submitAdjustment = useCallback(async () => {
+    if (!plan || adjustBusy) return;
+    const text = adjustText.trim();
+    if (text.length < 3) {
+      setAdjustError('Tell me what to change');
+      return;
+    }
+    setAdjustBusy(true);
+    setAdjustError(null);
+    track('plan_adjust_requested', { length: text.length });
+    try {
+      const result = await adjustPlan({
+        plan,
+        injury: profile.injury,
+        adjustment: text,
+        name: profile.name,
+        age: profile.age,
+        fitnessLevel: profile.fitnessLevel,
+      });
+      setPlan(result.plan);
+      setAdjustOpen(false);
+      setAdjustText('');
+      track('plan_adjust_succeeded');
+    } catch (err) {
+      const msg =
+        err instanceof ApiError && err.code === 'off_topic'
+          ? err.message || 'Please describe the change in terms of your recovery.'
+          : err instanceof Error
+            ? err.message
+            : String(err);
+      setAdjustError(msg);
+      track('plan_adjust_failed', { code: err instanceof ApiError ? err.code : 'other' });
+    } finally {
+      setAdjustBusy(false);
+    }
+  }, [plan, adjustText, adjustBusy, profile, setPlan]);
 
   // Defensive fallback: if user lands here without a plan, route them to Welcome
   if (!plan) {
@@ -236,7 +291,115 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         </View>
 
         <Button title="Choose your plan" onPress={() => navigation.navigate('Subscription')} />
+        <View style={{ height: 10 }} />
+        <Button
+          title="Adjust this plan"
+          variant="secondary"
+          onPress={() => setAdjustOpen(true)}
+          icon={<Wand2 size={16} color={theme.colors.th} strokeWidth={2.2} />}
+        />
       </ScrollView>
+
+      <Modal
+        visible={adjustOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAdjustOpen(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View
+            style={{
+              backgroundColor: theme.colors.bg,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: 22,
+              paddingBottom: 32,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 14,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: '800',
+                  color: theme.colors.th,
+                  letterSpacing: -0.3,
+                }}
+              >
+                Adjust your plan
+              </Text>
+              <Pressable
+                onPress={() => setAdjustOpen(false)}
+                hitSlop={10}
+                style={{ padding: 4 }}
+              >
+                <X size={22} color={theme.colors.tm} strokeWidth={2.2} />
+              </Pressable>
+            </View>
+            <Text
+              style={{
+                fontSize: 13,
+                color: theme.colors.tm,
+                marginBottom: 16,
+                lineHeight: 20,
+              }}
+            >
+              Describe what to change. Examples: "no pool exercises, no gym
+              equipment", "make week 1 lighter", "I don't have a foam roller".
+            </Text>
+            <Input
+              value={adjustText}
+              onChangeText={(t) => {
+                setAdjustText(t);
+                if (adjustError) setAdjustError(null);
+              }}
+              placeholder="What should change?"
+              multiline
+              editable={!adjustBusy}
+              style={{ minHeight: 100, marginBottom: 14 }}
+            />
+            {adjustError && (
+              <View
+                style={{
+                  backgroundColor: theme.colors.rl,
+                  borderColor: theme.colors.rb,
+                  borderWidth: 1,
+                  borderRadius: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  marginBottom: 14,
+                }}
+              >
+                <Text style={{ fontSize: 13, color: theme.colors.rd, fontWeight: '600' }}>
+                  {adjustError}
+                </Text>
+              </View>
+            )}
+            <Button
+              title={adjustBusy ? 'Updating…' : 'Regenerate plan'}
+              onPress={submitAdjustment}
+              loading={adjustBusy}
+              icon={
+                adjustBusy ? (
+                  <ActivityIndicator color={theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF'} />
+                ) : (
+                  <Sparkles
+                    size={18}
+                    color={theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF'}
+                    strokeWidth={2.4}
+                  />
+                )
+              }
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

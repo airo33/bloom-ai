@@ -41,7 +41,7 @@ You are responsible for:
 - Keeping your password confidential
 - All activity that occurs under your account
 
-Notify us immediately at support@recova.app if you suspect any unauthorized use of your account.
+Notify us immediately at i.arturcompany@gmail.com if you suspect any unauthorized use of your account.
 
 ## 4. Subscriptions and Payments
 
@@ -67,7 +67,7 @@ Cancellation takes effect at the end of the current billing period. You keep acc
 
 ### 4.5 Refunds
 
-Refunds are handled by Apple or Google according to their policies. RECOVA cannot directly refund a platform subscription. Where the law of your jurisdiction provides a statutory right of withdrawal that we cannot honor through the platform, contact us at support@recova.app.
+Refunds are handled by Apple or Google according to their policies. RECOVA cannot directly refund a platform subscription. Where the law of your jurisdiction provides a statutory right of withdrawal that we cannot honor through the platform, contact us at i.arturcompany@gmail.com.
 
 ### 4.6 Free trial
 
@@ -162,4 +162,4 @@ These Terms, together with the Privacy Policy and any in-app subscription disclo
 
 Questions, feedback, or notices?
 
-**Email:** support@recova.app
+**Email:** i.arturcompany@gmail.com

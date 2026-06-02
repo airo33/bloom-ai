@@ -16,6 +16,7 @@ import {
   pushJournalEntry,
   pushWaterToday,
   pushCompletionToggle,
+  pushChatMessage,
 } from './sync';
 import type { JournalLog } from '../types/plan';
 
@@ -103,6 +104,19 @@ export function useSyncBootstrap(): void {
       }
     });
 
+    // Chat history: push new messages immediately (small payload, low rate)
+    const unsubChat = useAppStore.subscribe((state, prev) => {
+      if (!initialPullDone.current) return;
+      if (state.chatHistory.length > prev.chatHistory.length) {
+        const newMsg = state.chatHistory[state.chatHistory.length - 1];
+        if (newMsg) {
+          pushChatMessage(userId, newMsg.role, newMsg.content).catch((e) =>
+            console.warn('[sync] chat push:', e),
+          );
+        }
+      }
+    });
+
     const unsubCompletions = useAppStore.subscribe((state, prev) => {
       if (!initialPullDone.current) return;
       const a = new Set(prev.progress.doneExerciseIds);
@@ -131,6 +145,7 @@ export function useSyncBootstrap(): void {
       unsubPlan();
       unsubWater();
       unsubLogs();
+      unsubChat();
       unsubCompletions();
     };
   }, [hydrated, user]);

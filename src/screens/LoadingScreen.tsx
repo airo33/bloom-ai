@@ -5,6 +5,7 @@ import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { genericFallbackPlan } from '../data/fallbackPlan';
 import { generatePlan, ApiError } from '../lib/api';
+import { track } from '../lib/analytics';
 import Logo from '../components/Logo';
 import type { RootStackScreenProps } from '../navigation/types';
 
@@ -102,6 +103,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
           injury: profile.injury,
         });
         if (cancelled) return;
+        track('plan_generated', { tokens: result.usage?.output_tokens ?? 0 });
         setPlan(result.plan);
         navigation.replace('Plan');
       } catch (err) {
@@ -112,10 +114,12 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
         // — don't fall back to a generic plan, send the user back to the
         // description field so they can fix it.
         if (err instanceof ApiError && err.code === 'not_an_injury') {
+          track('plan_input_rejected');
           toast(err.message || "That doesn't look like an injury — please describe what happened");
           navigation.replace('Onboarding2');
           return;
         }
+        track('plan_generation_failed', { reason: err instanceof Error ? err.name : 'unknown' });
 
         console.warn('[generate-plan] failed, using fallback:', msg);
         const short = msg.length > 110 ? msg.slice(0, 110) + '…' : msg;

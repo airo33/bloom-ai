@@ -133,6 +133,6 @@ RECOVA is a wellness and education tool. It is **not** a medical device, does no
 
 Questions about this Privacy Policy or your data?
 
-**Email:** support@recova.app
+**Email:** i.arturcompany@gmail.com
 
 We aim to respond within 5 business days.

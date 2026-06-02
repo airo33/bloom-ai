@@ -15,6 +15,7 @@ import {
 import { useAppStore } from './src/store/useAppStore';
 import { useSyncBootstrap } from './src/lib/useSyncBootstrap';
 import { setupIap, setIapUser } from './src/lib/iap';
+import { setupAnalytics, identify } from './src/lib/analytics';
 import { useAuth } from './src/lib/auth';
 
 export default function App() {
@@ -54,6 +55,7 @@ function NotificationsBootstrap(): null {
     setupNotificationHandler();
     ensureAndroidChannel().catch(() => {});
     setupIap({ userId: null }).catch(() => {});
+    setupAnalytics().catch(() => {});
   }, []);
 
   // Reapply notification schedules once Zustand hydrates
@@ -67,6 +69,7 @@ function NotificationsBootstrap(): null {
   // attached to the correct identity across re-installs.
   useEffect(() => {
     setIapUser(user?.id ?? null).catch(() => {});
+    identify(user?.id ?? null, user?.email ? { email: user.email } : undefined);
   }, [user]);
 
   return null;

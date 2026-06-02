@@ -116,6 +116,35 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface AdjustPlanInput {
+  plan: RehabPlan;
+  injury?: string;
+  adjustment: string;
+  name?: string;
+  age?: string;
+  fitnessLevel?: FitnessLevel | '';
+}
+
+/**
+ * Re-generate the user's plan with their requested change.
+ * Throws ApiError with code='off_topic' if the model refused the request.
+ */
+export async function adjustPlan(input: AdjustPlanInput): Promise<GeneratePlanResult> {
+  const { data, error } = await supabase.functions.invoke<GeneratePlanResult & { error?: string }>(
+    'adjust-plan',
+    { body: input },
+  );
+  if (error) {
+    const { msg, code, status } = await extractFunctionsError(error);
+    throw new ApiError(status, msg, code);
+  }
+  if (!data || 'error' in data) {
+    const d = data as { error?: string; message?: string } | null;
+    throw new ApiError(502, d?.message ?? d?.error ?? 'Unknown error', d?.error);
+  }
+  return data;
+}
+
 export interface ChatResult {
   reply: string;
   usage: { input_tokens: number; output_tokens: number };
