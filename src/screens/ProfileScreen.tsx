@@ -44,6 +44,30 @@ export default function ProfileScreen() {
   const { user } = useAuth();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  // Reset plan: wipe local state + bounce to Welcome so user lands in
+  // onboarding instead of staring at an empty Profile/Home with no signal
+  // anything happened. Two-tap confirm because this is destructive.
+  const handleResetPlan = useCallback(() => {
+    Alert.alert(
+      'Reset plan?',
+      'This wipes your current plan, journal, hydration, and progress on this device. Your account stays — you just go through onboarding again.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: () => {
+            resetAll();
+            // Welcome lives on the root stack. Use the parent navigator
+            // (this screen sits inside MainTabs) to escape the tabs.
+            const root = nav.getParent() ?? nav;
+            root.reset({ index: 0, routes: [{ name: 'Welcome' }] });
+          },
+        },
+      ],
+    );
+  }, [resetAll, nav]);
+
   const handleSignOut = useCallback(() => {
     Alert.alert(
       'Sign out',
@@ -269,7 +293,7 @@ export default function ProfileScreen() {
         <SectionLabel>Settings</SectionLabel>
         <Card padding={0} style={{ marginBottom: 24 }}>
           <Pressable
-            onPress={resetAll}
+            onPress={handleResetPlan}
             style={({ pressed }) => ({
               flexDirection: 'row',
               alignItems: 'center',

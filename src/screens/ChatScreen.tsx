@@ -75,7 +75,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
   const userFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

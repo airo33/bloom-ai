@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // lucide-react-native >=1.x renamed several icons. Alias the new names
 // back to the ones used below so the JSX stays unchanged:
 //   Home -> House, BarChart3 -> ChartColumn
@@ -57,6 +58,14 @@ function CenterFAB() {
 
 export default function MainTabs() {
   const theme = useTheme();
+  // Bottom safe-area inset captures the Android 3-button nav bar /
+  // gesture-pill area. Without this the tab bar gets covered by the
+  // system bar on devices that don't auto-translate, e.g. MIUI in
+  // buttons mode.
+  const insets = useSafeAreaInsets();
+  // Fall back to 16 (the original padding) when the inset is 0 so we
+  // don't shrink the tab bar on devices that report no bottom inset.
+  const bottomPad = Math.max(insets.bottom, 16);
 
   return (
     <Tab.Navigator
@@ -67,9 +76,9 @@ export default function MainTabs() {
           backgroundColor: theme.colors.nav,
           borderTopColor: theme.colors.nb,
           borderTopWidth: 0.5,
-          height: 78,
+          height: 62 + bottomPad,
           paddingTop: 10,
-          paddingBottom: 16,
+          paddingBottom: bottomPad,
         },
         tabBarActiveTintColor: theme.colors.pu,
         tabBarInactiveTintColor: theme.colors.tm,

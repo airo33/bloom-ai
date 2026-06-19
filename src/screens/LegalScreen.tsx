@@ -18,7 +18,7 @@ export default function LegalScreen({ route, navigation }: RootStackScreenProps<
   const source = kind === 'privacy' ? PRIVACY_POLICY : TERMS_OF_SERVICE;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top', 'bottom']}>
       <View
         style={{
           paddingHorizontal: 18,

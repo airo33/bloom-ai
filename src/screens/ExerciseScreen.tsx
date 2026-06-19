@@ -59,7 +59,7 @@ export default function ExerciseScreen({
 
       {/* Category-tinted hero */}
       <View style={{ height: 185, backgroundColor: c.bar, position: 'relative' }}>
-        <SafeAreaView edges={['top']}>
+        <SafeAreaView edges={['top', 'bottom']}>
           <View
             style={{
               paddingHorizontal: 16,
