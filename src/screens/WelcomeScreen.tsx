@@ -31,7 +31,7 @@ export default function WelcomeScreen({ navigation }: RootStackScreenProps<'Welc
               { color: theme.colors.tm },
             ]}
           >
-            RECOVA
+            MEND
           </Text>
 
           <Text style={[styles.heading, { color: theme.colors.th }]}>

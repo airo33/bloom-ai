@@ -1,4 +1,5 @@
-// Brand mark — a stylized "R" monogram inside a rounded lime tile.
+// Brand mark — Mend sprout. A small plant with a vertical stem and two
+// curved leaves emerging from the top. Replaces the previous R monogram.
 // Single source of truth for the logo so we can drop the emoji-as-brand
 // pattern everywhere in the app.
 
@@ -9,12 +10,17 @@ import { useTheme } from '../theme';
 interface Props {
   size?: number;
   /**
-   *  filled — R on a lime tile (primary use: Welcome, Auth, Loading)
-   *  ghost  — R alone, transparent background (small inline use)
-   *  light  — R on a tinted lime card surface (for empty states)
+   *  filled — sprout on a lime tile (primary use: Welcome, Auth, Loading)
+   *  ghost  — sprout alone, transparent background (small inline use)
+   *  light  — sprout on a tinted lime card surface (for empty states)
    */
   variant?: 'filled' | 'ghost' | 'light';
 }
+
+// Sprout glyph paths inside the 32×32 viewBox. Stem + two leaves.
+const STEM = 'M16 24 V13';
+const LEAF_LEFT  = 'M16 14 C 13.5 11 9.5 11 8 14 C 10 16 14 16 16 14 Z';
+const LEAF_RIGHT = 'M16 11 C 18.5 8 22.5 8 24 11 C 22 13 18 13 16 11 Z';
 
 export default function Logo({ size = 56, variant = 'filled' }: Props) {
   const theme = useTheme();
@@ -31,14 +37,12 @@ export default function Logo({ size = 56, variant = 'filled' }: Props) {
     variant === 'filled'
       ? dark
         ? '#0A0A0A'
-        : '#FFFFFF'
+        : '#0A0A0A'  // sprout always dark — even on light tile reads as brand
       : variant === 'light'
         ? theme.colors.pt
         : theme.colors.pu;
 
-  // The corner radius scales with the tile so the mark stays visually
-  // consistent at every size.
-  const cornerRadius = 9; // viewBox is 32×32, so 9/32 ≈ 28% corner radius
+  const cornerRadius = 9; // viewBox 32×32 — ~28% radius
 
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32">
@@ -53,45 +57,36 @@ export default function Logo({ size = 56, variant = 'filled' }: Props) {
           fill={bg}
         />
       )}
-      {/*
-        Stylized R, drawn as one continuous path:
-          - Vertical stroke (10,8) -> (10,24)
-          - Top arm (10,8) -> (17,8)
-          - Bowl arc top-right -> (17,16)
-          - Bowl bottom (17,16) -> (10,16)
-          - Leg (15,16) -> (22,24) diagonal
-      */}
+      {/* Stem */}
       <Path
-        d="M10 8 V24 M10 8 H17 Q21.5 8 21.5 12 Q21.5 16 17 16 H10 M15 16 L21.5 24"
+        d={STEM}
         stroke={fg}
-        strokeWidth="2.6"
+        strokeWidth="2.4"
         fill="none"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
+      {/* Two leaves */}
+      <Path d={LEAF_LEFT} fill={fg} />
+      <Path d={LEAF_RIGHT} fill={fg} />
     </Svg>
   );
 }
 
 /**
- * Wordmark — the full "RECOVA" lockup with the monogram on the left.
+ * Wordmark — the full "Mend" lockup with the sprout on the left.
  * Useful at the top of Welcome / Auth instead of the standalone tile.
  */
 export function WordMark({ size = 28 }: { size?: number }) {
   const theme = useTheme();
+  const fg = theme.scheme === 'dark' ? '#0A0A0A' : '#0A0A0A';
+
   return (
-    <Svg width={size * 4.8} height={size} viewBox={`0 0 ${32 * 4.8} 32`}>
-      {/* Rounded lime tile */}
+    <Svg width={size * 4.6} height={size} viewBox={`0 0 ${32 * 4.6} 32`}>
+      {/* Rounded lime tile + sprout */}
       <Rect x="0" y="0" width="32" height="32" rx="9" ry="9" fill={theme.colors.pu} />
-      {/* R monogram */}
-      <Path
-        d="M10 8 V24 M10 8 H17 Q21.5 8 21.5 12 Q21.5 16 17 16 H10 M15 16 L21.5 24"
-        stroke={theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF'}
-        strokeWidth="2.6"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Path d={STEM} stroke={fg} strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <Path d={LEAF_LEFT} fill={fg} />
+      <Path d={LEAF_RIGHT} fill={fg} />
     </Svg>
   );
 }

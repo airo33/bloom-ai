@@ -12,8 +12,11 @@ const { Resvg } = require('@resvg/resvg-js');
 const LIME = '#B5E550';
 const DARK_INK = '#0A0A0A';
 
-const R_PATH =
-  'M10 8 V24 M10 8 H17 Q21.5 8 21.5 12 Q21.5 16 17 16 H10 M15 16 L21.5 24';
+// Sprout glyph — stem path is a stroked line, the two leaves are
+// filled shapes. Renders consistently from 24 px to 1024 px.
+const STEM = 'M16 24 V13';
+const LEAF_LEFT  = 'M16 14 C 13.5 11 9.5 11 8 14 C 10 16 14 16 16 14 Z';
+const LEAF_RIGHT = 'M16 11 C 18.5 8 22.5 8 24 11 C 22 13 18 13 16 11 Z';
 
 /**
  * Build an SVG string. `viewBox` is always 0 0 32 32 so the R glyph
@@ -47,7 +50,9 @@ function svg({
   const glyph = noGlyph
     ? ''
     : `<g transform="translate(${translate} ${translate}) scale(${scale})">
-        <path d="${R_PATH}" stroke="${inkColor}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${STEM}" stroke="${inkColor}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="${LEAF_LEFT}" fill="${inkColor}"/>
+        <path d="${LEAF_RIGHT}" fill="${inkColor}"/>
       </g>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cell} ${cell}" width="${size}" height="${size}">

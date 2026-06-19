@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Modal, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Modal, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -306,7 +306,10 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         animationType="slide"
         onRequestClose={() => setAdjustOpen(false)}
       >
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View
             style={{
               backgroundColor: theme.colors.bg,
@@ -398,7 +401,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
               }
             />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
