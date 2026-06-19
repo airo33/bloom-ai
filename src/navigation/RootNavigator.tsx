@@ -18,6 +18,8 @@ import ExerciseScreen from '../screens/ExerciseScreen';
 import JournalScreen from '../screens/JournalScreen';
 import ChatScreen from '../screens/ChatScreen';
 import LegalScreen from '../screens/LegalScreen';
+import FeedbackScreen from '../screens/FeedbackScreen';
+import PlanHistoryScreen from '../screens/PlanHistoryScreen';
 import MainTabs from './MainTabs';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -111,6 +113,8 @@ export default function RootNavigator() {
             />
             <Stack.Screen name="Chat" component={ChatScreen} />
             <Stack.Screen name="Legal" component={LegalScreen} />
+            <Stack.Screen name="Feedback" component={FeedbackScreen} />
+            <Stack.Screen name="PlanHistory" component={PlanHistoryScreen} />
           </Stack.Group>
         ) : (
           <Stack.Group key="auth">

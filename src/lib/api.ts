@@ -145,6 +145,77 @@ export async function adjustPlan(input: AdjustPlanInput): Promise<GeneratePlanRe
   return data;
 }
 
+export type FeedbackCategory = 'bug' | 'idea' | 'praise' | 'other';
+
+/** Submit feedback to the cloud feedback table. */
+export async function submitFeedback(input: {
+  category: FeedbackCategory;
+  message: string;
+  appVersion?: string;
+}): Promise<void> {
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  if (!userId) throw new ApiError(401, 'not signed in');
+  const { error } = await supabase.from('feedback').insert({
+    user_id: userId,
+    category: input.category,
+    message: input.message,
+    app_version: input.appVersion,
+  });
+  if (error) throw new ApiError(500, error.message);
+}
+
+/** Archive a plan (called before regenerate/adjust). */
+export async function archivePlan(input: {
+  plan: RehabPlan;
+  source: 'ai' | 'fallback' | 'adjusted';
+  adjustment?: string;
+}): Promise<void> {
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  if (!userId) return;
+  await supabase.from('plan_history').insert({
+    user_id: userId,
+    plan: input.plan,
+    source: input.source,
+    adjustment: input.adjustment ?? null,
+  });
+}
+
+export interface PlanHistoryEntry {
+  id: string;
+  plan: RehabPlan;
+  source: 'ai' | 'fallback' | 'adjusted';
+  adjustment: string | null;
+  archived_at: string;
+}
+
+/** Get the user's archived plans, newest first. */
+export async function listPlanHistory(): Promise<PlanHistoryEntry[]> {
+  const { data, error } = await supabase
+    .from('plan_history')
+    .select('*')
+    .order('archived_at', { ascending: false })
+    .limit(20);
+  if (error) throw new ApiError(500, error.message);
+  return (data ?? []) as PlanHistoryEntry[];
+}
+
+/** Permanently delete the current account and all data. */
+export async function deleteAccount(): Promise<void> {
+  const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>(
+    'delete-account',
+    { body: {} },
+  );
+  if (error) {
+    const { msg, code, status } = await extractFunctionsError(error);
+    throw new ApiError(status, msg, code);
+  }
+  if (!data || 'error' in data) {
+    throw new ApiError(500, (data as { error?: string })?.error ?? 'Delete failed');
+  }
+}
+
 export interface ChatResult {
   reply: string;
   usage: { input_tokens: number; output_tokens: number };

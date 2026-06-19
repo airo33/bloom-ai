@@ -18,7 +18,7 @@ import Input from '../components/Input';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
-import { adjustPlan, ApiError } from '../lib/api';
+import { adjustPlan, archivePlan, ApiError } from '../lib/api';
 import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
 
@@ -53,6 +53,10 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         age: profile.age,
         fitnessLevel: profile.fitnessLevel,
       });
+      // Archive the OLD plan before overwriting it so the user can see how
+      // it changed. Best-effort — if the archive fails (e.g. signed out,
+      // offline), we still replace the active plan.
+      archivePlan({ plan, source: 'adjusted', adjustment: text }).catch(() => {});
       setPlan(result.plan);
       setAdjustOpen(false);
       setAdjustText('');

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mend · Legal</title>
+  <meta name="robots" content="index,follow" />
+  <style>:root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b6b6b;
+    --accent: #4a7c1a;
+    --border: #ececec;
+    --card: #fafafa;
+    --max: 720px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0d0d;
+      --fg: #f4f4f4;
+      --muted: #999;
+      --accent: #c8eb6b;
+      --border: #232323;
+      --card: #161616;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", Inter, Segoe UI, Roboto, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 32px 22px 80px; }
+  header.brand {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 18px; border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #0a0a0a;
+    letter-spacing: 0.5px;
+  }
+  .brand-name { font-weight: 800; font-size: 18px; letter-spacing: -0.3px; }
+  .brand-sub  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  h1 { font-size: 30px; line-height: 1.2; letter-spacing: -0.6px; margin: 8px 0 18px; }
+  h2 { font-size: 20px; letter-spacing: -0.3px; margin: 32px 0 10px; }
+  h3 { font-size: 17px; letter-spacing: -0.2px; margin: 22px 0 6px; }
+  p  { margin: 8px 0; }
+  ul { padding-left: 20px; margin: 8px 0 14px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 700; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table {
+    width: 100%; border-collapse: collapse; margin: 14px 0 20px;
+    background: var(--card); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  th, td {
+    text-align: left; padding: 10px 12px;
+    border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  th { background: rgba(0,0,0,0.03); font-weight: 700; }
+  @media (prefers-color-scheme: dark) {
+    th { background: rgba(255,255,255,0.04); }
+  }
+  tr:last-child td { border-bottom: 0; }
+  footer.foot {
+    margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap;
+  }</style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="brand">
+      <div class="logo">M</div>
+      <div>
+        <div class="brand-name">Mend</div>
+        <div class="brand-sub">AI-guided recovery</div>
+      </div>
+    </header>
+    
+  <h1>Mend — legal</h1>
+  <p>Mend is an AI-guided recovery companion. The documents below describe how the app uses your data and the terms under which you may use it.</p>
+  <ul>
+    <li><a href="./privacy.html">Privacy Policy</a></li>
+    <li><a href="./terms.html">Terms of Service</a></li>
+  </ul>
+  <p>Questions? Reach us at <a href="mailto:i.arturcompany@gmail.com">i.arturcompany@gmail.com</a>.</p>
+
+    <footer class="foot">
+      <a href="./index.html">Home</a>
+      <a href="./privacy.html">Privacy</a>
+      <a href="./terms.html">Terms</a>
+      <a href="mailto:i.arturcompany@gmail.com">Contact</a>
+    </footer>
+  </main>
+</body>
+</html>

@@ -17,6 +17,8 @@ export type RootStackParamList = {
   Journal: undefined;
   Chat: undefined;
   Legal: { kind: 'privacy' | 'terms' };
+  Feedback: undefined;
+  PlanHistory: undefined;
 };
 
 export type MainTabParamList = {

@@ -10,6 +10,7 @@ import type {
   JournalLog,
   SubscriptionTier,
   FitnessLevel,
+  PlanPhase,
 } from '../types/plan';
 
 interface NotifPrefs {
@@ -73,6 +74,21 @@ interface AppState {
   setSelectedDay: (idx: number) => void;
   setWeekOffset: (off: number) => void;
   advanceDay: () => void;          // call once per calendar day
+  /** Has the user finished the first-launch coach-marks tour? */
+  onboardingTourCompleted: boolean;
+  setOnboardingTourCompleted: (v: boolean) => void;
+  /** Highest streak milestone (in days) the user has been congratulated for. */
+  lastCelebratedStreak: number;
+  celebrateStreak: (streak: number) => void;
+  /** Recovery day on which we last fired the "all tasks done" celebration. */
+  lastAllDoneCelebratedDay: number;
+  celebrateAllDone: (day: number) => void;
+  /** Recovery day on which we last fired the 8/8 hydration celebration. */
+  lastHydrationCelebratedDay: number;
+  celebrateHydration: (day: number) => void;
+  /** Name of the plan phase the user has already been congratulated for entering. */
+  lastSeenPhaseName: string | null;
+  setLastSeenPhaseName: (name: string | null) => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
@@ -110,6 +126,11 @@ export const useAppStore = create<AppState>()(
       subscriptionTier: null,
       chatHistory: [],
       notifications: { exercise: false, water: false, journal: false },
+      onboardingTourCompleted: false,
+      lastCelebratedStreak: 0,
+      lastAllDoneCelebratedDay: 0,
+      lastHydrationCelebratedDay: 0,
+      lastSeenPhaseName: null,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
@@ -210,6 +231,16 @@ export const useAppStore = create<AppState>()(
           };
         }),
 
+      setOnboardingTourCompleted: (v) => set({ onboardingTourCompleted: v }),
+
+      celebrateStreak: (streak) => set({ lastCelebratedStreak: streak }),
+
+      celebrateAllDone: (day) => set({ lastAllDoneCelebratedDay: day }),
+
+      celebrateHydration: (day) => set({ lastHydrationCelebratedDay: day }),
+
+      setLastSeenPhaseName: (name) => set({ lastSeenPhaseName: name }),
+
       resetAll: () =>
         set({
           profile: initialProfile,
@@ -255,6 +286,11 @@ export const useAppStore = create<AppState>()(
         subscriptionTier: s.subscriptionTier,
         chatHistory: s.chatHistory,
         notifications: s.notifications,
+        onboardingTourCompleted: s.onboardingTourCompleted,
+        lastCelebratedStreak: s.lastCelebratedStreak,
+        lastAllDoneCelebratedDay: s.lastAllDoneCelebratedDay,
+        lastHydrationCelebratedDay: s.lastHydrationCelebratedDay,
+        lastSeenPhaseName: s.lastSeenPhaseName,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true;
@@ -264,6 +300,27 @@ export const useAppStore = create<AppState>()(
 );
 
 // Convenience selectors
+
+/**
+ * Returns the phase that contains the user's current recovery day.
+ * Used by HomeScreen to detect phase transitions and trigger celebration.
+ */
+export const selectCurrentPhase = (state: AppState): PlanPhase | null => {
+  const { plan, progress } = state;
+  if (!plan || !plan.phases?.length) return null;
+  let acc = 0;
+  for (let i = 0; i < plan.phases.length; i++) {
+    const ph = plan.phases[i];
+    const wn = ph.weekNumbers || ph.weeks || '1-2';
+    const parts = wn.split('-');
+    const w1 = parseInt(parts[0], 10) || 1;
+    const w2 = parseInt(parts[1], 10) || w1 + 1;
+    acc += (w2 - w1 + 1) * 7;
+    if (progress.day <= acc) return ph;
+  }
+  return plan.phases[plan.phases.length - 1];
+};
+
 export const selectTodayExercises = (state: AppState): Exercise[] => {
   const { plan, progress } = state;
   if (!plan || !plan.phases?.length || !plan.exercises?.length) return [];

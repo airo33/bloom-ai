@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Calendar, Flame, Activity, Droplet } from 'lucide-react-native';
+import { Calendar, Flame, Activity, Droplet, BookOpen } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
 import PainChart from '../components/PainChart';
+import EmptyState from '../components/EmptyState';
 import { moodFor } from '../data/moods';
 
 interface StatCardProps {
@@ -168,24 +169,11 @@ export default function ProgressScreen() {
         <SectionLabel>Log history</SectionLabel>
 
         {logs.length === 0 ? (
-          <Card padding={20}>
-            <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: 14, color: theme.colors.tl, fontWeight: '600' }}>
-                No logs yet
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: theme.colors.tm,
-                  textAlign: 'center',
-                  marginTop: 5,
-                  lineHeight: 18,
-                }}
-              >
-                Tap the plus button on the nav bar to log your first entry.
-              </Text>
-            </View>
-          </Card>
+          <EmptyState
+            Icon={BookOpen}
+            title="No logs yet"
+            message="Tap the plus button on the nav bar to log your first entry. We'll plot trends as you go."
+          />
         ) : (
           [...logs].reverse().map((log) => (
             <Card key={`${log.day}-${log.createdAt}`} style={{ marginBottom: 9 }} padding={14}>

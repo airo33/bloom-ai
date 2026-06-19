@@ -3,12 +3,13 @@ import { View, Text, Pressable, ScrollView, ToastAndroid, Platform, Alert } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft, ChevronRight, Check, Layers } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Check, Layers, Calendar, Coffee } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
 import CategoryTile from '../components/CategoryTile';
 import SectionLabel from '../components/SectionLabel';
+import EmptyState from '../components/EmptyState';
 import { moodFor } from '../data/moods';
 import type { RootStackParamList } from '../navigation/types';
 import type { PlanPhase, WeekdayShort } from '../types/plan';
@@ -279,20 +280,13 @@ export default function ScheduleScreen() {
         showsVerticalScrollIndicator={false}
       >
         {!plan ? (
-          <View
-            style={{
-              padding: 22,
-              alignItems: 'center',
-              backgroundColor: theme.colors.card,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: theme.colors.bo,
-            }}
-          >
-            <Text style={{ fontSize: 15, color: theme.colors.tm, textAlign: 'center' }}>
-              Complete onboarding to see your schedule.
-            </Text>
-          </View>
+          <EmptyState
+            Icon={Calendar}
+            title="No schedule yet"
+            message="Finish onboarding to generate your weekly recovery schedule."
+            ctaLabel="Start onboarding"
+            onCta={() => nav.navigate('Welcome')}
+          />
         ) : (
           <>
             {/* Day header card */}
@@ -378,31 +372,12 @@ export default function ScheduleScreen() {
             </SectionLabel>
 
             {dayExercises.length === 0 ? (
-              <View
-                style={{
-                  padding: 22,
-                  alignItems: 'center',
-                  backgroundColor: theme.colors.card,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: theme.colors.bo,
-                  marginBottom: 12,
-                }}
-              >
-                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.colors.th }}>
-                  Rest day
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: theme.colors.tm,
-                    marginTop: 5,
-                    textAlign: 'center',
-                    lineHeight: 19,
-                  }}
-                >
-                  Recovery happens during rest. Hydrate well and sleep 7-9h tonight.
-                </Text>
+              <View style={{ marginBottom: 12 }}>
+                <EmptyState
+                  Icon={Coffee}
+                  title="Rest day"
+                  message="Recovery happens during rest. Hydrate well and sleep 7-9h tonight."
+                />
               </View>
             ) : (
               dayExercises.map((ex) => {

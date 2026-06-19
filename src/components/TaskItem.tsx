@@ -1,8 +1,8 @@
 // Task row — refreshed to a cleaner style with subtle borders,
 // Lucide check mark, no shadows.
 
-import React from 'react';
-import { Pressable, View, Text } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Pressable, View, Text, Animated } from 'react-native';
 import { Check, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '../theme';
 import { getCategory } from '../theme/categories';
@@ -20,6 +20,24 @@ export default function TaskItem({ exercise, done, onPress, onToggle }: Props) {
   const theme = useTheme();
   const c = getCategory(exercise.category);
   const checkFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
+
+  // Pop the checkbox + check icon when the task transitions to done.
+  // We don't pop on the false→true initial mount when the persisted state
+  // is already done — the prevDoneRef catches that.
+  const scale = useRef(new Animated.Value(1)).current;
+  const prevDoneRef = useRef(done);
+  useEffect(() => {
+    if (done && !prevDoneRef.current) {
+      scale.setValue(0.8);
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 4.5,
+        tension: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+    prevDoneRef.current = done;
+  }, [done, scale]);
 
   return (
     <Pressable
@@ -65,18 +83,22 @@ export default function TaskItem({ exercise, done, onPress, onToggle }: Props) {
           e.stopPropagation();
           onToggle();
         }}
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: 8,
-          borderWidth: 1.5,
-          borderColor: done ? theme.colors.pu : theme.colors.bo2,
-          backgroundColor: done ? theme.colors.pu : 'transparent',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
       >
-        {done && <Check size={16} color={checkFg} strokeWidth={3} />}
+        <Animated.View
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            borderWidth: 1.5,
+            borderColor: done ? theme.colors.pu : theme.colors.bo2,
+            backgroundColor: done ? theme.colors.pu : 'transparent',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: [{ scale }],
+          }}
+        >
+          {done && <Check size={16} color={checkFg} strokeWidth={3} />}
+        </Animated.View>
       </Pressable>
 
       <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />

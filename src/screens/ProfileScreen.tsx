@@ -14,6 +14,9 @@ import {
   LogOut,
   Shield,
   FileText,
+  MessageSquare,
+  History,
+  Trash2,
 } from 'lucide-react-native';
 import { useTheme, useThemeControls } from '../theme';
 import { useAppStore } from '../store/useAppStore';
@@ -25,6 +28,7 @@ import {
   type ReminderCategory,
 } from '../lib/notifications';
 import { useAuth, signOut, displayNameFor } from '../lib/auth';
+import { deleteAccount } from '../lib/api';
 import type { RootStackParamList } from '../navigation/types';
 import type { SubscriptionTier, FitnessLevel } from '../types/plan';
 
@@ -56,6 +60,50 @@ export default function ProfileScreen() {
             await cancelAllReminders();
             clearUserData();
             await signOut().catch(() => {});
+          },
+        },
+      ],
+    );
+  }, [clearUserData]);
+
+  // Account deletion: GDPR + Play Store compliance. Two-step confirm so
+  // a rage-tap doesn't nuke a paying user's data.
+  const handleDeleteAccount = useCallback(() => {
+    Alert.alert(
+      'Delete account?',
+      'This permanently erases your plan, journal, chat history, and subscription. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Are you sure?',
+              'Last chance — your account and all data will be erased forever.',
+              [
+                { text: 'Keep account', style: 'cancel' },
+                {
+                  text: 'Delete forever',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await cancelAllReminders();
+                      await deleteAccount();
+                      // Local cleanup mirrors sign-out — auth state will
+                      // flip when the user is gone.
+                      clearUserData();
+                      await signOut().catch(() => {});
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error
+                        ? e.message
+                        : 'Could not delete account. Try again later.';
+                      Alert.alert('Deletion failed', msg);
+                    }
+                  },
+                },
+              ],
+            );
           },
         },
       ],
@@ -180,6 +228,25 @@ export default function ProfileScreen() {
           />
         </Card>
 
+        <SectionLabel>Support</SectionLabel>
+        <Card padding={0} style={{ marginBottom: 20 }}>
+          <NavRow
+            iconBg={theme.colors.pl}
+            iconColor={theme.colors.pt}
+            Icon={MessageSquare}
+            title="Send feedback"
+            onPress={() => nav.navigate('Feedback')}
+            divider
+          />
+          <NavRow
+            iconBg={theme.colors.bl}
+            iconColor={theme.colors.bb}
+            Icon={History}
+            title="Plan history"
+            onPress={() => nav.navigate('PlanHistory')}
+          />
+        </Card>
+
         <SectionLabel>About</SectionLabel>
         <Card padding={0} style={{ marginBottom: 20 }}>
           <NavRow
@@ -276,6 +343,59 @@ export default function ProfileScreen() {
             </Pressable>
           )}
         </Card>
+
+        {user && (
+          <>
+            <SectionLabel>Danger zone</SectionLabel>
+            <Card padding={0} style={{ marginBottom: 24 }}>
+              <Pressable
+                onPress={handleDeleteAccount}
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: 14,
+                  opacity: pressed ? 0.7 : 1,
+                })}
+              >
+                <View
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 12,
+                    backgroundColor: theme.colors.rl,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Trash2 size={17} color={theme.colors.rd} strokeWidth={2.2} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      color: theme.colors.rd,
+                      fontWeight: '700',
+                      letterSpacing: -0.2,
+                    }}
+                  >
+                    Delete account
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: theme.colors.tm,
+                      marginTop: 2,
+                    }}
+                  >
+                    Permanently erases everything
+                  </Text>
+                </View>
+                <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
+              </Pressable>
+            </Card>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
