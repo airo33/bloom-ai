@@ -20,8 +20,8 @@ const SRC = path.join(ROOT, 'legal');
 const OUT = path.join(SRC, 'html');
 
 const PAGES = [
-  { md: 'privacy-policy.md', html: 'privacy.html', title: 'Privacy Policy · Mend' },
-  { md: 'terms-of-service.md', html: 'terms.html', title: 'Terms of Service · Mend' },
+  { md: 'privacy-policy.md', html: 'privacy.html', title: 'Privacy Policy · Mend AI' },
+  { md: 'terms-of-service.md', html: 'terms.html', title: 'Terms of Service · Mend AI' },
 ];
 
 function esc(s) {
@@ -214,7 +214,7 @@ function pageHtml(title, body) {
     <header class="brand">
       <div class="logo">M</div>
       <div>
-        <div class="brand-name">Mend</div>
+        <div class="brand-name">Mend AI</div>
         <div class="brand-sub">AI-guided recovery</div>
       </div>
     </header>
@@ -232,8 +232,8 @@ function pageHtml(title, body) {
 }
 
 const INDEX_BODY = `
-  <h1>Mend — legal</h1>
-  <p>Mend is an AI-guided recovery companion. The documents below describe how the app uses your data and the terms under which you may use it.</p>
+  <h1>Mend AI — legal</h1>
+  <p>Mend AI is an AI-guided recovery companion. The documents below describe how the app uses your data and the terms under which you may use it.</p>
   <ul>
     <li><a href="./privacy.html">Privacy Policy</a></li>
     <li><a href="./terms.html">Terms of Service</a></li>
@@ -252,7 +252,7 @@ function build() {
     console.log(`✓ wrote legal/html/${p.html}`);
   }
 
-  fs.writeFileSync(path.join(OUT, 'index.html'), pageHtml('Mend · Legal', INDEX_BODY));
+  fs.writeFileSync(path.join(OUT, 'index.html'), pageHtml('Mend AI · Legal', INDEX_BODY));
   console.log('✓ wrote legal/html/index.html');
 }
 

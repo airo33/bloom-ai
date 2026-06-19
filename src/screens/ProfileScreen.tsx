@@ -149,7 +149,7 @@ export default function ProfileScreen() {
         setNotificationPref(category, false);
         Alert.alert(
           'Notifications disabled',
-          'Enable notifications for Mend in your system settings to use reminders.',
+          'Enable notifications for Mend AI in your system settings to use reminders.',
           [
             { text: 'Cancel', style: 'cancel' },
             { text: 'Open settings', onPress: () => Linking.openSettings().catch(() => {}) },

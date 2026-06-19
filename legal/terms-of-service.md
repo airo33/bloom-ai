@@ -3,19 +3,19 @@
 **Last updated: May 29, 2026**
 **Effective date: May 29, 2026**
 
-These Terms of Service ("Terms") govern your use of the Mend mobile application (the "App" or the "Service"). Please read them carefully.
+These Terms of Service ("Terms") govern your use of the Mend AI mobile application (the "App" or the "Service"). Please read them carefully.
 
 By creating an account or otherwise using the App, you agree to these Terms. If you do not agree, do not use the App.
 
 ## 1. Eligibility
 
-You must be at least **16 years old** to use Mend. By using the App, you represent that you meet this age requirement and that you have the legal capacity to enter into these Terms in your jurisdiction.
+You must be at least **16 years old** to use Mend AI. By using the App, you represent that you meet this age requirement and that you have the legal capacity to enter into these Terms in your jurisdiction.
 
-## 2. What Mend Is — and Is Not
+## 2. What Mend AI Is — and Is Not
 
 ### 2.1 What we offer
 
-Mend provides:
+Mend AI provides:
 - AI-generated rehabilitation plans tailored to a user-supplied description of an injury or condition
 - A weekly schedule of suggested exercises
 - A daily journal for pain, mood, hydration, and notes
@@ -25,7 +25,7 @@ Mend provides:
 
 ### 2.2 What we are NOT
 
-**Mend is not a medical device, not a clinician, and not a substitute for professional medical care.**
+**Mend AI is not a medical device, not a clinician, and not a substitute for professional medical care.**
 
 - The App does not diagnose, treat, cure, or prevent any disease or condition.
 - AI-generated plans and chat responses are general guidance, may contain errors, and have not been reviewed by a clinician in your specific case.
@@ -47,11 +47,11 @@ Notify us immediately at i.arturcompany@gmail.com if you suspect any unauthorize
 
 ### 4.1 Tiers
 
-Mend offers paid subscription tiers (Weekly, Monthly, Annual). Features included in each tier are described in the App's subscription screen at the time of purchase.
+Mend AI offers paid subscription tiers (Weekly, Monthly, Annual). Features included in each tier are described in the App's subscription screen at the time of purchase.
 
 ### 4.2 Payment
 
-Subscriptions are billed through Apple App Store or Google Play. Your payment is handled by the platform, not by Mend. The platform's terms apply to the payment itself.
+Subscriptions are billed through Apple App Store or Google Play. Your payment is handled by the platform, not by Mend AI. The platform's terms apply to the payment itself.
 
 ### 4.3 Auto-renewal
 
@@ -60,14 +60,14 @@ Subscriptions auto-renew at the end of each billing period unless you cancel at 
 ### 4.4 Cancellation
 
 You can cancel a subscription at any time:
-- **iOS:** Settings → [your name] → Subscriptions → Mend
-- **Android:** Google Play → Profile → Payments & subscriptions → Subscriptions → Mend
+- **iOS:** Settings → [your name] → Subscriptions → Mend AI
+- **Android:** Google Play → Profile → Payments & subscriptions → Subscriptions → Mend AI
 
 Cancellation takes effect at the end of the current billing period. You keep access until then.
 
 ### 4.5 Refunds
 
-Refunds are handled by Apple or Google according to their policies. Mend cannot directly refund a platform subscription. Where the law of your jurisdiction provides a statutory right of withdrawal that we cannot honor through the platform, contact us at i.arturcompany@gmail.com.
+Refunds are handled by Apple or Google according to their policies. Mend AI cannot directly refund a platform subscription. Where the law of your jurisdiction provides a statutory right of withdrawal that we cannot honor through the platform, contact us at i.arturcompany@gmail.com.
 
 ### 4.6 Free trial
 
@@ -75,7 +75,7 @@ If we offer a free trial, payment begins automatically at the end of the trial u
 
 ## 5. Your Content
 
-You retain ownership of the information you provide to Mend — your profile, injury description, journal entries, notes, and chat messages ("Your Content").
+You retain ownership of the information you provide to Mend AI — your profile, injury description, journal entries, notes, and chat messages ("Your Content").
 
 You grant us a non-exclusive, worldwide, royalty-free licence to host, store, transmit, and display Your Content solely to provide and improve the Service. We will not share Your Content with third parties for any other purpose, except as described in our Privacy Policy.
 
@@ -100,7 +100,7 @@ We may suspend or terminate your account if you violate these rules.
 
 ## 7. Intellectual Property
 
-The App itself — including the brand, logo, design, code, and content we author — is owned by Mend and protected by intellectual property laws. We grant you a personal, non-transferable, non-exclusive licence to use the App for its intended purpose.
+The App itself — including the brand, logo, design, code, and content we author — is owned by Mend AI and protected by intellectual property laws. We grant you a personal, non-transferable, non-exclusive licence to use the App for its intended purpose.
 
 You may not copy, modify, distribute, or create derivative works of the App without our written permission.
 
@@ -134,7 +134,7 @@ These limits do not apply to liability that cannot be limited under applicable l
 
 ## 12. Indemnification
 
-You agree to indemnify and hold Mend harmless from any claim, demand, loss, or damage, including reasonable lawyers' fees, made by a third party arising from (a) your use of the App, (b) your violation of these Terms, or (c) your infringement of any third-party right.
+You agree to indemnify and hold Mend AI harmless from any claim, demand, loss, or damage, including reasonable lawyers' fees, made by a third party arising from (a) your use of the App, (b) your violation of these Terms, or (c) your infringement of any third-party right.
 
 ## 13. Termination
 
@@ -146,7 +146,7 @@ We may update these Terms from time to time. We will notify you of material chan
 
 ## 15. Governing Law and Disputes
 
-These Terms are governed by the laws of the jurisdiction in which Mend operates, without regard to conflict-of-laws rules. Disputes will be resolved in the competent courts of that jurisdiction.
+These Terms are governed by the laws of the jurisdiction in which Mend AI operates, without regard to conflict-of-laws rules. Disputes will be resolved in the competent courts of that jurisdiction.
 
 Where mandatory consumer law in your country of residence grants you stronger protections, those protections apply notwithstanding this section.
 
@@ -156,7 +156,7 @@ If any provision of these Terms is held unenforceable, the remaining provisions 
 
 ## 17. Entire Agreement
 
-These Terms, together with the Privacy Policy and any in-app subscription disclosures, constitute the entire agreement between you and Mend regarding the App and supersede any prior agreement.
+These Terms, together with the Privacy Policy and any in-app subscription disclosures, constitute the entire agreement between you and Mend AI regarding the App and supersede any prior agreement.
 
 ## 18. Contact
 

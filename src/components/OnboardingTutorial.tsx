@@ -24,7 +24,7 @@ interface Step {
 const STEPS: Step[] = [
   {
     Icon: Sparkles,
-    title: 'Welcome to Mend',
+    title: 'Welcome to Mend AI',
     body: "Your AI-generated rehab plan is ready. Here's a quick tour — under 30 seconds.",
   },
   {

@@ -1,4 +1,4 @@
-// Brand mark — Mend sprout. A small plant with a vertical stem and two
+// Brand mark — Mend AI sprout. A small plant with a vertical stem and two
 // curved leaves emerging from the top. Replaces the previous R monogram.
 // Single source of truth for the logo so we can drop the emoji-as-brand
 // pattern everywhere in the app.
@@ -73,7 +73,7 @@ export default function Logo({ size = 56, variant = 'filled' }: Props) {
 }
 
 /**
- * Wordmark — the full "Mend" lockup with the sprout on the left.
+ * Wordmark — the full "Mend AI" lockup with the sprout on the left.
  * Useful at the top of Welcome / Auth instead of the standalone tile.
  */
 export function WordMark({ size = 28 }: { size?: number }) {

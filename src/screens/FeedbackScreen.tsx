@@ -194,7 +194,7 @@ export default function FeedbackScreen() {
               category === 'bug'
                 ? 'Tell us what happened, what you expected, and how to reproduce.'
                 : category === 'idea'
-                  ? 'Describe what would make Mend more useful for your recovery.'
+                  ? 'Describe what would make Mend AI more useful for your recovery.'
                   : category === 'praise'
                     ? 'What worked well for you?'
                     : 'Anything on your mind.'

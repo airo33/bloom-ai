@@ -3,15 +3,15 @@
 **Last updated: May 29, 2026**
 **Effective date: May 29, 2026**
 
-This Privacy Policy describes how Mend ("we", "us", "our", or the "Service") collects, uses, and shares information about you when you use our mobile application (the "App").
+This Privacy Policy describes how Mend AI ("we", "us", "our", or the "Service") collects, uses, and shares information about you when you use our mobile application (the "App").
 
-By using Mend, you agree to the collection and use of information in accordance with this policy.
+By using Mend AI, you agree to the collection and use of information in accordance with this policy.
 
 ## 1. Information We Collect
 
 ### 1.1 Information you provide
 
-When you use Mend, you provide us with:
+When you use Mend AI, you provide us with:
 
 - **Account information** — email address and password (the password is stored only as a salted hash on our authentication provider; we never see it in plain text).
 - **Profile information** — your name, age, and self-reported pre-injury fitness level.
@@ -30,7 +30,7 @@ When you use Mend, you provide us with:
 - Real-time location data
 - Camera, microphone, or photo library content
 - Contacts
-- Browsing history outside Mend
+- Browsing history outside Mend AI
 - Biometric identifiers (face, fingerprint)
 
 ## 2. How We Use Your Information
@@ -105,7 +105,7 @@ You have the right to know what categories of personal information we collect, t
 
 ## 7. Children's Privacy
 
-Mend is intended for users **aged 16 and older**. If you are under 16, please do not use the App. We do not knowingly collect personal information from children under 16. If you believe we have, please contact us and we will delete it promptly.
+Mend AI is intended for users **aged 16 and older**. If you are under 16, please do not use the App. We do not knowingly collect personal information from children under 16. If you believe we have, please contact us and we will delete it promptly.
 
 ## 8. AI Disclosure
 
@@ -127,7 +127,7 @@ We may update this Privacy Policy from time to time. We will notify you of signi
 
 ## 11. Medical Disclaimer
 
-Mend is a wellness and education tool. It is **not** a medical device, does not diagnose, treat, cure, or prevent any disease, and does not replace professional medical advice, diagnosis, or treatment. Always seek the advice of a qualified clinician with any questions about a medical condition. Never disregard professional medical advice or delay seeking it because of something you have read or generated in this App.
+Mend AI is a wellness and education tool. It is **not** a medical device, does not diagnose, treat, cure, or prevent any disease, and does not replace professional medical advice, diagnosis, or treatment. Always seek the advice of a qualified clinician with any questions about a medical condition. Never disregard professional medical advice or delay seeking it because of something you have read or generated in this App.
 
 ## 12. Contact Us
 

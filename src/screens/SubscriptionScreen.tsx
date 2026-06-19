@@ -150,7 +150,7 @@ export default function SubscriptionScreen({
               <Crown size={28} color={headerFg} strokeWidth={2} />
             </View>
             <Text style={{ fontSize: 24, fontWeight: '800', color: headerFg, letterSpacing: -0.5 }}>
-              Unlock Mend
+              Unlock Mend AI
             </Text>
             <Text style={{ fontSize: 14, color: headerFgMuted, marginTop: 6 }}>
               Your clinical plan is ready.
