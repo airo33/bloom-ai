@@ -9,18 +9,8 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Pressable, Animated } from 'react-native';
 import { Droplet } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
-
-const TIPS = [
-  'Start your day with a glass of water',
-  'Joints need hydration — drink up',
-  'Consistent hydration supports healing',
-  'One more glass before lunch',
-  'Great hydration today',
-  '6/8 — almost there',
-  '7/8 — nearly done',
-  'Perfect hydration today',
-];
 
 const WATER_COLOR = '#38BDF8'; // sky-400, a clean water blue
 
@@ -33,7 +23,8 @@ interface Props {
 
 export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Props) {
   const theme = useTheme();
-  const tip = TIPS[Math.min(glasses, TIPS.length - 1)];
+  const { t } = useTranslation();
+  const tip = t(`hydration.tip${Math.min(glasses, 7)}`);
 
   // Per-droplet pop animation. Value 0 = empty, 1 = filled.
   // We seed each ref with the initial filled-state so they paint correctly
@@ -130,10 +121,10 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
               letterSpacing: -0.2,
             }}
           >
-            Hydration
+            {t('hydration.title')}
           </Text>
           <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }}>
-            8 glasses · supports joint healing
+            {t('hydration.subtitle')}
           </Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>

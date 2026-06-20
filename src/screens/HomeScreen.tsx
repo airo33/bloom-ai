@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Stethoscope, Lock, Sparkles } from 'lucide-react-native';
 import { useShallow } from 'zustand/react/shallow';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import {
   useAppStore,
@@ -31,11 +32,11 @@ const SUB_TIER_BADGE = {
   trial: 'TRIAL',
 } as const;
 
-function greetingFor(hour: number) {
-  if (hour < 5) return 'Good night';
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+function greetingKeyFor(hour: number): string {
+  if (hour < 5) return 'home.greetingNight';
+  if (hour < 12) return 'home.greetingMorning';
+  if (hour < 18) return 'home.greetingAfternoon';
+  return 'home.greetingEvening';
 }
 
 /**
@@ -72,6 +73,7 @@ function MountIn({
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const profile = useAppStore((s) => s.profile);
@@ -119,7 +121,7 @@ export default function HomeScreen() {
   // would see "changed" every render and re-trigger us forever.
   const todayExercises = useAppStore(useShallow(selectTodayExercises));
   const currentPhase = useAppStore(selectCurrentPhase);
-  const greeting = useMemo(() => greetingFor(new Date().getHours()), []);
+  const greeting = t(greetingKeyFor(new Date().getHours()));
 
   const totalToday = todayExercises.length;
   const doneToday = todayExercises.filter((e) =>
@@ -169,12 +171,16 @@ export default function HomeScreen() {
     }
   }, [currentPhase, plan, lastSeenPhaseName, setLastSeenPhaseName]);
 
+  // Localised long weekday name from JS Intl. Picks up i18n.language so the
+  // weekday automatically follows the user's chosen language.
   const dayLabel = useMemo(() => {
-    const dayNames = [
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
-    ];
-    return dayNames[new Date().getDay()];
-  }, []);
+    try {
+      return new Intl.DateTimeFormat(i18n.language, { weekday: 'long' }).format(new Date());
+    } catch {
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return dayNames[new Date().getDay()];
+    }
+  }, [i18n.language]);
 
   const subBadge = tier ? SUB_TIER_BADGE[tier as keyof typeof SUB_TIER_BADGE] : null;
   // Chat is part of all paid tiers per subscriptionTiers.ts; "trial" is the
@@ -215,7 +221,7 @@ export default function HomeScreen() {
                   letterSpacing: -0.5,
                 }}
               >
-                {profile.name || 'Friend'}
+                {profile.name || t('common.friend')}
               </Text>
             </View>
 
@@ -284,7 +290,7 @@ export default function HomeScreen() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  Today
+                  {t('home.today')}
                 </Text>
                 <Text
                   style={{
@@ -297,11 +303,11 @@ export default function HomeScreen() {
                 >
                   {doneToday}
                   <Text style={{ fontSize: 15, fontWeight: '500', color: theme.colors.tm }}>
-                    {' / '}{totalToday} done
+                    {' / '}{totalToday} {t('home.doneSuffix')}
                   </Text>
                 </Text>
                 <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 4 }}>
-                  Day {progress.day} · {dayLabel}
+                  {t('home.dayLabel', { day: progress.day, weekday: dayLabel })}
                 </Text>
               </View>
             </View>
@@ -332,9 +338,9 @@ export default function HomeScreen() {
               </View>
               <Text style={{ fontSize: 14, color: theme.colors.tb, flex: 1 }}>
                 <Text style={{ fontWeight: '800', color: theme.colors.th }}>
-                  {progress.streak}-day streak
+                  {t('home.streak', { count: progress.streak })}
                 </Text>
-                {progress.streak > 1 ? ' — keep it going' : ' — start your run'}
+                {progress.streak > 1 ? t('home.streakKeep') : t('home.streakStart')}
               </Text>
             </View>
           </Card>
@@ -368,11 +374,13 @@ export default function HomeScreen() {
                 letterSpacing: -0.3,
               }}
             >
-              {totalToday === 0 ? 'Rest day' : "Today's tasks"}
+              {totalToday === 0 ? t('home.restDay') : t('home.tasksTitle')}
             </Text>
             {totalToday > 0 && (
               <Text style={{ fontSize: 13, color: theme.colors.tm }}>
-                {doneToday === totalToday ? 'All done' : `${totalToday - doneToday} left`}
+                {doneToday === totalToday
+                  ? t('home.allDone')
+                  : t('home.leftCount', { count: totalToday - doneToday })}
               </Text>
             )}
           </View>
@@ -384,16 +392,16 @@ export default function HomeScreen() {
             <View style={{ marginBottom: 12 }}>
               <EmptyState
                 Icon={Sparkles}
-                title="No plan yet"
-                message="Complete onboarding and we'll generate your AI clinical plan in seconds."
-                ctaLabel="Start onboarding"
+                title={t('home.noPlanTitle')}
+                message={t('home.noPlanBody')}
+                ctaLabel={t('home.noPlanCta')}
                 onCta={() => nav.navigate('Welcome')}
               />
             </View>
           ) : totalToday === 0 ? (
             <Card padding={20} style={{ alignItems: 'center', marginBottom: 12 }}>
               <Text style={{ fontSize: 16, fontWeight: '700', color: theme.colors.th }}>
-                Rest day
+                {t('home.restDay')}
               </Text>
               <Text
                 style={{
@@ -404,7 +412,7 @@ export default function HomeScreen() {
                   lineHeight: 19,
                 }}
               >
-                Your body repairs during rest. Stay hydrated and sleep well tonight.
+                {t('home.restBody')}
               </Text>
             </Card>
           ) : (
@@ -454,7 +462,7 @@ export default function HomeScreen() {
                 letterSpacing: -0.2,
               }}
             >
-              {isPaid ? 'Ask AI Physio anything' : 'AI Physio Chat — subscribe to unlock'}
+              {isPaid ? t('home.ctaPhysio') : t('home.ctaPhysioLocked')}
             </Text>
           </Pressable>
         </MountIn>

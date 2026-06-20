@@ -17,7 +17,10 @@ import {
   MessageSquare,
   History,
   Trash2,
+  Languages,
 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES } from '../lib/i18n';
 import { useTheme, useThemeControls } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
@@ -34,27 +37,33 @@ import type { SubscriptionTier, FitnessLevel } from '../types/plan';
 
 export default function ProfileScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { scheme, toggleScheme } = useThemeControls();
   const profile = useAppStore((s) => s.profile);
   const tier = useAppStore((s) => s.subscriptionTier);
   const notifications = useAppStore((s) => s.notifications);
+  const language = useAppStore((s) => s.language);
   const setNotificationPref = useAppStore((s) => s.setNotificationPref);
   const resetAll = useAppStore((s) => s.resetAll);
   const clearUserData = useAppStore((s) => s.clearUserData);
   const { user } = useAuth();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const currentLangLabel = language
+    ? SUPPORTED_LANGUAGES.find((l) => l.code === language)?.native ?? language
+    : t('languagePicker.deviceDefault');
+
   // Reset plan: wipe local state + bounce to Welcome so user lands in
   // onboarding instead of staring at an empty Profile/Home with no signal
   // anything happened. Two-tap confirm because this is destructive.
   const handleResetPlan = useCallback(() => {
     Alert.alert(
-      'Reset plan?',
-      'This wipes your current plan, journal, hydration, and progress on this device. Your account stays — you just go through onboarding again.',
+      t('profile.resetTitle'),
+      t('profile.resetBody'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('profile.resetCta'),
           style: 'destructive',
           onPress: () => {
             resetAll();
@@ -66,16 +75,16 @@ export default function ProfileScreen() {
         },
       ],
     );
-  }, [resetAll, nav]);
+  }, [resetAll, nav, t]);
 
   const handleSignOut = useCallback(() => {
     Alert.alert(
-      'Sign out',
-      "You'll have to sign back in to access your plan on this device.",
+      t('profile.signOutTitle'),
+      t('profile.signOutBody'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Sign out',
+          text: t('profile.signOut'),
           style: 'destructive',
           onPress: async () => {
             // Tear down BEFORE auth fires so the next session lands on a
@@ -88,41 +97,39 @@ export default function ProfileScreen() {
         },
       ],
     );
-  }, [clearUserData]);
+  }, [clearUserData, t]);
 
   // Account deletion: GDPR + Play Store compliance. Two-step confirm so
   // a rage-tap doesn't nuke a paying user's data.
   const handleDeleteAccount = useCallback(() => {
     Alert.alert(
-      'Delete account?',
-      'This permanently erases your plan, journal, chat history, and subscription. This cannot be undone.',
+      t('profile.deleteTitle'),
+      t('profile.deleteBody'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('profile.deleteCta'),
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              'Are you sure?',
-              'Last chance — your account and all data will be erased forever.',
+              t('profile.deleteConfirmTitle'),
+              t('profile.deleteConfirmBody'),
               [
-                { text: 'Keep account', style: 'cancel' },
+                { text: t('profile.deleteConfirmKeep'), style: 'cancel' },
                 {
-                  text: 'Delete forever',
+                  text: t('profile.deleteConfirmGo'),
                   style: 'destructive',
                   onPress: async () => {
                     try {
                       await cancelAllReminders();
                       await deleteAccount();
-                      // Local cleanup mirrors sign-out — auth state will
-                      // flip when the user is gone.
                       clearUserData();
                       await signOut().catch(() => {});
                     } catch (e: unknown) {
                       const msg = e instanceof Error
                         ? e.message
-                        : 'Could not delete account. Try again later.';
-                      Alert.alert('Deletion failed', msg);
+                        : t('profile.deleteFailedFallback');
+                      Alert.alert(t('profile.deleteFailed'), msg);
                     }
                   },
                 },
@@ -132,7 +139,7 @@ export default function ProfileScreen() {
         },
       ],
     );
-  }, [clearUserData]);
+  }, [clearUserData, t]);
 
   // Per-category busy flag so two rapid toggles don't race
   const [pending, setPending] = useState<ReminderCategory | null>(null);
@@ -148,17 +155,17 @@ export default function ProfileScreen() {
         // Permission denied — revert the toggle and explain
         setNotificationPref(category, false);
         Alert.alert(
-          'Notifications disabled',
-          'Enable notifications for Mend AI in your system settings to use reminders.',
+          t('profile.notifsDisabledTitle'),
+          t('profile.notifsDisabledBody'),
           [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open settings', onPress: () => Linking.openSettings().catch(() => {}) },
+            { text: t('common.cancel'), style: 'cancel' },
+            { text: t('profile.openSettings'), onPress: () => Linking.openSettings().catch(() => {}) },
           ],
         );
       }
       setPending(null);
     },
-    [pending, setNotificationPref],
+    [pending, setNotificationPref, t],
   );
 
   const switchTrackColors = { true: theme.colors.pu, false: theme.colors.bo2 };
@@ -179,14 +186,14 @@ export default function ProfileScreen() {
         />
 
 
-        <SectionLabel>Appearance</SectionLabel>
+        <SectionLabel>{t('profile.appearance')}</SectionLabel>
         <Card padding={0} style={{ marginBottom: 20 }}>
           <Row
             iconBg={theme.colors.pl}
             iconColor={theme.colors.pt}
             Icon={scheme === 'dark' ? Sun : Moon}
-            title="Dark theme"
-            subtitle="Easy on eyes at night"
+            title={t('profile.darkTheme')}
+            subtitle={t('profile.darkThemeSub')}
             control={
               <Switch
                 value={scheme === 'dark'}
@@ -195,17 +202,26 @@ export default function ProfileScreen() {
                 thumbColor={switchThumbColor}
               />
             }
+            divider
+          />
+          <NavRow
+            iconBg={theme.colors.bl}
+            iconColor={theme.colors.bb}
+            Icon={Languages}
+            title={t('profile.language')}
+            subtitle={currentLangLabel}
+            onPress={() => nav.navigate('Language')}
           />
         </Card>
 
-        <SectionLabel>Notifications</SectionLabel>
+        <SectionLabel>{t('profile.notifications')}</SectionLabel>
         <Card padding={0} style={{ marginBottom: 20 }}>
           <Row
             iconBg={theme.colors.pl}
             iconColor={theme.colors.pt}
             Icon={Activity}
-            title="Exercise reminders"
-            subtitle="5 times a day · 9 AM – 9 PM"
+            title={t('profile.exerciseReminders')}
+            subtitle={t('profile.exerciseRemindersSub')}
             control={
               <Switch
                 value={notifications.exercise}
@@ -221,8 +237,8 @@ export default function ProfileScreen() {
             iconBg={theme.colors.bl}
             iconColor={theme.colors.bb}
             Icon={Droplet}
-            title="Hydration reminders"
-            subtitle="Every 90 min · 9 AM – 7:30 PM"
+            title={t('profile.hydrationReminders')}
+            subtitle={t('profile.hydrationRemindersSub')}
             control={
               <Switch
                 value={notifications.water}
@@ -238,8 +254,8 @@ export default function ProfileScreen() {
             iconBg={theme.colors.gl}
             iconColor={theme.colors.gn}
             Icon={BookOpen}
-            title="Journal reminder"
-            subtitle="Evening · 8 PM"
+            title={t('profile.journalReminder')}
+            subtitle={t('profile.journalReminderSub')}
             control={
               <Switch
                 value={notifications.journal}
@@ -252,13 +268,13 @@ export default function ProfileScreen() {
           />
         </Card>
 
-        <SectionLabel>Support</SectionLabel>
+        <SectionLabel>{t('profile.support')}</SectionLabel>
         <Card padding={0} style={{ marginBottom: 20 }}>
           <NavRow
             iconBg={theme.colors.pl}
             iconColor={theme.colors.pt}
             Icon={MessageSquare}
-            title="Send feedback"
+            title={t('profile.sendFeedback')}
             onPress={() => nav.navigate('Feedback')}
             divider
           />
@@ -266,18 +282,18 @@ export default function ProfileScreen() {
             iconBg={theme.colors.bl}
             iconColor={theme.colors.bb}
             Icon={History}
-            title="Plan history"
+            title={t('profile.planHistory')}
             onPress={() => nav.navigate('PlanHistory')}
           />
         </Card>
 
-        <SectionLabel>About</SectionLabel>
+        <SectionLabel>{t('profile.about')}</SectionLabel>
         <Card padding={0} style={{ marginBottom: 20 }}>
           <NavRow
             iconBg={theme.colors.bl}
             iconColor={theme.colors.bb}
             Icon={Shield}
-            title="Privacy Policy"
+            title={t('profile.privacyPolicy')}
             onPress={() => nav.navigate('Legal', { kind: 'privacy' })}
             divider
           />
@@ -285,12 +301,12 @@ export default function ProfileScreen() {
             iconBg={theme.colors.card2}
             iconColor={theme.colors.tb}
             Icon={FileText}
-            title="Terms of Service"
+            title={t('profile.termsOfService')}
             onPress={() => nav.navigate('Legal', { kind: 'terms' })}
           />
         </Card>
 
-        <SectionLabel>Settings</SectionLabel>
+        <SectionLabel>{t('profile.settings')}</SectionLabel>
         <Card padding={0} style={{ marginBottom: 24 }}>
           <Pressable
             onPress={handleResetPlan}
@@ -325,7 +341,7 @@ export default function ProfileScreen() {
                 letterSpacing: -0.2,
               }}
             >
-              Reset plan
+              {t('profile.resetPlan')}
             </Text>
             <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
           </Pressable>
@@ -361,7 +377,7 @@ export default function ProfileScreen() {
                   letterSpacing: -0.2,
                 }}
               >
-                Sign out
+                {t('profile.signOut')}
               </Text>
               <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
             </Pressable>
@@ -370,7 +386,7 @@ export default function ProfileScreen() {
 
         {user && (
           <>
-            <SectionLabel>Danger zone</SectionLabel>
+            <SectionLabel>{t('profile.dangerZone')}</SectionLabel>
             <Card padding={0} style={{ marginBottom: 24 }}>
               <Pressable
                 onPress={handleDeleteAccount}
@@ -403,7 +419,7 @@ export default function ProfileScreen() {
                       letterSpacing: -0.2,
                     }}
                   >
-                    Delete account
+                    {t('profile.deleteAccount')}
                   </Text>
                   <Text
                     style={{
@@ -412,7 +428,7 @@ export default function ProfileScreen() {
                       marginTop: 2,
                     }}
                   >
-                    Permanently erases everything
+                    {t('profile.deleteAccountSub')}
                   </Text>
                 </View>
                 <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
@@ -440,11 +456,12 @@ interface NavRowProps {
   iconColor: string;
   Icon: React.FC<{ size: number; color: string; strokeWidth?: number }>;
   title: string;
+  subtitle?: string;
   onPress: () => void;
   divider?: boolean;
 }
 
-function NavRow({ iconBg, iconColor, Icon, title, onPress, divider }: NavRowProps) {
+function NavRow({ iconBg, iconColor, Icon, title, subtitle, onPress, divider }: NavRowProps) {
   const theme = useTheme();
   return (
     <Pressable
@@ -471,17 +488,23 @@ function NavRow({ iconBg, iconColor, Icon, title, onPress, divider }: NavRowProp
       >
         <Icon size={17} color={iconColor} strokeWidth={2.2} />
       </View>
-      <Text
-        style={{
-          flex: 1,
-          fontSize: 15,
-          color: theme.colors.th,
-          fontWeight: '700',
-          letterSpacing: -0.2,
-        }}
-      >
-        {title}
-      </Text>
+      <View style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: 15,
+            color: theme.colors.th,
+            fontWeight: '700',
+            letterSpacing: -0.2,
+          }}
+        >
+          {title}
+        </Text>
+        {subtitle && (
+          <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }} numberOfLines={1}>
+            {subtitle}
+          </Text>
+        )}
+      </View>
       <ChevronRight size={18} color={theme.colors.tl} strokeWidth={2} />
     </Pressable>
   );

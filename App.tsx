@@ -17,6 +17,16 @@ import { useSyncBootstrap } from './src/lib/useSyncBootstrap';
 import { setupIap, setIapUser } from './src/lib/iap';
 import { setupAnalytics, identify } from './src/lib/analytics';
 import { useAuth } from './src/lib/auth';
+import {
+  initI18n,
+  detectDeviceLanguage,
+  setLanguage as setI18nLanguage,
+  type LanguageCode,
+} from './src/lib/i18n';
+
+// Initialise i18n synchronously at module load so the first render of the
+// app already has translations available — avoids an English flash.
+initI18n();
 
 export default function App() {
   return (
@@ -47,9 +57,18 @@ export default function App() {
 function NotificationsBootstrap(): null {
   const hydrated = useAppStore((s) => s.hydrated);
   const notifications = useAppStore((s) => s.notifications);
+  const language = useAppStore((s) => s.language);
   const { user } = useAuth();
 
   useSyncBootstrap();
+
+  // Apply persisted language preference once the store has hydrated.
+  // `null` means "follow device" — we resolve that to the detected locale.
+  useEffect(() => {
+    if (!hydrated) return;
+    const target: LanguageCode = (language as LanguageCode) ?? detectDeviceLanguage();
+    setI18nLanguage(target);
+  }, [hydrated, language]);
 
   useEffect(() => {
     setupNotificationHandler();

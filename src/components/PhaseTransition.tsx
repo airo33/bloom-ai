@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, View, Text, Pressable, Animated } from 'react-native';
 import { Layers, Target } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import Confetti from './Confetti';
 import type { PlanPhase } from '../types/plan';
@@ -18,6 +19,7 @@ interface Props {
 
 export default function PhaseTransition({ phase, visible, onDismiss }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const scale = useRef(new Animated.Value(0.85)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const badgeRotate = useRef(new Animated.Value(0)).current;
@@ -120,7 +122,7 @@ export default function PhaseTransition({ phase, visible, onDismiss }: Props) {
               marginBottom: 6,
             }}
           >
-            New phase unlocked
+            {t('phase.tagline')}
           </Text>
 
           <Text
@@ -142,7 +144,7 @@ export default function PhaseTransition({ phase, visible, onDismiss }: Props) {
               marginBottom: 18,
             }}
           >
-            Week {phase.weekNumbers ?? phase.weeks ?? ''}
+            {t('phase.week', { weeks: phase.weekNumbers ?? phase.weeks ?? '' })}
           </Text>
 
           {phase.goals && phase.goals.length > 0 && (
@@ -157,7 +159,7 @@ export default function PhaseTransition({ phase, visible, onDismiss }: Props) {
                   marginBottom: 10,
                 }}
               >
-                Goals for this phase
+                {t('phase.goalsLabel')}
               </Text>
               {phase.goals.slice(0, 3).map((g, i) => (
                 <View
@@ -205,7 +207,7 @@ export default function PhaseTransition({ phase, visible, onDismiss }: Props) {
                 letterSpacing: -0.2,
               }}
             >
-              Let's go
+              {t('phase.cta')}
             </Text>
           </Pressable>
         </Animated.View>

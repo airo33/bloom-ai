@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Text, Easing } from 'react-native';
 import { Droplet } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import Confetti from './Confetti';
 
@@ -18,6 +19,7 @@ interface Props {
 
 export default function HydrationGoalCelebration({ visible, onDone }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const slide = useRef(new Animated.Value(0)).current;
   const [confettiOn, setConfettiOn] = useState(false);
 
@@ -110,10 +112,10 @@ export default function HydrationGoalCelebration({ visible, onDone }: Props) {
               letterSpacing: -0.3,
             }}
           >
-            Perfect hydration
+            {t('hydration.goalTitle')}
           </Text>
           <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }}>
-            8/8 glasses · your joints thank you
+            {t('hydration.goalSub')}
           </Text>
         </View>
       </Animated.View>

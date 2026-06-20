@@ -13,45 +13,22 @@ import {
   Calendar,
   BarChart3,
 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 
 interface Step {
   Icon: React.FC<{ size: number; color: string; strokeWidth?: number }>;
-  title: string;
-  body: string;
+  titleKey: string;
+  bodyKey: string;
 }
 
 const STEPS: Step[] = [
-  {
-    Icon: Sparkles,
-    title: 'Welcome to Mend AI',
-    body: "Your AI-generated rehab plan is ready. Here's a quick tour — under 30 seconds.",
-  },
-  {
-    Icon: Activity,
-    title: 'Daily exercises',
-    body: 'Tap any exercise card on Home to see step-by-step instructions. Tap the circle to mark it done.',
-  },
-  {
-    Icon: Droplet,
-    title: 'Hydration tracking',
-    body: 'Tap a glass to log it. Aim for 8 a day — your tissues heal faster when hydrated.',
-  },
-  {
-    Icon: Calendar,
-    title: 'Schedule',
-    body: 'Open the calendar tab to see all your sessions for the week and reorder them around your life.',
-  },
-  {
-    Icon: BarChart3,
-    title: 'Progress',
-    body: 'The chart tab tracks pain, mobility and adherence so you can see your recovery curve.',
-  },
-  {
-    Icon: Stethoscope,
-    title: 'AI Physio Chat',
-    body: 'Stuck on a movement or have a flare-up? The chat tab gives you 24/7 expert physio answers grounded in your plan.',
-  },
+  { Icon: Sparkles, titleKey: 'tutorial.welcomeTitle', bodyKey: 'tutorial.welcomeBody' },
+  { Icon: Activity, titleKey: 'tutorial.exercisesTitle', bodyKey: 'tutorial.exercisesBody' },
+  { Icon: Droplet, titleKey: 'tutorial.hydrationTitle', bodyKey: 'tutorial.hydrationBody' },
+  { Icon: Calendar, titleKey: 'tutorial.scheduleTitle', bodyKey: 'tutorial.scheduleBody' },
+  { Icon: BarChart3, titleKey: 'tutorial.progressTitle', bodyKey: 'tutorial.progressBody' },
+  { Icon: Stethoscope, titleKey: 'tutorial.chatTitle', bodyKey: 'tutorial.chatBody' },
 ];
 
 interface Props {
@@ -61,6 +38,7 @@ interface Props {
 
 export default function OnboardingTutorial({ visible, onDone }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const slide = useRef(new Animated.Value(0)).current;
   const onPrimary = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
@@ -113,7 +91,7 @@ export default function OnboardingTutorial({ visible, onDone }: Props) {
             })}
           >
             <Text style={{ fontSize: 13, color: theme.colors.tm, fontWeight: '600' }}>
-              Skip
+              {t('tutorial.skip')}
             </Text>
           </Pressable>
 
@@ -150,7 +128,7 @@ export default function OnboardingTutorial({ visible, onDone }: Props) {
                 textAlign: 'center',
               }}
             >
-              {s.title}
+              {t(s.titleKey)}
             </Text>
             <Text
               style={{
@@ -161,7 +139,7 @@ export default function OnboardingTutorial({ visible, onDone }: Props) {
                 marginBottom: 22,
               }}
             >
-              {s.body}
+              {t(s.bodyKey)}
             </Text>
           </Animated.View>
 
@@ -200,7 +178,7 @@ export default function OnboardingTutorial({ visible, onDone }: Props) {
                 letterSpacing: -0.2,
               }}
             >
-              {isLast ? "Let's go" : 'Next'}
+              {isLast ? t('tutorial.letsgo') : t('common.next')}
             </Text>
           </Pressable>
         </View>

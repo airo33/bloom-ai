@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, View, Text, Pressable, Animated } from 'react-native';
 import { Award, Trophy, Star, Crown } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import Confetti from './Confetti';
 import AnimatedFlame from './AnimatedFlame';
@@ -28,43 +29,19 @@ export function nextUnseenMilestone(
 }
 
 interface MilestoneMeta {
-  title: string;
-  message: string;
   /** Lucide icon component — `null` means use the AnimatedFlame instead. */
   Icon: React.FC<{ size: number; color: string; strokeWidth?: number; fill?: string }> | null;
 }
 
+// Visuals only — the title/message strings are looked up by milestone via
+// the streak.title_N / streak.msg_N keys in the locale files.
 const MILESTONE_META: Record<StreakMilestone, MilestoneMeta> = {
-  3: {
-    title: 'Three days down',
-    message: 'Three sessions in a row. Your brain is starting to expect this — the habit is taking root.',
-    Icon: null, // animated flame
-  },
-  7: {
-    title: 'One week in',
-    message: 'Seven days of showing up. The hardest part of any habit is the start — you cleared it.',
-    Icon: null, // animated flame
-  },
-  14: {
-    title: 'Two-week streak',
-    message: 'Recovery is compounding. Two weeks of consistent work is when real tissue change kicks in.',
-    Icon: Award,
-  },
-  30: {
-    title: 'One month strong',
-    message: 'A full month. Your nervous system has rewired around movement. Keep going — this is how lasting recovery is built.',
-    Icon: Trophy,
-  },
-  60: {
-    title: 'Sixty days',
-    message: 'Two months of daily care for your body. This is athlete-tier discipline.',
-    Icon: Star,
-  },
-  100: {
-    title: '100 days',
-    message: 'A hundred days. Whatever brought you here is far behind you now.',
-    Icon: Crown,
-  },
+  3:   { Icon: null },
+  7:   { Icon: null },
+  14:  { Icon: Award },
+  30:  { Icon: Trophy },
+  60:  { Icon: Star },
+  100: { Icon: Crown },
 };
 
 interface Props {
@@ -74,6 +51,7 @@ interface Props {
 
 export default function StreakReward({ milestone, onDismiss }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const scale = useRef(new Animated.Value(0.85)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const [confettiActive, setConfettiActive] = useState(false);
@@ -151,7 +129,7 @@ export default function StreakReward({ milestone, onDismiss }: Props) {
               marginBottom: 4,
             }}
           >
-            {milestone} days
+            {t('streak.days', { count: milestone })}
           </Text>
           <Text
             style={{
@@ -162,7 +140,7 @@ export default function StreakReward({ milestone, onDismiss }: Props) {
               marginBottom: 10,
             }}
           >
-            {meta.title}
+            {t(`streak.title_${milestone}`)}
           </Text>
           <Text
             style={{
@@ -173,7 +151,7 @@ export default function StreakReward({ milestone, onDismiss }: Props) {
               marginBottom: 22,
             }}
           >
-            {meta.message}
+            {t(`streak.msg_${milestone}`)}
           </Text>
           <Pressable
             onPress={onDismiss}
@@ -195,7 +173,7 @@ export default function StreakReward({ milestone, onDismiss }: Props) {
                 letterSpacing: -0.2,
               }}
             >
-              Keep going
+              {t('streak.keepGoing')}
             </Text>
           </Pressable>
         </Animated.View>

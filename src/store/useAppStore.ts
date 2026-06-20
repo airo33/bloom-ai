@@ -89,6 +89,9 @@ interface AppState {
   /** Name of the plan phase the user has already been congratulated for entering. */
   lastSeenPhaseName: string | null;
   setLastSeenPhaseName: (name: string | null) => void;
+  /** UI language. `null` = follow device locale (default). */
+  language: string | null;
+  setLanguage: (lang: string | null) => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
@@ -131,6 +134,7 @@ export const useAppStore = create<AppState>()(
       lastAllDoneCelebratedDay: 0,
       lastHydrationCelebratedDay: 0,
       lastSeenPhaseName: null,
+      language: null,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
@@ -241,6 +245,8 @@ export const useAppStore = create<AppState>()(
 
       setLastSeenPhaseName: (name) => set({ lastSeenPhaseName: name }),
 
+      setLanguage: (lang) => set({ language: lang }),
+
       resetAll: () =>
         set({
           profile: initialProfile,
@@ -291,6 +297,7 @@ export const useAppStore = create<AppState>()(
         lastAllDoneCelebratedDay: s.lastAllDoneCelebratedDay,
         lastHydrationCelebratedDay: s.lastHydrationCelebratedDay,
         lastSeenPhaseName: s.lastSeenPhaseName,
+        language: s.language,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true;

@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, View, Text, Pressable, Animated, Easing } from 'react-native';
 import { Check } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import Confetti from './Confetti';
 
@@ -23,6 +24,7 @@ export default function AllTasksDoneCelebration({
   onDismiss,
 }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const cardScale = useRef(new Animated.Value(0.8)).current;
   const cardOpacity = useRef(new Animated.Value(0)).current;
   const checkScale = useRef(new Animated.Value(0)).current;
@@ -130,7 +132,7 @@ export default function AllTasksDoneCelebration({
               textAlign: 'center',
             }}
           >
-            Day complete
+            {t('dayComplete.title')}
           </Text>
           <Text
             style={{
@@ -142,10 +144,8 @@ export default function AllTasksDoneCelebration({
               textAlign: 'center',
             }}
           >
-            {completedCount === 1
-              ? '1 session done'
-              : `All ${completedCount} sessions done`}
-            {streak > 1 ? ` · ${streak}-day streak` : ''}
+            {t('dayComplete.sessions', { count: completedCount })}
+            {streak > 1 ? t('dayComplete.streakSuffix', { count: streak }) : ''}
           </Text>
           <Text
             style={{
@@ -156,7 +156,7 @@ export default function AllTasksDoneCelebration({
               marginBottom: 22,
             }}
           >
-            Recovery happens between sessions. Hydrate, sleep well — your body's doing the rest of the work tonight.
+            {t('dayComplete.body')}
           </Text>
 
           <Pressable
@@ -179,7 +179,7 @@ export default function AllTasksDoneCelebration({
                 letterSpacing: -0.2,
               }}
             >
-              Nice
+              {t('dayComplete.cta')}
             </Text>
           </Pressable>
         </Animated.View>

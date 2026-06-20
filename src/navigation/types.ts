@@ -19,6 +19,7 @@ export type RootStackParamList = {
   Legal: { kind: 'privacy' | 'terms' };
   Feedback: undefined;
   PlanHistory: undefined;
+  Language: undefined;
 };
 
 export type MainTabParamList = {
