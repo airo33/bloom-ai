@@ -1,7 +1,12 @@
 // Task row — refreshed to a cleaner style with subtle borders,
 // Lucide check mark, no shadows.
+//
+// Pop animation strategy: we fire it INSIDE the onPress handler instead
+// of an effect that watches `done`. The earlier mountedRef approach
+// silently failed for re-checks because the dependency-driven effect
+// didn't always run for back-to-back toggles. Tapping IS the trigger.
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Pressable, View, Text, Animated } from 'react-native';
 import { Check, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '../theme';
@@ -21,26 +26,17 @@ export default function TaskItem({ exercise, done, onPress, onToggle }: Props) {
   const c = getCategory(exercise.category);
   const checkFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
-  // Pop animation every time the task transitions to done. We track
-  // mount separately so already-done tasks don't pop the moment the
-  // screen opens — only user-initiated check-ins should bounce.
   const scale = useRef(new Animated.Value(1)).current;
-  const mountedRef = useRef(false);
-  useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-    if (done) {
-      scale.setValue(0.6);
-      Animated.spring(scale, {
-        toValue: 1,
-        friction: 4,
-        tension: 230,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [done, scale]);
+
+  const popCheckbox = () => {
+    scale.setValue(0.55);
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 3.8,
+      tension: 240,
+      useNativeDriver: false,
+    }).start();
+  };
 
   return (
     <Pressable
@@ -84,6 +80,7 @@ export default function TaskItem({ exercise, done, onPress, onToggle }: Props) {
         hitSlop={10}
         onPress={(e) => {
           e.stopPropagation();
+          popCheckbox();
           onToggle();
         }}
       >

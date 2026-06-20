@@ -1,10 +1,12 @@
 // Hydration tracker — 8 droplet pips with tap-to-fill, progress bar, status tip.
 //
-// Each droplet has its own Animated.Value driving a tiny pop when it becomes
-// filled (or shrink when unfilled). The progress bar width animates with
-// useNativeDriver: false (width can't be on the native thread). We emit
-// `onReachedGoal` when the count crosses 0→8 so the caller can throw
-// confetti — the caller owns the "once per day" guard.
+// Each glass pops on tap regardless of whether it's filling or emptying —
+// we drive the animation imperatively from onPress instead of from an
+// effect watching `glasses`. The effect-based approach kept failing
+// silently for re-taps on glasses that had been filled+unfilled+refilled.
+//
+// We emit `onReachedGoal` when the count crosses 0→8 so the caller can
+// throw confetti — the caller owns the "once per day" guard.
 
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Pressable, Animated } from 'react-native';
@@ -26,72 +28,39 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
   const { t } = useTranslation();
   const tip = t(`hydration.tip${Math.min(glasses, 7)}`);
 
-  // Per-droplet pop animation. Value 0 = empty, 1 = filled.
-  // We seed each ref with the initial filled-state so they paint correctly
-  // on first render without needing the effect to fire.
-  const drops = useRef<Animated.Value[] | null>(null);
-  if (drops.current === null) {
-    drops.current = Array.from(
-      { length: 8 },
-      (_, i) => new Animated.Value(i < glasses ? 1 : 0),
-    );
+  // Per-glass scale value. Seeded at 1 so the first paint isn't shrunken.
+  const scales = useRef<Animated.Value[] | null>(null);
+  if (scales.current === null) {
+    scales.current = Array.from({ length: 8 }, () => new Animated.Value(1));
   }
   // Progress bar fill (0..1).
   const bar = useRef(new Animated.Value(glasses / 8)).current;
-  // We need to know what each droplet looked like LAST tick so we can
-  // animate ONLY the ones that crossed the threshold this tick. That
-  // way re-tapping a previously-tapped glass still pops, but the seven
-  // unchanged glasses don't pulse on every tap.
   const prevGlassesRef = useRef(glasses);
-  const mountedRef = useRef(false);
 
+  // Watch glasses changes only to (a) animate the bar smoothly and (b)
+  // fire the goal callback exactly once when we cross into 8.
   useEffect(() => {
-    const ds = drops.current!;
-    const prev = prevGlassesRef.current;
-
-    // Skip animations on the initial mount — the values were already
-    // seeded above, so any user-perceptible animation would be a flash.
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      prevGlassesRef.current = glasses;
-      bar.setValue(glasses / 8);
-      return;
-    }
-
-    ds.forEach((v, i) => {
-      const wasFilled = i < prev;
-      const isFilled = i < glasses;
-      if (isFilled && !wasFilled) {
-        // Newly tapped — force a 0 baseline then spring up so the
-        // bounce is fully visible even when this glass was filled+unfilled
-        // moments ago.
-        v.setValue(0);
-        Animated.spring(v, {
-          toValue: 1,
-          friction: 4,
-          tension: 220,
-          useNativeDriver: true,
-        }).start();
-      } else if (!isFilled && wasFilled) {
-        Animated.timing(v, {
-          toValue: 0,
-          duration: 180,
-          useNativeDriver: true,
-        }).start();
-      }
-    });
-
     Animated.timing(bar, {
       toValue: glasses / 8,
       duration: 350,
       useNativeDriver: false,
     }).start();
-
-    if (prev < 8 && glasses === 8 && onReachedGoal) {
+    if (prevGlassesRef.current < 8 && glasses === 8 && onReachedGoal) {
       onReachedGoal();
     }
     prevGlassesRef.current = glasses;
   }, [glasses, bar, onReachedGoal]);
+
+  const popGlass = (i: number) => {
+    const v = scales.current![i];
+    v.setValue(0.6);
+    Animated.spring(v, {
+      toValue: 1,
+      friction: 3.8,
+      tension: 240,
+      useNativeDriver: false,
+    }).start();
+  };
 
   return (
     <View
@@ -138,17 +107,14 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
       <View style={{ flexDirection: 'row', gap: 4, marginBottom: 10 }}>
         {Array.from({ length: 8 }).map((_, i) => {
           const filled = i < glasses;
-          const v = drops.current![i];
-          // 0 -> 0.7 (small), 1 -> 1.0 (full) — bigger range means the
-          // pop is clearly visible even on the small 30dp tile.
-          const scale = v.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0.7, 1],
-          });
+          const v = scales.current![i];
           return (
             <Pressable
               key={i}
-              onPress={() => onTap(i)}
+              onPress={() => {
+                popGlass(i);
+                onTap(i);
+              }}
               hitSlop={4}
               style={{
                 flex: 1,
@@ -162,7 +128,7 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
                   justifyContent: 'center',
                   borderRadius: 10,
                   backgroundColor: filled ? WATER_COLOR + '22' : theme.colors.card2,
-                  transform: [{ scale }],
+                  transform: [{ scale: v }],
                 }}
               >
                 <Droplet
