@@ -36,26 +36,52 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
   const tip = TIPS[Math.min(glasses, TIPS.length - 1)];
 
   // Per-droplet pop animation. Value 0 = empty, 1 = filled.
-  const drops = useRef(
-    Array.from({ length: 8 }, () => new Animated.Value(0)),
-  ).current;
+  // We seed each ref with the initial filled-state so they paint correctly
+  // on first render without needing the effect to fire.
+  const drops = useRef<Animated.Value[] | null>(null);
+  if (drops.current === null) {
+    drops.current = Array.from(
+      { length: 8 },
+      (_, i) => new Animated.Value(i < glasses ? 1 : 0),
+    );
+  }
   // Progress bar fill (0..1).
-  const bar = useRef(new Animated.Value(0)).current;
+  const bar = useRef(new Animated.Value(glasses / 8)).current;
+  // We need to know what each droplet looked like LAST tick so we can
+  // animate ONLY the ones that crossed the threshold this tick. That
+  // way re-tapping a previously-tapped glass still pops, but the seven
+  // unchanged glasses don't pulse on every tap.
   const prevGlassesRef = useRef(glasses);
+  const mountedRef = useRef(false);
 
   useEffect(() => {
-    // Animate each droplet that crossed the threshold relative to glasses.
-    drops.forEach((v, i) => {
-      const targetFilled = i < glasses ? 1 : 0;
-      // Spring pop for newly filled, soft ease for unfilled.
-      if (targetFilled === 1) {
+    const ds = drops.current!;
+    const prev = prevGlassesRef.current;
+
+    // Skip animations on the initial mount — the values were already
+    // seeded above, so any user-perceptible animation would be a flash.
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      prevGlassesRef.current = glasses;
+      bar.setValue(glasses / 8);
+      return;
+    }
+
+    ds.forEach((v, i) => {
+      const wasFilled = i < prev;
+      const isFilled = i < glasses;
+      if (isFilled && !wasFilled) {
+        // Newly tapped — force a 0 baseline then spring up so the
+        // bounce is fully visible even when this glass was filled+unfilled
+        // moments ago.
+        v.setValue(0);
         Animated.spring(v, {
           toValue: 1,
-          friction: 4.5,
+          friction: 4,
           tension: 220,
           useNativeDriver: true,
         }).start();
-      } else {
+      } else if (!isFilled && wasFilled) {
         Animated.timing(v, {
           toValue: 0,
           duration: 180,
@@ -70,12 +96,11 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
       useNativeDriver: false,
     }).start();
 
-    // Goal celebration trigger — only when going UP into 8, not down→up→down.
-    if (prevGlassesRef.current < 8 && glasses === 8 && onReachedGoal) {
+    if (prev < 8 && glasses === 8 && onReachedGoal) {
       onReachedGoal();
     }
     prevGlassesRef.current = glasses;
-  }, [glasses, drops, bar, onReachedGoal]);
+  }, [glasses, bar, onReachedGoal]);
 
   return (
     <View
@@ -122,11 +147,12 @@ export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Prop
       <View style={{ flexDirection: 'row', gap: 4, marginBottom: 10 }}>
         {Array.from({ length: 8 }).map((_, i) => {
           const filled = i < glasses;
-          const v = drops[i];
-          // Overshoot then settle for a bouncy pop.
+          const v = drops.current![i];
+          // 0 -> 0.7 (small), 1 -> 1.0 (full) — bigger range means the
+          // pop is clearly visible even on the small 30dp tile.
           const scale = v.interpolate({
             inputRange: [0, 1],
-            outputRange: [0.9, 1],
+            outputRange: [0.7, 1],
           });
           return (
             <Pressable

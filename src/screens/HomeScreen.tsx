@@ -328,7 +328,7 @@ export default function HomeScreen() {
                   justifyContent: 'center',
                 }}
               >
-                <AnimatedFlame size={18} color={theme.colors.or} intensity={0.1} />
+                <AnimatedFlame size={18} color={theme.colors.or} intensity={0.25} />
               </View>
               <Text style={{ fontSize: 14, color: theme.colors.tb, flex: 1 }}>
                 <Text style={{ fontWeight: '800', color: theme.colors.th }}>

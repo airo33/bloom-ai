@@ -21,22 +21,25 @@ export default function TaskItem({ exercise, done, onPress, onToggle }: Props) {
   const c = getCategory(exercise.category);
   const checkFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
-  // Pop the checkbox + check icon when the task transitions to done.
-  // We don't pop on the false→true initial mount when the persisted state
-  // is already done — the prevDoneRef catches that.
+  // Pop animation every time the task transitions to done. We track
+  // mount separately so already-done tasks don't pop the moment the
+  // screen opens — only user-initiated check-ins should bounce.
   const scale = useRef(new Animated.Value(1)).current;
-  const prevDoneRef = useRef(done);
+  const mountedRef = useRef(false);
   useEffect(() => {
-    if (done && !prevDoneRef.current) {
-      scale.setValue(0.8);
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    if (done) {
+      scale.setValue(0.6);
       Animated.spring(scale, {
         toValue: 1,
-        friction: 4.5,
-        tension: 200,
+        friction: 4,
+        tension: 230,
         useNativeDriver: true,
       }).start();
     }
-    prevDoneRef.current = done;
   }, [done, scale]);
 
   return (

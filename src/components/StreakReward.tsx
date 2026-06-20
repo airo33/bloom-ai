@@ -139,7 +139,7 @@ export default function StreakReward({ milestone, onDismiss }: Props) {
             {meta.Icon ? (
               <meta.Icon size={42} color={theme.colors.or} fill={theme.colors.or} strokeWidth={2} />
             ) : (
-              <AnimatedFlame size={44} color={theme.colors.or} intensity={0.12} />
+              <AnimatedFlame size={44} color={theme.colors.or} intensity={0.3} />
             )}
           </View>
           <Text
