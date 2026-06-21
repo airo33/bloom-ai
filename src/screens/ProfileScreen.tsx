@@ -31,7 +31,7 @@ import {
   type ReminderCategory,
 } from '../lib/notifications';
 import { useAuth, signOut, displayNameFor } from '../lib/auth';
-import { deleteAccount } from '../lib/api';
+import { archivePlan, deleteAccount } from '../lib/api';
 import type { RootStackParamList } from '../navigation/types';
 import type { SubscriptionTier, FitnessLevel } from '../types/plan';
 
@@ -40,6 +40,7 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const { scheme, toggleScheme } = useThemeControls();
   const profile = useAppStore((s) => s.profile);
+  const plan = useAppStore((s) => s.plan);
   const tier = useAppStore((s) => s.subscriptionTier);
   const notifications = useAppStore((s) => s.notifications);
   const language = useAppStore((s) => s.language);
@@ -56,6 +57,12 @@ export default function ProfileScreen() {
   // Reset plan: wipe local state + bounce to Welcome so user lands in
   // onboarding instead of staring at an empty Profile/Home with no signal
   // anything happened. Two-tap confirm because this is destructive.
+  //
+  // CRITICAL: archive the current plan to the cloud BEFORE resetAll wipes
+  // it. Otherwise users who reset their plan to start a new recovery cycle
+  // lose every previous plan and Plan History is permanently empty for
+  // them. The archive is best-effort — if it fails (offline / signed out)
+  // we still complete the reset so the user isn't stuck.
   const handleResetPlan = useCallback(() => {
     Alert.alert(
       t('profile.resetTitle'),
@@ -65,7 +72,10 @@ export default function ProfileScreen() {
         {
           text: t('profile.resetCta'),
           style: 'destructive',
-          onPress: () => {
+          onPress: async () => {
+            if (plan) {
+              await archivePlan({ plan, source: 'ai' }).catch(() => {});
+            }
             resetAll();
             // Welcome lives on the root stack. Use the parent navigator
             // (this screen sits inside MainTabs) to escape the tabs.
@@ -75,7 +85,7 @@ export default function ProfileScreen() {
         },
       ],
     );
-  }, [resetAll, nav, t]);
+  }, [plan, resetAll, nav, t]);
 
   const handleSignOut = useCallback(() => {
     Alert.alert(
