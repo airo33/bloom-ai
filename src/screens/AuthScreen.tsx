@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail, Lock, User as UserIcon, ArrowRight } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useTheme } from '../theme';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -20,6 +22,7 @@ type Mode = 'signin' | 'signup';
 
 export default function AuthScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,13 +35,12 @@ export default function AuthScreen() {
   const submit = useCallback(async () => {
     setError(null);
 
-    // Lightweight client-side validation — Supabase will re-check the rest
     if (!email.trim() || !email.includes('@')) {
-      setError('Enter a valid email');
+      setError(t('auth.errEmailInvalid'));
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('auth.errPasswordShort'));
       return;
     }
 
@@ -51,15 +53,13 @@ export default function AuthScreen() {
         await signInWithEmail(email, password);
         track('user_signed_in');
       }
-      // Successful auth flips the session in supabase client → useAuth fires →
-      // RootNavigator swaps to the main app. Nothing to do here.
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      setError(humanizeAuthError(message));
+      setError(humanizeAuthError(message, t));
     } finally {
       setBusy(false);
     }
-  }, [mode, email, password, name]);
+  }, [mode, email, password, name, t]);
 
   const switchMode = useCallback(() => {
     setMode((m) => (m === 'signin' ? 'signup' : 'signin'));
@@ -95,7 +95,7 @@ export default function AuthScreen() {
               marginBottom: 6,
             }}
           >
-            {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+            {mode === 'signin' ? t('auth.signInTitle') : t('auth.signUpTitle')}
           </Text>
           <Text
             style={{
@@ -105,19 +105,17 @@ export default function AuthScreen() {
               marginBottom: 28,
             }}
           >
-            {mode === 'signin'
-              ? 'Sign in to sync your plan across devices.'
-              : 'Save your recovery progress to the cloud and access it anywhere.'}
+            {mode === 'signin' ? t('auth.signInSub') : t('auth.signUpSub')}
           </Text>
 
           {mode === 'signup' && (
             <>
-              <FieldLabel>Name</FieldLabel>
+              <FieldLabel>{t('auth.nameLabel')}</FieldLabel>
               <InputWithIcon
                 Icon={UserIcon}
                 value={name}
                 onChangeText={setName}
-                placeholder="Your name"
+                placeholder={t('auth.namePlaceholder')}
                 autoCapitalize="words"
                 returnKeyType="next"
                 editable={!busy}
@@ -126,12 +124,12 @@ export default function AuthScreen() {
             </>
           )}
 
-          <FieldLabel>Email</FieldLabel>
+          <FieldLabel>{t('auth.emailLabel')}</FieldLabel>
           <InputWithIcon
             Icon={Mail}
             value={email}
             onChangeText={setEmail}
-            placeholder="you@example.com"
+            placeholder={t('auth.emailPlaceholder')}
             autoCapitalize="none"
             keyboardType="email-address"
             autoComplete="email"
@@ -141,12 +139,12 @@ export default function AuthScreen() {
 
           <View style={{ height: 14 }} />
 
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel>{t('auth.passwordLabel')}</FieldLabel>
           <InputWithIcon
             Icon={Lock}
             value={password}
             onChangeText={setPassword}
-            placeholder={mode === 'signup' ? 'At least 6 characters' : 'Your password'}
+            placeholder={mode === 'signup' ? t('auth.passwordPlaceholderSignUp') : t('auth.passwordPlaceholderSignIn')}
             secureTextEntry
             autoCapitalize="none"
             autoComplete={mode === 'signup' ? 'new-password' : 'password'}
@@ -176,7 +174,7 @@ export default function AuthScreen() {
           <View style={{ height: 24 }} />
 
           <Button
-            title={mode === 'signin' ? 'Sign in' : 'Create account'}
+            title={mode === 'signin' ? t('auth.signIn') : t('auth.createAccount')}
             onPress={submit}
             loading={busy}
             icon={
@@ -194,9 +192,9 @@ export default function AuthScreen() {
             })}
           >
             <Text style={{ fontSize: 14, color: theme.colors.tm }}>
-              {mode === 'signin' ? "Don't have an account? " : 'Already have one? '}
+              {mode === 'signin' ? t('auth.switchToSignUpPrefix') : t('auth.switchToSignInPrefix')}
               <Text style={{ color: theme.colors.pu, fontWeight: '700' }}>
-                {mode === 'signin' ? 'Sign up' : 'Sign in'}
+                {mode === 'signin' ? t('auth.switchToSignUpLink') : t('auth.switchToSignInLink')}
               </Text>
             </Text>
           </Pressable>
@@ -251,14 +249,12 @@ function InputWithIcon({ Icon, ...inputProps }: InputWithIconProps) {
 }
 
 /** Turn raw Supabase error strings into something readable. */
-function humanizeAuthError(raw: string): string {
+function humanizeAuthError(raw: string, t: TFunction): string {
   const r = raw.toLowerCase();
-  if (r.includes('invalid login credentials')) return 'Wrong email or password';
-  if (r.includes('user already registered')) return 'This email is already in use — sign in instead';
-  if (r.includes('password should be at least')) return 'Password is too short (min 6 characters)';
-  if (r.includes('invalid email')) return 'Email looks invalid';
-  // Supabase's "for security purposes, you can only request this after N seconds"
-  // and any other rate-limit / too-many-requests language.
+  if (r.includes('invalid login credentials')) return t('auth.errWrongCreds');
+  if (r.includes('user already registered')) return t('auth.errAlreadyRegistered');
+  if (r.includes('password should be at least')) return t('auth.errPasswordTooShort');
+  if (r.includes('invalid email')) return t('auth.errInvalidEmail');
   if (
     r.includes('for security purposes') ||
     r.includes('email rate limit') ||
@@ -266,13 +262,11 @@ function humanizeAuthError(raw: string): string {
     r.includes('rate limit') ||
     r.includes('too many requests')
   ) {
-    // Try to surface the cool-down number Supabase included, if any
     const seconds = raw.match(/(\d+)\s*seconds?/i)?.[1];
     return seconds
-      ? `Too many attempts — wait ${seconds} seconds and try again`
-      : 'Too many attempts — wait a minute and try again';
+      ? t('auth.errRateLimitWithSeconds', { seconds })
+      : t('auth.errRateLimit');
   }
-  // Network conditions — keep the user oriented, hint at the likely fix
   if (
     r.includes('timed out') ||
     r.includes('timeout') ||
@@ -282,8 +276,8 @@ function humanizeAuthError(raw: string): string {
     r.includes('aborterror') ||
     r.includes('network is slow')
   ) {
-    return 'Network is slow or unreachable — check your connection (or VPN) and try again';
+    return t('auth.errNetworkSlow');
   }
-  if (r.includes('network')) return 'Network error — check your connection';
+  if (r.includes('network')) return t('auth.errNetwork');
   return raw;
 }

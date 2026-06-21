@@ -10,6 +10,8 @@ interface RequestBody {
   plan?: unknown;
   history?: Array<{ role: 'user' | 'assistant'; content: string }>;
   userMessage: string;
+  /** ISO 639-1 code: 'en', 'es', 'pt', 'de'. Falls back to English. */
+  language?: string;
 }
 
 // Llama 3.1 8B Instant — Groq's fastest model. Good enough for short
@@ -18,12 +20,36 @@ interface RequestBody {
 const MODEL = 'llama-3.1-8b-instant';
 const MAX_HISTORY = 12;
 
-function buildSystem(plan: unknown): string {
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  es: 'Spanish',
+  pt: 'Brazilian Portuguese',
+  de: 'German',
+};
+
+// Localised off-topic refusals — the prompt asks the model to use one of
+// these verbatim when the user wanders off the recovery topic.
+const OFF_TOPIC_REFUSAL: Record<string, string> = {
+  en: "I can only help with your recovery. Let's get back to your plan — what's on your mind about your injury, pain, or exercises?",
+  es: 'Solo puedo ayudarte con tu recuperación. Volvamos a tu plan — ¿qué tienes en mente sobre tu lesión, dolor o ejercicios?',
+  pt: 'Só posso ajudar com sua recuperação. Vamos voltar ao seu plano — o que está pensando sobre sua lesão, dor ou exercícios?',
+  de: 'Ich kann dir nur bei deiner Genesung helfen. Lass uns zurück zu deinem Plan kommen — was beschäftigt dich an deiner Verletzung, deinem Schmerz oder deinen Übungen?',
+};
+
+function buildSystem(plan: unknown, language?: string): string {
+  const lang = (language ?? 'en').toLowerCase().slice(0, 2);
+  const langName = LANGUAGE_NAMES[lang] ?? 'English';
+  const refusal = OFF_TOPIC_REFUSAL[lang] ?? OFF_TOPIC_REFUSAL.en;
+  const languageBlock =
+    lang === 'en'
+      ? ''
+      : `\n\nIMPORTANT: Respond entirely in ${langName}. Every word of every response must be in ${langName} — including off-topic refusals.`;
+
   const planSummary = plan
     ? `\n\nThe user is following this rehab plan (JSON):\n${JSON.stringify(plan).slice(0, 4000)}`
     : '';
 
-  return `You are an AI physiotherapy assistant for the Mend AI app. Your ONLY job is to help with this specific user's physical recovery from their injury.
+  return `You are an AI physiotherapy assistant for the Mend AI app. Your ONLY job is to help with this specific user's physical recovery from their injury.${languageBlock}
 
 STRICT TOPIC SCOPE — ANSWER ONLY THESE:
 - Their rehab plan structure, phases, progression
@@ -47,7 +73,7 @@ DO NOT ANSWER ANY OF THE FOLLOWING:
 - Anything that isn't directly about THIS user's recovery from THIS injury
 
 OFF-TOPIC RESPONSE — use exactly this format, no variation:
-"I can only help with your recovery. Let's get back to your plan — what's on your mind about your injury, pain, or exercises?"
+"${refusal}"
 
 Do not explain why. Do not partially answer first. Do not engage with the off-topic content at all. Just redirect with that exact line.
 
@@ -86,7 +112,7 @@ Deno.serve(async (req: Request) => {
       model: MODEL,
       maxTokens: 600,
       messages: [
-        { role: 'system', content: buildSystem(body.plan) },
+        { role: 'system', content: buildSystem(body.plan, body.language) },
         ...history,
         { role: 'user', content: body.userMessage },
       ],

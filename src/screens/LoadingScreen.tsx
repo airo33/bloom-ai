@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, Animated, ToastAndroid, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { genericFallbackPlan } from '../data/fallbackPlan';
@@ -9,13 +10,7 @@ import { track } from '../lib/analytics';
 import Logo from '../components/Logo';
 import type { RootStackScreenProps } from '../navigation/types';
 
-const MESSAGES = [
-  'Identifying injury type and stage...',
-  'Selecting evidence-based protocol...',
-  'Building varied weekly schedule...',
-  'Writing dosage and progression criteria...',
-  'Compiling red flags and safety guidelines...',
-];
+const NUM_MESSAGES = 5;
 
 function toast(msg: string) {
   if (Platform.OS === 'android') ToastAndroid.show(msg, ToastAndroid.LONG);
@@ -80,14 +75,15 @@ function PulsingBrand() {
 
 export default function LoadingScreen({ navigation }: RootStackScreenProps<'Loading'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const setPlan = useAppStore((s) => s.setPlan);
   const profile = useAppStore((s) => s.profile);
 
   // Cycle status text every 1.8s while we wait
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % MESSAGES.length), 1800);
-    return () => clearInterval(t);
+    const tt = setInterval(() => setIdx((i) => (i + 1) % NUM_MESSAGES), 1800);
+    return () => clearInterval(tt);
   }, []);
 
   // Fire the Edge Function on mount. Falls back to the static plan on any error.
@@ -115,7 +111,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
         // description field so they can fix it.
         if (err instanceof ApiError && err.code === 'not_an_injury') {
           track('plan_input_rejected');
-          toast(err.message || "That doesn't look like an injury — please describe what happened");
+          toast(err.message || t('loading.errNotInjury'));
           navigation.replace('Onboarding2');
           return;
         }
@@ -123,7 +119,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
 
         console.warn('[generate-plan] failed, using fallback:', msg);
         const short = msg.length > 110 ? msg.slice(0, 110) + '…' : msg;
-        toast(`AI error — fallback: ${short}`);
+        toast(t('loading.errAiFallback', { message: short }));
         setPlan(genericFallbackPlan);
         navigation.replace('Plan');
       }
@@ -133,7 +129,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
     return () => {
       cancelled = true;
     };
-  }, [navigation, profile, setPlan]);
+  }, [navigation, profile, setPlan, t]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
@@ -149,7 +145,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
             letterSpacing: -0.4,
           }}
         >
-          Analyzing your case
+          {t('loading.title')}
         </Text>
         <Text
           style={{
@@ -159,7 +155,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
             textAlign: 'center',
           }}
         >
-          {MESSAGES[idx]}
+          {t(`loading.msg${idx}`)}
         </Text>
         <View style={{ flexDirection: 'row' }}>
           <Dot delay={0} color={theme.colors.pu} />
@@ -167,7 +163,7 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
           <Dot delay={400} color={theme.colors.pu} />
         </View>
         <Text style={{ fontSize: 12, color: theme.colors.tl, marginTop: 24, letterSpacing: 0.2 }}>
-          Building personalized clinical protocol
+          {t('loading.footer')}
         </Text>
       </View>
     </SafeAreaView>

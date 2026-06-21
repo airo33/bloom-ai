@@ -12,6 +12,27 @@ interface RequestBody {
   age?: string | number;
   fitnessLevel?: string;
   injury: string;
+  /** ISO 639-1 code: 'en', 'es', 'pt', 'de'. Falls back to English. */
+  language?: string;
+}
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  es: 'Spanish',
+  pt: 'Brazilian Portuguese',
+  de: 'German',
+};
+
+/**
+ * Returns a single-line directive telling the model to respond in the
+ * user's language. Empty string for English so we don't pay tokens to
+ * tell the model "respond in English".
+ */
+function languageDirective(code?: string): string {
+  const c = (code ?? 'en').toLowerCase().slice(0, 2);
+  if (c === 'en') return '';
+  const name = LANGUAGE_NAMES[c] ?? 'English';
+  return `\n\nIMPORTANT: Respond entirely in ${name}. EVERY string value in the JSON — title, summary, clinicalGoals, redFlags, phase names, goals, exercise names, steps, clinicalRationale, benefit, warning, redFlag, tips — must be written in ${name}. Do not use English anywhere except for the JSON keys themselves.`;
 }
 
 // Llama 3.3 70B Versatile — Groq's flagship general-purpose model.
@@ -281,7 +302,7 @@ Deno.serve(async (req: Request) => {
       model: MODEL,
       maxTokens: 6000,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: SYSTEM_PROMPT + languageDirective(body.language) },
         { role: 'user', content: buildPrompt(body) },
       ],
       // Lower temperature for clinical accuracy. The schema is highly

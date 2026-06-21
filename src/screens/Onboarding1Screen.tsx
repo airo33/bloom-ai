@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowRight } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import ProgressBar from '../components/ProgressBar';
@@ -15,6 +16,7 @@ export default function Onboarding1Screen({
   navigation,
 }: RootStackScreenProps<'Onboarding1'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const setProfile = useAppStore((s) => s.setProfile);
   const profile = useAppStore((s) => s.profile);
 
@@ -23,7 +25,7 @@ export default function Onboarding1Screen({
   const [level, setLevel] = useState<FitnessLevel | ''>(profile.fitnessLevel);
 
   const onContinue = () => {
-    setProfile({ name: name.trim() || 'Friend', age, fitnessLevel: level });
+    setProfile({ name: name.trim() || t('common.friend'), age, fitnessLevel: level });
     navigation.navigate('Onboarding2');
   };
 
@@ -47,7 +49,7 @@ export default function Onboarding1Screen({
               marginBottom: 4,
             }}
           >
-            Step 1 of 2
+            {t('onboarding.step1Label')}
           </Text>
           <Text
             style={{
@@ -58,10 +60,10 @@ export default function Onboarding1Screen({
               letterSpacing: -0.5,
             }}
           >
-            About you
+            {t('onboarding.step1Title')}
           </Text>
           <Text style={{ fontSize: 14, color: theme.colors.tm }}>
-            Helps calibrate your recovery plan.
+            {t('onboarding.step1Sub')}
           </Text>
         </View>
 
@@ -69,27 +71,27 @@ export default function Onboarding1Screen({
           contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 24 }}
           keyboardShouldPersistTaps="handled"
         >
-          <FieldLabel>Your name</FieldLabel>
+          <FieldLabel>{t('onboarding.nameLabel')}</FieldLabel>
           <Input
             value={name}
             onChangeText={setName}
-            placeholder="e.g. Alex"
+            placeholder={t('onboarding.namePlaceholder')}
             autoCapitalize="words"
             returnKeyType="next"
             style={{ marginBottom: 18 }}
           />
 
-          <FieldLabel>Age</FieldLabel>
+          <FieldLabel>{t('onboarding.ageLabel')}</FieldLabel>
           <Input
             value={age}
             onChangeText={setAge}
-            placeholder="Years old"
+            placeholder={t('onboarding.agePlaceholder')}
             keyboardType="number-pad"
             returnKeyType="done"
             style={{ marginBottom: 18 }}
           />
 
-          <FieldLabel>Fitness level before injury</FieldLabel>
+          <FieldLabel>{t('onboarding.fitnessLabel')}</FieldLabel>
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {FITNESS_LEVELS.map((lv) => {
               const selected = level === lv.id;
@@ -134,7 +136,7 @@ export default function Onboarding1Screen({
                       letterSpacing: -0.1,
                     }}
                   >
-                    {lv.label}
+                    {t(`onboarding.fitness${lv.id}`)}
                   </Text>
                 </Pressable>
               );
@@ -144,7 +146,7 @@ export default function Onboarding1Screen({
 
         <View style={{ paddingHorizontal: 22, paddingBottom: 20 }}>
           <Button
-            title="Continue"
+            title={t('common.continue')}
             onPress={onContinue}
             icon={<ArrowRight size={18} color={onPrimary} strokeWidth={2.5} />}
           />

@@ -3,7 +3,17 @@
 // the anon JWT — required because the functions have verify_jwt = true.
 
 import { supabase } from './supabase';
+import { i18n } from './i18n';
 import type { RehabPlan, FitnessLevel } from '../types/plan';
+
+/**
+ * Returns the user's current i18n language code (e.g. 'en', 'es', 'pt', 'de').
+ * Passed to every Edge Function call so the AI replies in the same language
+ * the app is displaying.
+ */
+function currentLanguage(): string {
+  return i18n.language?.slice(0, 2) || 'en';
+}
 
 export interface GeneratePlanInput {
   name?: string;
@@ -92,7 +102,7 @@ async function extractFunctionsErrorMessage(err: unknown): Promise<string> {
 export async function generatePlan(input: GeneratePlanInput): Promise<GeneratePlanResult> {
   const { data, error } = await supabase.functions.invoke<GeneratePlanResult & { error?: string }>(
     'generate-plan',
-    { body: input },
+    { body: { ...input, language: currentLanguage() } },
   );
 
   if (error) {
@@ -132,7 +142,7 @@ export interface AdjustPlanInput {
 export async function adjustPlan(input: AdjustPlanInput): Promise<GeneratePlanResult> {
   const { data, error } = await supabase.functions.invoke<GeneratePlanResult & { error?: string }>(
     'adjust-plan',
-    { body: input },
+    { body: { ...input, language: currentLanguage() } },
   );
   if (error) {
     const { msg, code, status } = await extractFunctionsError(error);
@@ -230,7 +240,7 @@ export async function chatPhysio(opts: {
 }): Promise<ChatResult> {
   const { data, error } = await supabase.functions.invoke<ChatResult & { error?: string }>(
     'chat-physio',
-    { body: opts },
+    { body: { ...opts, language: currentLanguage() } },
   );
 
   if (error) {

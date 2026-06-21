@@ -3,11 +3,63 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Crown, Check, Calendar, Star, Trophy, RefreshCcw } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
 import SectionLabel from '../components/SectionLabel';
 import { TIER_ORDER, type PaidTierId } from '../data/subscriptionTiers';
+
+// Per-tier i18n key suffixes — the static config (badge colors, etc.)
+// still comes from subscriptionTiers.ts, but every visible string is
+// resolved via t() so the screen flips with the language picker.
+const TIER_NAME_KEY: Record<PaidTierId, string> = {
+  weekly: 'subscription.tierWeeklyName',
+  monthly: 'subscription.tierMonthlyName',
+  annual: 'subscription.tierAnnualName',
+};
+const TIER_PER_KEY: Record<PaidTierId, string> = {
+  weekly: 'subscription.perWeek',
+  monthly: 'subscription.perMonth',
+  annual: 'subscription.perYear',
+};
+const TIER_CTA_KEY: Record<PaidTierId, string> = {
+  weekly: 'subscription.ctaWeekly',
+  monthly: 'subscription.ctaMonthly',
+  annual: 'subscription.ctaAnnual',
+};
+const TIER_NOTE_KEY: Record<PaidTierId, string> = {
+  weekly: 'subscription.noteWeekly',
+  monthly: 'subscription.noteMonthly',
+  annual: 'subscription.noteAnnual',
+};
+const TIER_BADGE_KEY: Record<PaidTierId, string> = {
+  weekly: 'subscription.badgeWeekly',
+  monthly: 'subscription.badgeMonthly',
+  annual: 'subscription.badgeAnnual',
+};
+const TIER_FEATURES: Record<PaidTierId, string[]> = {
+  weekly: [
+    'subscription.featFullPlan',
+    'subscription.featSchedule',
+    'subscription.featTracker',
+    'subscription.featJournal',
+    'subscription.featChat',
+    'subscription.featHydration',
+  ],
+  monthly: [
+    'subscription.featEverythingWeekly',
+    'subscription.featAnalytics',
+    'subscription.featPriority',
+    'subscription.featCheaper',
+  ],
+  annual: [
+    'subscription.featEverythingMonthly',
+    'subscription.featTrial14',
+    'subscription.featEffectiveRate',
+    'subscription.featBestValue',
+  ],
+};
 import {
   getOfferings,
   purchasePackage,
@@ -27,6 +79,7 @@ export default function SubscriptionScreen({
   navigation,
 }: RootStackScreenProps<'Subscription'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const setSubscription = useAppStore((s) => s.setSubscription);
   const [selected, setSelected] = useState<PaidTierId>('monthly');
   const [offerings, setOfferings] = useState<OfferingPackage[] | null>(null);
@@ -104,7 +157,7 @@ export default function SubscriptionScreen({
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator color={theme.colors.pu} />
           <Text style={{ marginTop: 12, fontSize: 13, color: theme.colors.tm }}>
-            Loading subscription options…
+            {t('subscription.loadingOfferings')}
           </Text>
         </View>
       </SafeAreaView>
@@ -132,7 +185,7 @@ export default function SubscriptionScreen({
                 opacity: pressed ? 0.7 : 1,
               })}
             >
-              <Text style={{ color: headerFg, fontSize: 13, fontWeight: '700' }}>Skip</Text>
+              <Text style={{ color: headerFg, fontSize: 13, fontWeight: '700' }}>{t('subscription.skip')}</Text>
             </Pressable>
           </View>
           <View style={{ alignItems: 'center' }}>
@@ -150,10 +203,10 @@ export default function SubscriptionScreen({
               <Crown size={28} color={headerFg} strokeWidth={2} />
             </View>
             <Text style={{ fontSize: 24, fontWeight: '800', color: headerFg, letterSpacing: -0.5 }}>
-              Unlock Mend AI
+              {t('subscription.headerTitle')}
             </Text>
             <Text style={{ fontSize: 14, color: headerFgMuted, marginTop: 6 }}>
-              Your clinical plan is ready.
+              {t('subscription.headerSub')}
             </Text>
           </View>
         </View>
@@ -167,7 +220,7 @@ export default function SubscriptionScreen({
         {TIER_ORDER.map((id) => {
           const item = offerings.find((o) => o.tierId === id);
           if (!item) return null;
-          const t = item.tier;
+          const tier = item.tier;
           const Icon = TIER_ICON[id];
           const isSelected = selected === id;
           const cardBg = isSelected ? theme.colors.pl : theme.colors.card;
@@ -190,7 +243,7 @@ export default function SubscriptionScreen({
                 opacity: pressed ? 0.92 : 1,
               })}
             >
-              {t.bestValue && (
+              {tier.bestValue && (
                 <View
                   style={{
                     position: 'absolute',
@@ -203,7 +256,7 @@ export default function SubscriptionScreen({
                   }}
                 >
                   <Text style={{ fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 0.4 }}>
-                    BEST VALUE
+                    {t('subscription.bestValueBadge')}
                   </Text>
                 </View>
               )}
@@ -249,7 +302,7 @@ export default function SubscriptionScreen({
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <Text style={{ fontSize: 15, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.2 }}>
-                      {t.name}
+                      {t(TIER_NAME_KEY[id])}
                     </Text>
                     <View
                       style={{
@@ -260,16 +313,16 @@ export default function SubscriptionScreen({
                       }}
                     >
                       <Text style={{ fontSize: 10, fontWeight: '700', color: theme.colors.tb, letterSpacing: 0.2 }}>
-                        {t.badgeLabel}
+                        {t(TIER_BADGE_KEY[id])}
                       </Text>
                     </View>
                   </View>
                   <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 3 }}>
                     {id === 'weekly'
-                      ? 'Try it out · full access'
+                      ? t('subscription.subWeekly')
                       : id === 'monthly'
-                      ? '+ AI Physio Chat 24/7'
-                      : `${item.priceString}/year`}
+                      ? t('subscription.subMonthly')
+                      : t('subscription.subAnnualPrice', { price: item.priceString })}
                   </Text>
                 </View>
 
@@ -284,7 +337,7 @@ export default function SubscriptionScreen({
                   >
                     {item.priceString}
                   </Text>
-                  <Text style={{ fontSize: 11, color: theme.colors.tm }}>{t.per}</Text>
+                  <Text style={{ fontSize: 11, color: theme.colors.tm }}>{t(TIER_PER_KEY[id])}</Text>
                 </View>
               </View>
             </Pressable>
@@ -305,8 +358,10 @@ export default function SubscriptionScreen({
               marginBottom: 18,
             }}
           >
-            <SectionLabel>Included in {selectedItem.tier.name}</SectionLabel>
-            {selectedItem.tier.features.map((f, i) => (
+            <SectionLabel>
+              {t('subscription.includedIn', { tier: t(TIER_NAME_KEY[selectedItem.tierId]) })}
+            </SectionLabel>
+            {TIER_FEATURES[selectedItem.tierId].map((fKey, i) => (
               <View
                 key={i}
                 style={{
@@ -314,7 +369,7 @@ export default function SubscriptionScreen({
                   alignItems: 'center',
                   gap: 10,
                   paddingVertical: 8,
-                  borderBottomWidth: i === selectedItem.tier.features.length - 1 ? 0 : 1,
+                  borderBottomWidth: i === TIER_FEATURES[selectedItem.tierId].length - 1 ? 0 : 1,
                   borderBottomColor: theme.colors.bo,
                 }}
               >
@@ -331,7 +386,7 @@ export default function SubscriptionScreen({
                   <Check size={13} color={theme.colors.pt} strokeWidth={3} />
                 </View>
                 <Text style={{ fontSize: 14, color: theme.colors.th, fontWeight: '600', flex: 1 }}>
-                  {f}
+                  {t(fKey)}
                 </Text>
               </View>
             ))}
@@ -339,7 +394,11 @@ export default function SubscriptionScreen({
         )}
 
         <Button
-          title={selectedItem ? selectedItem.tier.cta.replace(/^[^A-Za-z]+/, '') : 'Loading'}
+          title={
+            selectedItem
+              ? t(TIER_CTA_KEY[selectedItem.tierId]).replace(/^[^A-Za-zÀ-ÿ]+/, '')
+              : t('subscription.loading')
+          }
           onPress={confirm}
           loading={busy}
         />
@@ -359,7 +418,7 @@ export default function SubscriptionScreen({
           >
             <RefreshCcw size={14} color={theme.colors.tm} strokeWidth={2} />
             <Text style={{ fontSize: 13, color: theme.colors.tm, fontWeight: '600' }}>
-              Restore purchases
+              {t('subscription.restorePurchases')}
             </Text>
           </Pressable>
         )}
@@ -374,7 +433,7 @@ export default function SubscriptionScreen({
               lineHeight: 18,
             }}
           >
-            {selectedItem.tier.note}
+            {t(TIER_NOTE_KEY[selectedItem.tierId])}
           </Text>
         )}
       </ScrollView>

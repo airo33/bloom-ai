@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Stethoscope, BrainCircuit } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import ProgressBar from '../components/ProgressBar';
@@ -9,14 +10,11 @@ import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import type { RootStackScreenProps } from '../navigation/types';
 
-const INJURY_PLACEHOLDER =
-  'Include: what happened, when (days/weeks ago), exact location, any surgery/diagnosis, current pain (0-10), what makes it better/worse...\n\n' +
-  'e.g. ACL reconstruction 10 days ago, right knee. Full weight-bearing with crutches OK. Pain 3/10 rest, 6/10 stairs. Significant swelling. Pre-injury: running 40km/week.';
-
 export default function Onboarding2Screen({
   navigation,
 }: RootStackScreenProps<'Onboarding2'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const setProfile = useAppStore((s) => s.setProfile);
   const profile = useAppStore((s) => s.profile);
 
@@ -54,7 +52,7 @@ export default function Onboarding2Screen({
               marginBottom: 4,
             }}
           >
-            Step 2 of 2
+            {t('onboarding.step2Label')}
           </Text>
           <Text
             style={{
@@ -65,10 +63,10 @@ export default function Onboarding2Screen({
               letterSpacing: -0.5,
             }}
           >
-            Describe your case
+            {t('onboarding.step2Title')}
           </Text>
           <Text style={{ fontSize: 14, color: theme.colors.tm }}>
-            More detail means more specific exercises.
+            {t('onboarding.step2Sub')}
           </Text>
         </View>
 
@@ -82,7 +80,7 @@ export default function Onboarding2Screen({
               setInjury(v);
               if (invalid) setInvalid(false);
             }}
-            placeholder={INJURY_PLACEHOLDER}
+            placeholder={t('onboarding.injuryPlaceholder')}
             multiline
             invalid={invalid}
             style={{ marginBottom: 16, minHeight: 180 }}
@@ -120,10 +118,10 @@ export default function Onboarding2Screen({
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, fontWeight: '800', color: theme.colors.pt, letterSpacing: -0.2 }}>
-                AI clinical plan
+                {t('onboarding.aiPlanCard')}
               </Text>
               <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 2 }}>
-                Injury-specific · varied daily schedule · red flags
+                {t('onboarding.aiPlanCardSub')}
               </Text>
             </View>
           </View>
@@ -139,7 +137,7 @@ export default function Onboarding2Screen({
         >
           <View style={{ flex: 0.42 }}>
             <Button
-              title="Back"
+              title={t('onboarding.back')}
               variant="secondary"
               onPress={() => navigation.goBack()}
               icon={<ArrowLeft size={16} color={theme.colors.th} strokeWidth={2.2} />}
@@ -147,7 +145,7 @@ export default function Onboarding2Screen({
           </View>
           <View style={{ flex: 1 }}>
             <Button
-              title="Create my plan"
+              title={t('onboarding.generate')}
               onPress={onCreate}
               icon={<Stethoscope size={18} color={onPrimary} strokeWidth={2.4} />}
             />
