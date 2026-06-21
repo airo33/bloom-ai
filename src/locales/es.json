@@ -170,7 +170,11 @@
     "noPlanBody": "Completa el onboarding y generaremos tu plan clínico con IA en segundos.",
     "noPlanCta": "Iniciar onboarding",
     "ctaPhysio": "Pregunta lo que sea a Fisio IA",
-    "ctaPhysioLocked": "Chat con Fisio IA — suscríbete para desbloquear"
+    "ctaPhysioLocked": "Chat con Fisio IA — suscríbete para desbloquear",
+    "taskDoneToast0": "Un paso más cerca de la recuperación completa",
+    "taskDoneToast1": "Bien — tus tejidos se están remodelando ahora mismo",
+    "taskDoneToast2": "La constancia vence a la intensidad. Sigue así.",
+    "taskDoneToast3": "La recuperación se construye una repetición a la vez"
   },
   "hydration": {
     "title": "Hidratación",

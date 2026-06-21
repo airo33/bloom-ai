@@ -170,7 +170,11 @@
     "noPlanBody": "Schließe das Onboarding ab und wir erstellen deinen klinischen KI-Plan in Sekunden.",
     "noPlanCta": "Onboarding starten",
     "ctaPhysio": "Frag KI-Physio alles",
-    "ctaPhysioLocked": "KI-Physio-Chat — abonnieren zum Freischalten"
+    "ctaPhysioLocked": "KI-Physio-Chat — abonnieren zum Freischalten",
+    "taskDoneToast0": "Ein Schritt näher zur vollen Genesung",
+    "taskDoneToast1": "Stark — dein Gewebe baut sich gerade um",
+    "taskDoneToast2": "Konstanz schlägt Intensität. Weiter so.",
+    "taskDoneToast3": "Genesung entsteht Wiederholung für Wiederholung"
   },
   "hydration": {
     "title": "Hydration",

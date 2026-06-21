@@ -170,7 +170,11 @@
     "noPlanBody": "Complete onboarding and we'll generate your AI clinical plan in seconds.",
     "noPlanCta": "Start onboarding",
     "ctaPhysio": "Ask AI Physio anything",
-    "ctaPhysioLocked": "AI Physio Chat — subscribe to unlock"
+    "ctaPhysioLocked": "AI Physio Chat — subscribe to unlock",
+    "taskDoneToast0": "One step closer to full recovery",
+    "taskDoneToast1": "Nice — your tissues are remodelling right now",
+    "taskDoneToast2": "Consistency beats intensity. Keep going.",
+    "taskDoneToast3": "Recovery is built one rep at a time"
   },
   "hydration": {
     "title": "Hydration",

@@ -23,6 +23,7 @@ import AllTasksDoneCelebration from '../components/AllTasksDoneCelebration';
 import AnimatedFlame from '../components/AnimatedFlame';
 import PhaseTransition from '../components/PhaseTransition';
 import HydrationGoalCelebration from '../components/HydrationGoalCelebration';
+import TaskCompleteToast from '../components/TaskCompleteToast';
 import type { RootStackParamList } from '../navigation/types';
 
 const SUB_TIER_BADGE = {
@@ -128,6 +129,18 @@ export default function HomeScreen() {
     progress.doneExerciseIds.includes(e.id),
   ).length;
   const pct = totalToday > 0 ? Math.round((doneToday / totalToday) * 100) : 0;
+
+  // Per-task motivational toast at the top of the screen. We rotate
+  // through 4 translation keys so the same message doesn't appear twice
+  // in a row, and only fire on user-initiated transitions from
+  // not-done -> done (no toast for unchecking).
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastVariantRef = useRef(0);
+  const onTaskCompleted = useCallback(() => {
+    const idx = toastVariantRef.current % 4;
+    toastVariantRef.current = (toastVariantRef.current + 1) % 4;
+    setToastMessage(t(`home.taskDoneToast${idx}`));
+  }, [t]);
 
   // "All tasks done today" celebration. Only fires when:
   // - there were real tasks to do (totalToday > 0)
@@ -416,15 +429,23 @@ export default function HomeScreen() {
               </Text>
             </Card>
           ) : (
-            todayExercises.map((ex) => (
-              <TaskItem
-                key={ex.id}
-                exercise={ex}
-                done={progress.doneExerciseIds.includes(ex.id)}
-                onPress={() => nav.navigate('Exercise', { exerciseId: ex.id })}
-                onToggle={() => toggleExerciseDone(ex.id)}
-              />
-            ))
+            todayExercises.map((ex) => {
+              const isDone = progress.doneExerciseIds.includes(ex.id);
+              return (
+                <TaskItem
+                  key={ex.id}
+                  exercise={ex}
+                  done={isDone}
+                  onPress={() => nav.navigate('Exercise', { exerciseId: ex.id })}
+                  onToggle={() => {
+                    toggleExerciseDone(ex.id);
+                    // Only celebrate the not-done -> done direction so
+                    // tapping to uncheck doesn't trigger the toast.
+                    if (!isDone) onTaskCompleted();
+                  }}
+                />
+              );
+            })
           )}
         </MountIn>
 
@@ -506,6 +527,11 @@ export default function HomeScreen() {
           setShowHydrationGoal(false);
           celebrateHydration(progress.day);
         }}
+      />
+
+      <TaskCompleteToast
+        message={toastMessage}
+        onHide={() => setToastMessage(null)}
       />
     </SafeAreaView>
   );
