@@ -26,7 +26,9 @@ interface Props {
 export default function HydrationTracker({ glasses, onTap, onReachedGoal }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const tip = t(`hydration.tip${Math.min(glasses, 7)}`);
+  // Tips are indexed by glasses 0..8 (tip0 = "start your day", tip8 =
+  // "perfect"). Clamp to 8 since glasses never exceeds 8.
+  const tip = t(`hydration.tip${Math.min(glasses, 8)}`);
 
   // Per-glass scale value. Seeded at 1 so the first paint isn't shrunken.
   const scales = useRef<Animated.Value[] | null>(null);
