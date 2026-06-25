@@ -44,7 +44,7 @@ export const TIERS: Record<PaidTierId, TierData> = {
       'Weekly schedule',
       'Daily tracker',
       'Pain journal',
-      'AI Physio Chat',
+      'AI Recovery Chat',
       'Hydration tracker',
     ],
   },

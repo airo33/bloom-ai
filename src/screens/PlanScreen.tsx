@@ -15,6 +15,7 @@ import Card from '../components/Card';
 import CategoryTile from '../components/CategoryTile';
 import SectionLabel from '../components/SectionLabel';
 import Input from '../components/Input';
+import MedicalDisclaimer from '../components/MedicalDisclaimer';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
@@ -27,6 +28,8 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
   const plan = useAppStore((s) => s.plan);
   const profile = useAppStore((s) => s.profile);
   const setPlan = useAppStore((s) => s.setPlan);
+  const medicalDisclaimerAccepted = useAppStore((s) => s.medicalDisclaimerAccepted);
+  const acceptMedicalDisclaimer = useAppStore((s) => s.acceptMedicalDisclaimer);
 
   // Plan customization modal state
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -407,6 +410,14 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* One-time medical disclaimer — shown on first plan view per
+          App Store medical-app guidance. Non-dismissable except via the
+          explicit accept button. */}
+      <MedicalDisclaimer
+        visible={!medicalDisclaimerAccepted}
+        onAccept={acceptMedicalDisclaimer}
+      />
     </View>
   );
 }

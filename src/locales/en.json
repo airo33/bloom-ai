@@ -86,8 +86,8 @@
     "scheduleBody": "Open the calendar tab to see all your sessions for the week and reorder them around your life.",
     "progressTitle": "Progress",
     "progressBody": "The chart tab tracks pain, mobility and adherence so you can see your recovery curve.",
-    "chatTitle": "AI Physio Chat",
-    "chatBody": "Stuck on a movement or have a flare-up? The chat tab gives you 24/7 expert physio answers grounded in your plan."
+    "chatTitle": "AI Recovery Chat",
+    "chatBody": "Stuck on a movement or have a flare-up? The chat tab gives you 24/7 recovery guidance grounded in your plan."
   },
   "loading": {
     "title": "Analyzing your case",
@@ -108,11 +108,15 @@
     "footer": "Subscriptions auto-renew. Manage in your store account.",
     "skipForNow": "Maybe later",
     "skip": "Skip",
+    "autoRenewDisclosure": "Subscription auto-renews unless cancelled at least 24 hours before the end of the current period. Manage or cancel any time in your store account.",
+    "linkTerms": "Terms of Service",
+    "linkPrivacy": "Privacy Policy",
+    "linkSep": " · ",
     "loadingOfferings": "Loading subscription options…",
     "bestValueBadge": "BEST VALUE",
     "includedIn": "Included in {{tier}}",
     "subWeekly": "Try it out · full access",
-    "subMonthly": "+ AI Physio Chat 24/7",
+    "subMonthly": "+ AI Recovery Chat 24/7",
     "subAnnualPrice": "{{price}}/year",
     "restorePurchases": "Restore purchases",
     "loading": "Loading",
@@ -137,7 +141,7 @@
     "featSchedule": "Weekly schedule",
     "featTracker": "Daily tracker",
     "featJournal": "Pain journal",
-    "featChat": "AI Physio Chat",
+    "featChat": "AI Recovery Chat",
     "featHydration": "Hydration tracker",
     "featEverythingWeekly": "Everything in Weekly",
     "featAnalytics": "Progress analytics",
@@ -169,8 +173,8 @@
     "noPlanTitle": "No plan yet",
     "noPlanBody": "Complete onboarding and we'll generate your AI clinical plan in seconds.",
     "noPlanCta": "Start onboarding",
-    "ctaPhysio": "Ask AI Physio anything",
-    "ctaPhysioLocked": "AI Physio Chat — subscribe to unlock",
+    "ctaPhysio": "Ask AI Recovery Coach anything",
+    "ctaPhysioLocked": "AI Recovery Chat — subscribe to unlock",
     "taskDoneToast0": "One step closer to full recovery",
     "taskDoneToast1": "Nice — your tissues are remodelling right now",
     "taskDoneToast2": "Consistency beats intensity. Keep going.",
@@ -271,6 +275,15 @@
     "deleteConfirmGo": "Delete forever",
     "deleteFailed": "Deletion failed",
     "deleteFailedFallback": "Could not delete account. Try again later."
+  },
+  "disclaimer": {
+    "title": "Important — please read",
+    "body": "Mend AI is a wellness and education tool for general recovery guidance only. It does not diagnose, treat, or replace professional medical care. Always consult a qualified clinician about your injury, especially before starting, stopping, or changing any exercise.\n\nIf you experience severe pain, loss of function, numbness, sudden swelling, fever, or any emergency symptom, seek immediate medical attention.",
+    "cta": "I understand"
+  },
+  "chat": {
+    "headerTitle": "AI Recovery Coach",
+    "headerStatus": "Online · 24/7"
   },
   "languagePicker": {
     "title": "Language",

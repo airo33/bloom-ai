@@ -436,6 +436,64 @@ export default function SubscriptionScreen({
             {t(TIER_NOTE_KEY[selectedItem.tierId])}
           </Text>
         )}
+
+        {/* Auto-renewal disclosure + Terms/Privacy links — Apple
+            requires both visible on the subscription screen, not
+            buried inside legal docs. */}
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 11,
+            color: theme.colors.tl,
+            marginTop: 18,
+            lineHeight: 16,
+          }}
+        >
+          {t('subscription.autoRenewDisclosure')}
+        </Text>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 12,
+          }}
+        >
+          <Pressable
+            onPress={() => navigation.navigate('Legal', { kind: 'terms' })}
+            hitSlop={6}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                color: theme.colors.tm,
+                fontWeight: '600',
+                textDecorationLine: 'underline',
+              }}
+            >
+              {t('subscription.linkTerms')}
+            </Text>
+          </Pressable>
+          <Text style={{ fontSize: 12, color: theme.colors.tm }}>
+            {t('subscription.linkSep')}
+          </Text>
+          <Pressable
+            onPress={() => navigation.navigate('Legal', { kind: 'privacy' })}
+            hitSlop={6}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                color: theme.colors.tm,
+                fontWeight: '600',
+                textDecorationLine: 'underline',
+              }}
+            >
+              {t('subscription.linkPrivacy')}
+            </Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );

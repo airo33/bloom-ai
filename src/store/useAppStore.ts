@@ -92,6 +92,10 @@ interface AppState {
   /** UI language. `null` = follow device locale (default). */
   language: string | null;
   setLanguage: (lang: string | null) => void;
+  /** Has the user acknowledged the medical disclaimer? Shown once after
+   *  first plan generation per App Store medical-app guidance. */
+  medicalDisclaimerAccepted: boolean;
+  acceptMedicalDisclaimer: () => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
@@ -135,6 +139,7 @@ export const useAppStore = create<AppState>()(
       lastHydrationCelebratedDay: 0,
       lastSeenPhaseName: null,
       language: null,
+      medicalDisclaimerAccepted: false,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
@@ -247,6 +252,8 @@ export const useAppStore = create<AppState>()(
 
       setLanguage: (lang) => set({ language: lang }),
 
+      acceptMedicalDisclaimer: () => set({ medicalDisclaimerAccepted: true }),
+
       resetAll: () =>
         set({
           profile: initialProfile,
@@ -298,6 +305,7 @@ export const useAppStore = create<AppState>()(
         lastHydrationCelebratedDay: s.lastHydrationCelebratedDay,
         lastSeenPhaseName: s.lastSeenPhaseName,
         language: s.language,
+        medicalDisclaimerAccepted: s.medicalDisclaimerAccepted,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true;

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Send, Stethoscope, Trash2 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import TypingDots from '../components/TypingDots';
@@ -26,6 +27,7 @@ const SUGGESTED_PROMPTS = [
 
 export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const plan = useAppStore((s) => s.plan);
   const chatHistory = useAppStore((s) => s.chatHistory);
   const appendChat = useAppStore((s) => s.appendChat);
@@ -128,7 +130,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
 
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 16, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.2 }}>
-              AI Physio
+              {t('chat.headerTitle')}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 1 }}>
               <View
@@ -139,7 +141,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
                   backgroundColor: theme.colors.gn,
                 }}
               />
-              <Text style={{ fontSize: 12, color: theme.colors.tm }}>Online · 24/7</Text>
+              <Text style={{ fontSize: 12, color: theme.colors.tm }}>{t('chat.headerStatus')}</Text>
             </View>
           </View>
 

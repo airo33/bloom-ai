@@ -86,8 +86,8 @@
     "scheduleBody": "Abra a aba calendário para ver todas as suas sessões da semana e reorganizar conforme sua rotina.",
     "progressTitle": "Progresso",
     "progressBody": "A aba de gráficos registra dor, mobilidade e aderência para você ver sua curva de recuperação.",
-    "chatTitle": "Chat com Fisio IA",
-    "chatBody": "Travado em um movimento ou tem uma piora? A aba de chat te dá respostas expertas de fisio 24/7 baseadas no seu plano."
+    "chatTitle": "Chat de Recuperação IA",
+    "chatBody": "Travado em um movimento ou tem uma piora? A aba de chat te dá orientação de recuperação 24/7 baseada no seu plano."
   },
   "loading": {
     "title": "Analisando seu caso",
@@ -108,11 +108,15 @@
     "footer": "Assinaturas renovam automaticamente. Gerencie na sua conta da loja.",
     "skipForNow": "Mais tarde",
     "skip": "Pular",
+    "autoRenewDisclosure": "A assinatura renova automaticamente a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. Gerencie ou cancele a qualquer momento na sua conta da loja.",
+    "linkTerms": "Termos de Serviço",
+    "linkPrivacy": "Política de Privacidade",
+    "linkSep": " · ",
     "loadingOfferings": "Carregando opções de assinatura…",
     "bestValueBadge": "MELHOR VALOR",
     "includedIn": "Incluído no {{tier}}",
     "subWeekly": "Experimente · acesso completo",
-    "subMonthly": "+ Chat com Fisio IA 24/7",
+    "subMonthly": "+ Chat de Recuperação IA 24/7",
     "subAnnualPrice": "{{price}}/ano",
     "restorePurchases": "Restaurar compras",
     "loading": "Carregando",
@@ -137,7 +141,7 @@
     "featSchedule": "Agenda semanal",
     "featTracker": "Acompanhamento diário",
     "featJournal": "Diário de dor",
-    "featChat": "Chat com Fisio IA",
+    "featChat": "Chat de Recuperação IA",
     "featHydration": "Acompanhamento de hidratação",
     "featEverythingWeekly": "Tudo do Semanal",
     "featAnalytics": "Análise de progresso",
@@ -169,8 +173,8 @@
     "noPlanTitle": "Sem plano ainda",
     "noPlanBody": "Complete o onboarding e geramos seu plano clínico com IA em segundos.",
     "noPlanCta": "Iniciar onboarding",
-    "ctaPhysio": "Pergunte qualquer coisa ao Fisio IA",
-    "ctaPhysioLocked": "Chat com Fisio IA — assine para desbloquear",
+    "ctaPhysio": "Pergunte qualquer coisa ao Coach de Recuperação IA",
+    "ctaPhysioLocked": "Chat de Recuperação IA — assine para desbloquear",
     "taskDoneToast0": "Um passo mais perto da recuperação completa",
     "taskDoneToast1": "Boa — seus tecidos estão se remodelando agora",
     "taskDoneToast2": "A consistência vence a intensidade. Continue.",
@@ -271,6 +275,15 @@
     "deleteConfirmGo": "Excluir para sempre",
     "deleteFailed": "Exclusão falhou",
     "deleteFailedFallback": "Não foi possível excluir a conta. Tente novamente mais tarde."
+  },
+  "disclaimer": {
+    "title": "Importante — por favor leia",
+    "body": "Mend AI é uma ferramenta de bem-estar e educação para orientação geral de recuperação. Não diagnostica, trata ou substitui cuidados médicos profissionais. Sempre consulte um clínico qualificado sobre sua lesão, especialmente antes de iniciar, parar ou alterar qualquer exercício.\n\nSe você sentir dor severa, perda de função, dormência, inchaço súbito, febre ou qualquer sintoma de emergência, procure atendimento médico imediato.",
+    "cta": "Entendido"
+  },
+  "chat": {
+    "headerTitle": "Coach de Recuperação IA",
+    "headerStatus": "Online · 24/7"
   },
   "languagePicker": {
     "title": "Idioma",

@@ -86,8 +86,8 @@
     "scheduleBody": "Öffne den Kalender-Tab, um alle deine Sitzungen der Woche zu sehen und sie um dein Leben herum zu sortieren.",
     "progressTitle": "Fortschritt",
     "progressBody": "Der Diagramm-Tab verfolgt Schmerz, Beweglichkeit und Treue, damit du deine Genesungskurve siehst.",
-    "chatTitle": "KI-Physio-Chat",
-    "chatBody": "Festgefahren bei einer Bewegung oder einen Schub? Der Chat-Tab gibt dir 24/7 Experten-Physio-Antworten, die auf deinem Plan basieren."
+    "chatTitle": "KI-Recovery-Chat",
+    "chatBody": "Festgefahren bei einer Bewegung oder einen Schub? Der Chat-Tab gibt dir 24/7 Genesungs-Anleitung, die auf deinem Plan basiert."
   },
   "loading": {
     "title": "Analysiere deinen Fall",
@@ -108,11 +108,15 @@
     "footer": "Abos verlängern sich automatisch. Verwalte in deinem Store-Konto.",
     "skipForNow": "Vielleicht später",
     "skip": "Überspringen",
+    "autoRenewDisclosure": "Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende der laufenden Periode gekündigt wird. Verwalte oder kündige jederzeit in deinem Store-Konto.",
+    "linkTerms": "AGB",
+    "linkPrivacy": "Datenschutzerklärung",
+    "linkSep": " · ",
     "loadingOfferings": "Lade Abo-Optionen…",
     "bestValueBadge": "BESTER WERT",
     "includedIn": "Enthalten in {{tier}}",
     "subWeekly": "Ausprobieren · voller Zugriff",
-    "subMonthly": "+ KI-Physio-Chat 24/7",
+    "subMonthly": "+ KI-Recovery-Chat 24/7",
     "subAnnualPrice": "{{price}}/Jahr",
     "restorePurchases": "Käufe wiederherstellen",
     "loading": "Lädt",
@@ -137,7 +141,7 @@
     "featSchedule": "Wochenplan",
     "featTracker": "Tägliches Tracking",
     "featJournal": "Schmerz-Tagebuch",
-    "featChat": "KI-Physio-Chat",
+    "featChat": "KI-Recovery-Chat",
     "featHydration": "Hydrations-Tracking",
     "featEverythingWeekly": "Alles aus Wöchentlich",
     "featAnalytics": "Fortschritts-Analytik",
@@ -169,8 +173,8 @@
     "noPlanTitle": "Noch kein Plan",
     "noPlanBody": "Schließe das Onboarding ab und wir erstellen deinen klinischen KI-Plan in Sekunden.",
     "noPlanCta": "Onboarding starten",
-    "ctaPhysio": "Frag KI-Physio alles",
-    "ctaPhysioLocked": "KI-Physio-Chat — abonnieren zum Freischalten",
+    "ctaPhysio": "Frag den KI-Recovery-Coach alles",
+    "ctaPhysioLocked": "KI-Recovery-Chat — abonnieren zum Freischalten",
     "taskDoneToast0": "Ein Schritt näher zur vollen Genesung",
     "taskDoneToast1": "Stark — dein Gewebe baut sich gerade um",
     "taskDoneToast2": "Konstanz schlägt Intensität. Weiter so.",
@@ -271,6 +275,15 @@
     "deleteConfirmGo": "Endgültig löschen",
     "deleteFailed": "Löschen fehlgeschlagen",
     "deleteFailedFallback": "Konto konnte nicht gelöscht werden. Bitte später erneut versuchen."
+  },
+  "disclaimer": {
+    "title": "Wichtig — bitte lesen",
+    "body": "Mend AI ist ein Wellness- und Bildungstool für allgemeine Genesungshinweise. Es diagnostiziert, behandelt oder ersetzt keine professionelle medizinische Versorgung. Konsultiere immer einen qualifizierten Kliniker zu deiner Verletzung, insbesondere bevor du eine Übung beginnst, beendest oder änderst.\n\nBei starken Schmerzen, Funktionsverlust, Taubheit, plötzlicher Schwellung, Fieber oder anderen Notfallsymptomen suche sofort medizinische Hilfe.",
+    "cta": "Verstanden"
+  },
+  "chat": {
+    "headerTitle": "KI-Recovery-Coach",
+    "headerStatus": "Online · 24/7"
   },
   "languagePicker": {
     "title": "Sprache",
