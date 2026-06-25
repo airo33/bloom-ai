@@ -14,7 +14,7 @@
     "friend": "Freund"
   },
   "welcome": {
-    "brand": "MEND",
+    "brand": "BLOOM",
     "tagline": "KI-gestützte Genesung",
     "headline": "KI Recovery\nCoach",
     "body": "Klinische Reha-Pläne, personalisierte Tagespläne und smarte Erinnerungen, die deine Genesung auf Kurs halten.",
@@ -76,7 +76,7 @@
   "tutorial": {
     "skip": "Überspringen",
     "letsgo": "Los geht's",
-    "welcomeTitle": "Willkommen bei Mend AI",
+    "welcomeTitle": "Willkommen bei Bloom AI",
     "welcomeBody": "Dein KI-generierter Reha-Plan ist bereit. Eine kurze Tour — unter 30 Sekunden.",
     "exercisesTitle": "Tägliche Übungen",
     "exercisesBody": "Tippe auf eine Übungskarte auf der Startseite, um Schritt-für-Schritt-Anleitungen zu sehen. Tippe auf den Kreis, um sie als erledigt zu markieren.",
@@ -102,7 +102,7 @@
   },
   "subscription": {
     "headerTagline": "PREMIUM HOLEN",
-    "headerTitle": "Schalte Mend AI frei",
+    "headerTitle": "Schalte Bloom AI frei",
     "headerSub": "Dein klinischer Plan ist bereit.",
     "trialNote": "✓ Jederzeit kündbar · Keine Verpflichtung",
     "footer": "Abos verlängern sich automatisch. Verwalte in deinem Store-Konto.",
@@ -247,7 +247,7 @@
     "journalReminder": "Tagebuch-Erinnerung",
     "journalReminderSub": "Abend · 20:00",
     "notifsDisabledTitle": "Benachrichtigungen deaktiviert",
-    "notifsDisabledBody": "Aktiviere Benachrichtigungen für Mend AI in deinen Systemeinstellungen, um Erinnerungen zu nutzen.",
+    "notifsDisabledBody": "Aktiviere Benachrichtigungen für Bloom AI in deinen Systemeinstellungen, um Erinnerungen zu nutzen.",
     "openSettings": "Einstellungen öffnen",
     "support": "Support",
     "sendFeedback": "Feedback senden",
@@ -278,7 +278,7 @@
   },
   "disclaimer": {
     "title": "Wichtig — bitte lesen",
-    "body": "Mend AI ist ein Wellness- und Bildungstool für allgemeine Genesungshinweise. Es diagnostiziert, behandelt oder ersetzt keine professionelle medizinische Versorgung. Konsultiere immer einen qualifizierten Kliniker zu deiner Verletzung, insbesondere bevor du eine Übung beginnst, beendest oder änderst.\n\nBei starken Schmerzen, Funktionsverlust, Taubheit, plötzlicher Schwellung, Fieber oder anderen Notfallsymptomen suche sofort medizinische Hilfe.",
+    "body": "Bloom AI ist ein Wellness- und Bildungstool für allgemeine Genesungshinweise. Es diagnostiziert, behandelt oder ersetzt keine professionelle medizinische Versorgung. Konsultiere immer einen qualifizierten Kliniker zu deiner Verletzung, insbesondere bevor du eine Übung beginnst, beendest oder änderst.\n\nBei starken Schmerzen, Funktionsverlust, Taubheit, plötzlicher Schwellung, Fieber oder anderen Notfallsymptomen suche sofort medizinische Hilfe.",
     "cta": "Verstanden"
   },
   "chat": {

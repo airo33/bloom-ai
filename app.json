@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Mend AI",
+    "name": "Bloom AI",
     "slug": "recova",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,7 +13,7 @@
     "android": {
       "package": "com.airo33.recova",
       "adaptiveIcon": {
-        "backgroundColor": "#B5E550",
+        "backgroundColor": "#0F0F12",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -32,12 +32,12 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 220,
           "resizeMode": "contain",
-          "backgroundColor": "#B5E550",
+          "backgroundColor": "#0F0F12",
           "dark": {
             "image": "./assets/splash-icon.png",
             "imageWidth": 220,
             "resizeMode": "contain",
-            "backgroundColor": "#0A0A0A"
+            "backgroundColor": "#0F0F12"
           }
         }
       ]

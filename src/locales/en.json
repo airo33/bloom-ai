@@ -14,7 +14,7 @@
     "friend": "Friend"
   },
   "welcome": {
-    "brand": "MEND",
+    "brand": "BLOOM",
     "tagline": "AI-guided recovery",
     "headline": "AI Recovery\nCoach",
     "body": "Clinical rehab plans, personalized daily schedules, and smart reminders to keep your recovery on track.",
@@ -76,7 +76,7 @@
   "tutorial": {
     "skip": "Skip",
     "letsgo": "Let's go",
-    "welcomeTitle": "Welcome to Mend AI",
+    "welcomeTitle": "Welcome to Bloom AI",
     "welcomeBody": "Your AI-generated rehab plan is ready. Here's a quick tour — under 30 seconds.",
     "exercisesTitle": "Daily exercises",
     "exercisesBody": "Tap any exercise card on Home to see step-by-step instructions. Tap the circle to mark it done.",
@@ -102,7 +102,7 @@
   },
   "subscription": {
     "headerTagline": "GO PREMIUM",
-    "headerTitle": "Unlock Mend AI",
+    "headerTitle": "Unlock Bloom AI",
     "headerSub": "Your clinical plan is ready.",
     "trialNote": "✓ Cancel anytime · No commitment",
     "footer": "Subscriptions auto-renew. Manage in your store account.",
@@ -247,7 +247,7 @@
     "journalReminder": "Journal reminder",
     "journalReminderSub": "Evening · 8 PM",
     "notifsDisabledTitle": "Notifications disabled",
-    "notifsDisabledBody": "Enable notifications for Mend AI in your system settings to use reminders.",
+    "notifsDisabledBody": "Enable notifications for Bloom AI in your system settings to use reminders.",
     "openSettings": "Open settings",
     "support": "Support",
     "sendFeedback": "Send feedback",
@@ -278,7 +278,7 @@
   },
   "disclaimer": {
     "title": "Important — please read",
-    "body": "Mend AI is a wellness and education tool for general recovery guidance only. It does not diagnose, treat, or replace professional medical care. Always consult a qualified clinician about your injury, especially before starting, stopping, or changing any exercise.\n\nIf you experience severe pain, loss of function, numbness, sudden swelling, fever, or any emergency symptom, seek immediate medical attention.",
+    "body": "Bloom AI is a wellness and education tool for general recovery guidance only. It does not diagnose, treat, or replace professional medical care. Always consult a qualified clinician about your injury, especially before starting, stopping, or changing any exercise.\n\nIf you experience severe pain, loss of function, numbness, sudden swelling, fever, or any emergency symptom, seek immediate medical attention.",
     "cta": "I understand"
   },
   "chat": {

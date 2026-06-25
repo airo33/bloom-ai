@@ -14,7 +14,7 @@
     "friend": "Amigo"
   },
   "welcome": {
-    "brand": "MEND",
+    "brand": "BLOOM",
     "tagline": "Recuperación guiada por IA",
     "headline": "Coach de Recuperación\ncon IA",
     "body": "Planes de rehabilitación clínicos, calendarios diarios personalizados y recordatorios inteligentes para mantener tu recuperación en marcha.",
@@ -76,7 +76,7 @@
   "tutorial": {
     "skip": "Omitir",
     "letsgo": "Vamos",
-    "welcomeTitle": "Bienvenido a Mend AI",
+    "welcomeTitle": "Bienvenido a Bloom AI",
     "welcomeBody": "Tu plan de rehabilitación generado por IA está listo. Un recorrido rápido — menos de 30 segundos.",
     "exercisesTitle": "Ejercicios diarios",
     "exercisesBody": "Toca cualquier tarjeta de ejercicio en Inicio para ver instrucciones paso a paso. Toca el círculo para marcarlo como hecho.",
@@ -102,7 +102,7 @@
   },
   "subscription": {
     "headerTagline": "HAZTE PREMIUM",
-    "headerTitle": "Desbloquea Mend AI",
+    "headerTitle": "Desbloquea Bloom AI",
     "headerSub": "Tu plan clínico está listo.",
     "trialNote": "✓ Cancela cuando quieras · Sin compromiso",
     "footer": "Las suscripciones se renuevan automáticamente. Gestiona en tu cuenta del store.",
@@ -247,7 +247,7 @@
     "journalReminder": "Recordatorio de diario",
     "journalReminderSub": "Tarde · 20:00",
     "notifsDisabledTitle": "Notificaciones desactivadas",
-    "notifsDisabledBody": "Activa las notificaciones de Mend AI en los ajustes del sistema para usar los recordatorios.",
+    "notifsDisabledBody": "Activa las notificaciones de Bloom AI en los ajustes del sistema para usar los recordatorios.",
     "openSettings": "Abrir ajustes",
     "support": "Soporte",
     "sendFeedback": "Enviar comentarios",
@@ -278,7 +278,7 @@
   },
   "disclaimer": {
     "title": "Importante — por favor lee",
-    "body": "Mend AI es una herramienta de bienestar y educación para guía general de recuperación. No diagnostica, trata ni reemplaza la atención médica profesional. Consulta siempre con un clínico cualificado sobre tu lesión, especialmente antes de iniciar, detener o modificar cualquier ejercicio.\n\nSi experimentas dolor severo, pérdida de función, entumecimiento, hinchazón repentina, fiebre o cualquier síntoma de emergencia, busca atención médica inmediata.",
+    "body": "Bloom AI es una herramienta de bienestar y educación para guía general de recuperación. No diagnostica, trata ni reemplaza la atención médica profesional. Consulta siempre con un clínico cualificado sobre tu lesión, especialmente antes de iniciar, detener o modificar cualquier ejercicio.\n\nSi experimentas dolor severo, pérdida de función, entumecimiento, hinchazón repentina, fiebre o cualquier síntoma de emergencia, busca atención médica inmediata.",
     "cta": "Entendido"
   },
   "chat": {

@@ -1,45 +1,49 @@
-// Brand mark — Mend AI sprout. A small plant with a vertical stem and two
-// curved leaves emerging from the top. Replaces the previous R monogram.
-// Single source of truth for the logo so we can drop the emoji-as-brand
-// pattern everywhere in the app.
+// Brand mark — Bloom AI spark. A 4-point spark in lime on a near-black
+// tile, same visual language as Claude / Gemini's AI marks but with
+// curved petal-shaped points that gesture at "bloom". Single source of
+// truth for the in-app logo.
 
 import React from 'react';
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Path, Rect, Circle } from 'react-native-svg';
 import { useTheme } from '../theme';
 
 interface Props {
   size?: number;
   /**
-   *  filled — sprout on a lime tile (primary use: Welcome, Auth, Loading)
-   *  ghost  — sprout alone, transparent background (small inline use)
-   *  light  — sprout on a tinted lime card surface (for empty states)
+   *  filled — spark on a dark tile (primary use: Welcome, Auth, Loading)
+   *  ghost  — spark alone, transparent background (small inline use)
+   *  light  — spark on a tinted lime card surface (for empty states)
    */
   variant?: 'filled' | 'ghost' | 'light';
 }
 
-// Sprout glyph paths inside the 32×32 viewBox. Stem + two leaves.
-const STEM = 'M16 24 V13';
-const LEAF_LEFT  = 'M16 14 C 13.5 11 9.5 11 8 14 C 10 16 14 16 16 14 Z';
-const LEAF_RIGHT = 'M16 11 C 18.5 8 22.5 8 24 11 C 22 13 18 13 16 11 Z';
+// Spark path in a 32-unit viewBox. Same geometry the icon generator
+// uses, so the in-app mark, the launcher icon, and the splash are all
+// pixel-identical at parity sizes.
+const SPARK_PATH =
+  'M 16 6 Q 17 13 25 16 Q 17 19 16 26 Q 15 19 7 16 Q 15 13 16 6 Z';
+const DARK_BG = '#0F0F12';
+const LIME_SPARK = '#C8EB6B';
 
 export default function Logo({ size = 56, variant = 'filled' }: Props) {
   const theme = useTheme();
-  const dark = theme.scheme === 'dark';
 
+  // The dark tile is always the same near-black on light & dark mode —
+  // the spark needs to read as "Bloom AI" wherever it sits. The ghost
+  // variant drops the tile and uses the theme lime so the mark adapts
+  // when it's inline among text.
   const bg =
     variant === 'filled'
-      ? theme.colors.pu
+      ? DARK_BG
       : variant === 'light'
         ? theme.colors.pl
         : 'transparent';
 
   const fg =
     variant === 'filled'
-      ? dark
-        ? '#0A0A0A'
-        : '#0A0A0A'  // sprout always dark — even on light tile reads as brand
+      ? LIME_SPARK
       : variant === 'light'
-        ? theme.colors.pt
+        ? theme.colors.pu
         : theme.colors.pu;
 
   const cornerRadius = 9; // viewBox 32×32 — ~28% radius
@@ -57,36 +61,32 @@ export default function Logo({ size = 56, variant = 'filled' }: Props) {
           fill={bg}
         />
       )}
-      {/* Stem */}
-      <Path
-        d={STEM}
-        stroke={fg}
-        strokeWidth="2.4"
-        fill="none"
-        strokeLinecap="round"
+      {/* Spark glyph */}
+      <Path d={SPARK_PATH} fill={fg} />
+      {/* Centre dot — punches a small hole through the spark so it reads
+          as a knot rather than a solid star. Colour matches the tile;
+          for ghost variant we use the theme background so it disappears
+          into whatever the spark is overlaid on. */}
+      <Circle
+        cx="16"
+        cy="16"
+        r="1.3"
+        fill={variant === 'ghost' ? theme.colors.bg : bg}
       />
-      {/* Two leaves */}
-      <Path d={LEAF_LEFT} fill={fg} />
-      <Path d={LEAF_RIGHT} fill={fg} />
     </Svg>
   );
 }
 
 /**
- * Wordmark — the full "Mend AI" lockup with the sprout on the left.
+ * Wordmark — the full "Bloom AI" lockup with the spark on the left.
  * Useful at the top of Welcome / Auth instead of the standalone tile.
  */
 export function WordMark({ size = 28 }: { size?: number }) {
-  const theme = useTheme();
-  const fg = theme.scheme === 'dark' ? '#0A0A0A' : '#0A0A0A';
-
   return (
     <Svg width={size * 4.6} height={size} viewBox={`0 0 ${32 * 4.6} 32`}>
-      {/* Rounded lime tile + sprout */}
-      <Rect x="0" y="0" width="32" height="32" rx="9" ry="9" fill={theme.colors.pu} />
-      <Path d={STEM} stroke={fg} strokeWidth="2.4" fill="none" strokeLinecap="round" />
-      <Path d={LEAF_LEFT} fill={fg} />
-      <Path d={LEAF_RIGHT} fill={fg} />
+      <Rect x="0" y="0" width="32" height="32" rx="9" ry="9" fill={DARK_BG} />
+      <Path d={SPARK_PATH} fill={LIME_SPARK} />
+      <Circle cx="16" cy="16" r="1.3" fill={DARK_BG} />
     </Svg>
   );
 }

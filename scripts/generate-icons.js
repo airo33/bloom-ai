@@ -4,42 +4,48 @@
 // Output PNGs land in /assets and are referenced from app.json. Each PNG
 // is 1024×1024 — Expo/EAS scales them to platform-specific sizes at build
 // time.
+//
+// Current brand mark (Bloom AI v1.5+): a 4-point AI spark in electric
+// lime on a near-black canvas, with a small dot of the background colour
+// showing through the centre — same visual language as Claude / Gemini's
+// AI marks, but with a subtle bloom-petal curve on each point.
 
 const fs = require('fs');
 const path = require('path');
 const { Resvg } = require('@resvg/resvg-js');
 
-const LIME = '#B5E550';
-const DARK_INK = '#0A0A0A';
+const DARK_BG = '#0F0F12';     // canvas / icon background
+const LIME_SPARK = '#C8EB6B';  // the spark itself
 
-// Sprout glyph — stem path is a stroked line, the two leaves are
-// filled shapes. Renders consistently from 24 px to 1024 px.
-const STEM = 'M16 24 V13';
-const LEAF_LEFT  = 'M16 14 C 13.5 11 9.5 11 8 14 C 10 16 14 16 16 14 Z';
-const LEAF_RIGHT = 'M16 11 C 18.5 8 22.5 8 24 11 C 22 13 18 13 16 11 Z';
+// 4-point spark with curved petal-shaped points, sized to the 32-unit
+// viewBox. Each control point matches the curves used in the icon-picker
+// preview — see /icon previews. The inner dot is a tiny circle of the
+// background colour, sitting on top of the spark to suggest a "knot"
+// at the centre (Claude/Gemini-style).
+const SPARK_PATH =
+  'M 16 6 Q 17 13 25 16 Q 17 19 16 26 Q 15 19 7 16 Q 15 13 16 6 Z';
+const CENTER_DOT_R = 1.3;
 
 /**
- * Build an SVG string. `viewBox` is always 0 0 32 32 so the R glyph
+ * Build an SVG string. `viewBox` is always 0 0 32 32 so the spark
  * geometry stays consistent across every output; the rendered PNG size
  * is the actual image dimension we want.
  */
 function svg({
   size = 1024,
-  background = LIME,
-  inkColor = DARK_INK,
-  // Inset of the R glyph from the canvas edge as a percentage of canvas
+  background = DARK_BG,
+  inkColor = LIME_SPARK,
+  // Inset of the spark from the canvas edge as a percentage of canvas
   // size — Android adaptive icons need a 33% safe-zone padding.
   inkInset = 0,
-  // When true, no rounded square — R alone on transparent.
+  // When true, no rounded square — spark alone on transparent.
   glyphOnly = false,
-  // When true, omit the R glyph entirely (solid-fill backgrounds).
+  // When true, omit the spark entirely (solid-fill backgrounds).
   noGlyph = false,
   // Optional rounded-square radius (0..16 — viewBox is 32×32)
   cornerRadius = 9,
 }) {
   const cell = 32;
-  // The R glyph occupies 10..24 horizontally (≈ 14u wide) of the 32u
-  // viewBox — to inset we scale + translate it.
   const scale = 1 - inkInset * 2;
   const translate = (cell - cell * scale) / 2;
 
@@ -47,12 +53,33 @@ function svg({
     ? ''
     : `<rect x="0" y="0" width="${cell}" height="${cell}" rx="${cornerRadius}" ry="${cornerRadius}" fill="${background}"/>`;
 
+  // Centre dot's fill needs to be the canvas background when we have
+  // one, but for monochrome / themed icons we want the dot to be
+  // transparent (cut a real hole). Use a `<mask>` so themed icons cut
+  // through, and a coloured dot for normal renders.
+  const usesTransparentDot = glyphOnly;
+  const dotFill = usesTransparentDot ? 'black' : background;
+  const maskAttr = usesTransparentDot ? ' mask="url(#sparkMask)"' : '';
+
   const glyph = noGlyph
     ? ''
-    : `<g transform="translate(${translate} ${translate}) scale(${scale})">
-        <path d="${STEM}" stroke="${inkColor}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-        <path d="${LEAF_LEFT}" fill="${inkColor}"/>
-        <path d="${LEAF_RIGHT}" fill="${inkColor}"/>
+    : `${
+        usesTransparentDot
+          ? `<defs>
+        <mask id="sparkMask">
+          <rect width="${cell}" height="${cell}" fill="white"/>
+          <circle cx="16" cy="16" r="${CENTER_DOT_R}" fill="black"/>
+        </mask>
+      </defs>`
+          : ''
+      }
+      <g transform="translate(${translate} ${translate}) scale(${scale})">
+        <path d="${SPARK_PATH}" fill="${inkColor}"${maskAttr}/>
+        ${
+          usesTransparentDot
+            ? ''
+            : `<circle cx="16" cy="16" r="${CENTER_DOT_R}" fill="${dotFill}"/>`
+        }
       </g>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cell} ${cell}" width="${size}" height="${size}">
@@ -76,37 +103,34 @@ function main() {
   const out = path.resolve(__dirname, '..', 'assets');
   if (!fs.existsSync(out)) fs.mkdirSync(out, { recursive: true });
 
-  console.log('Generating icons + splash from R logo...\n');
+  console.log('Generating icons + splash from Bloom AI spark logo...\n');
 
   // 1. icon.png — used by iOS and Android legacy launcher.
-  //    Lime rounded-square background, dark R glyph.
   writePng(
     path.join(out, 'icon.png'),
     render(svg({ size: 1024 }), 1024),
   );
 
   // 2. android-icon-foreground.png — adaptive icon foreground.
-  //    Transparent background, R glyph centered in the Android safe zone
-  //    (innermost 66% of the canvas), so when the launcher applies a
-  //    circular / squircle mask the R isn't clipped.
+  //    Transparent background, spark centered in the Android safe zone.
   writePng(
     path.join(out, 'android-icon-foreground.png'),
     render(svg({ size: 1024, glyphOnly: true, inkInset: 0.18 }), 1024),
   );
 
-  // 3. android-icon-background.png — solid lime fill (matches the
+  // 3. android-icon-background.png — solid dark fill (matches
   //    backgroundColor set in app.json so the two stay in sync).
   writePng(
     path.join(out, 'android-icon-background.png'),
     render(
-      svg({ size: 1024, background: LIME, cornerRadius: 0, noGlyph: true }),
+      svg({ size: 1024, background: DARK_BG, cornerRadius: 0, noGlyph: true }),
       1024,
     ),
   );
 
-  // 4. android-icon-monochrome.png — Android 13+ themed icons. Same
-  //    silhouette as foreground but drawn in white on transparent; the
-  //    launcher recolors it according to the user's wallpaper theme.
+  // 4. android-icon-monochrome.png — Android 13+ themed icons. Spark
+  //    silhouette in white on transparent; the launcher recolours it
+  //    per the user's wallpaper.
   writePng(
     path.join(out, 'android-icon-monochrome.png'),
     render(
@@ -120,9 +144,9 @@ function main() {
     ),
   );
 
-  // 5. splash-icon.png — the brand mark shown on the splash screen by
-  //    expo-splash-screen plugin. Transparent canvas; the plugin
-  //    background-fills with `backgroundColor` from app.json.
+  // 5. splash-icon.png — brand mark on the splash screen. Full
+  //    rounded-square render so the splash plugin can frame it on its
+  //    backgroundColor (set to DARK_BG in app.json).
   writePng(
     path.join(out, 'splash-icon.png'),
     render(
