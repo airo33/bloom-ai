@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import ProgressBar from '../components/ProgressBar';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { FITNESS_LEVELS } from '../data/fitnessLevels';
 import type { RootStackScreenProps } from '../navigation/types';
@@ -53,8 +53,8 @@ export default function Onboarding1Screen({
           </Text>
           <Text
             style={{
-              fontSize: 28,
-              fontWeight: '800',
+              fontSize: 30,
+              fontFamily: font.serif,
               color: theme.colors.th,
               marginBottom: 4,
               letterSpacing: -0.5,

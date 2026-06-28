@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, ChevronRight, Check, Layers, Calendar, Coffee } from 'lucide-react-native';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
 import CategoryTile from '../components/CategoryTile';
@@ -157,10 +157,10 @@ export default function ScheduleScreen() {
           </Text>
           <Text
             style={{
-              fontSize: 22,
-              fontWeight: '800',
+              fontSize: 26,
+              fontFamily: font.serif,
               color: theme.colors.th,
-              letterSpacing: -0.5,
+              letterSpacing: -0.6,
               marginTop: 2,
             }}
           >

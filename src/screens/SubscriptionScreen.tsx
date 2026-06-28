@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Crown, Check, Calendar, Star, Trophy, RefreshCcw } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
 import SectionLabel from '../components/SectionLabel';
@@ -202,7 +202,14 @@ export default function SubscriptionScreen({
             >
               <Crown size={28} color={headerFg} strokeWidth={2} />
             </View>
-            <Text style={{ fontSize: 24, fontWeight: '800', color: headerFg, letterSpacing: -0.5 }}>
+            <Text
+              style={{
+                fontSize: 28,
+                fontFamily: font.serif,
+                color: headerFg,
+                letterSpacing: -0.6,
+              }}
+            >
               {t('subscription.headerTitle')}
             </Text>
             <Text style={{ fontSize: 14, color: headerFgMuted, marginTop: 6 }}>
@@ -329,10 +336,10 @@ export default function SubscriptionScreen({
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text
                     style={{
-                      fontSize: 19,
-                      fontWeight: '800',
+                      fontSize: 22,
+                      fontFamily: font.serif,
                       color: theme.colors.th,
-                      letterSpacing: -0.5,
+                      letterSpacing: -0.6,
                     }}
                   >
                     {item.priceString}

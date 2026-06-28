@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, Flame, Activity, Droplet, BookOpen } from 'lucide-react-native';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
@@ -56,15 +56,15 @@ function StatCard({ label, value, unit, Icon, iconBg, iconFg, filledIcon }: Stat
       </Text>
       <Text
         style={{
-          fontSize: 26,
-          fontWeight: '800',
+          fontSize: 30,
+          fontFamily: font.serif,
           color: theme.colors.th,
-          letterSpacing: -0.5,
+          letterSpacing: -0.6,
         }}
       >
         {value}
         {unit ? (
-          <Text style={{ fontSize: 14, color: theme.colors.tm, fontWeight: '500' }}>
+          <Text style={{ fontSize: 14, color: theme.colors.tm, fontFamily: font.body }}>
             {' '}{unit}
           </Text>
         ) : null}
@@ -111,7 +111,14 @@ export default function ProgressScreen() {
         >
           Analytics
         </Text>
-        <Text style={{ fontSize: 26, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.5 }}>
+        <Text
+          style={{
+            fontSize: 30,
+            fontFamily: font.serif,
+            color: theme.colors.th,
+            letterSpacing: -0.6,
+          }}
+        >
           Your progress
         </Text>
       </View>

@@ -8,7 +8,7 @@ import { View, Text, ScrollView, Pressable, RefreshControl, Alert } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, History } from 'lucide-react-native';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { listPlanHistory, type PlanHistoryEntry } from '../lib/api';
 import EmptyState from '../components/EmptyState';
 import { SkeletonList } from '../components/Skeleton';
@@ -92,10 +92,10 @@ export default function PlanHistoryScreen() {
           </Pressable>
           <Text
             style={{
-              fontSize: 22,
-              fontWeight: '800',
+              fontSize: 26,
+              fontFamily: font.serif,
               color: theme.colors.th,
-              letterSpacing: -0.5,
+              letterSpacing: -0.6,
             }}
           >
             Plan history

@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
+import './src/lib/textDefaults'; // monkey-patches RN <Text> to default to Hanken
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';

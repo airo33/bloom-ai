@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Send, Stethoscope, Trash2 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import TypingDots from '../components/TypingDots';
 import { chatPhysio } from '../lib/api';
@@ -129,7 +129,14 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
           </View>
 
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.2 }}>
+            <Text
+              style={{
+                fontSize: 19,
+                fontFamily: font.serif,
+                color: theme.colors.th,
+                letterSpacing: -0.4,
+              }}
+            >
               {t('chat.headerTitle')}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 1 }}>

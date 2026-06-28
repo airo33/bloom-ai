@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, Animated, ToastAndroid, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { genericFallbackPlan } from '../data/fallbackPlan';
 import { generatePlan, ApiError } from '../lib/api';
@@ -137,12 +137,12 @@ export default function LoadingScreen({ navigation }: RootStackScreenProps<'Load
         <PulsingBrand />
         <Text
           style={{
-            fontSize: 22,
-            fontWeight: '800',
+            fontSize: 26,
+            fontFamily: font.serif,
             color: theme.colors.th,
             marginBottom: 10,
             textAlign: 'center',
-            letterSpacing: -0.4,
+            letterSpacing: -0.5,
           }}
         >
           {t('loading.title')}

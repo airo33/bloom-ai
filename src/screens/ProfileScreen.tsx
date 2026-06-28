@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from '../lib/i18n';
-import { useTheme, useThemeControls } from '../theme';
+import { useTheme, useThemeControls, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
@@ -636,10 +636,10 @@ function ProfileHeader({ name, email, fitnessLevel, age, tier }: ProfileHeaderPr
             <Text
               numberOfLines={1}
               style={{
-                fontSize: 19,
-                fontWeight: '800',
+                fontSize: 22,
+                fontFamily: font.serif,
                 color: theme.colors.th,
-                letterSpacing: -0.4,
+                letterSpacing: -0.5,
                 marginBottom: 2,
               }}
             >

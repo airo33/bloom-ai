@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, Bug, Lightbulb, Heart, MoreHorizontal } from 'lucide-react-native';
 import Constants from 'expo-constants';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { submitFeedback, type FeedbackCategory } from '../lib/api';
 
 interface CatOption {
@@ -94,10 +94,10 @@ export default function FeedbackScreen() {
             </Pressable>
             <Text
               style={{
-                fontSize: 22,
-                fontWeight: '800',
+                fontSize: 26,
+                fontFamily: font.serif,
                 color: theme.colors.th,
-                letterSpacing: -0.5,
+                letterSpacing: -0.6,
               }}
             >
               Send feedback

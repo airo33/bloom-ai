@@ -15,7 +15,7 @@ import {
   Check,
   RotateCcw,
 } from 'lucide-react-native';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
 import Button from '../components/Button';
@@ -128,7 +128,14 @@ export default function ExerciseScreen({
             backgroundColor: 'rgba(0,0,0,0.28)',
           }}
         >
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#fff', letterSpacing: -0.3 }}>
+          <Text
+            style={{
+              fontSize: 24,
+              fontFamily: font.serif,
+              color: '#fff',
+              letterSpacing: -0.5,
+            }}
+          >
             {exercise.name}
           </Text>
         </View>

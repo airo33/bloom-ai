@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -97,7 +97,14 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             >
               Daily log
             </Text>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.3 }}>
+            <Text
+              style={{
+                fontSize: 24,
+                fontFamily: font.serif,
+                color: theme.colors.th,
+                letterSpacing: -0.5,
+              }}
+            >
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',

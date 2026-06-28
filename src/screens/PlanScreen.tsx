@@ -16,7 +16,7 @@ import CategoryTile from '../components/CategoryTile';
 import SectionLabel from '../components/SectionLabel';
 import Input from '../components/Input';
 import MedicalDisclaimer from '../components/MedicalDisclaimer';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
 import { adjustPlan, archivePlan, ApiError } from '../lib/api';
@@ -113,11 +113,11 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
           </View>
           <Text
             style={{
-              fontSize: 22,
-              fontWeight: '800',
+              fontSize: 26,
+              fontFamily: font.serif,
               color: headerFg,
               marginBottom: 18,
-              letterSpacing: -0.5,
+              letterSpacing: -0.6,
             }}
           >
             {plan.title}

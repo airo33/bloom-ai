@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail, Lock, User as UserIcon, ArrowRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Logo from '../components/Logo';
@@ -88,8 +88,8 @@ export default function AuthScreen() {
 
           <Text
             style={{
-              fontSize: 32,
-              fontWeight: '800',
+              fontSize: 34,
+              fontFamily: font.serif,
               color: theme.colors.th,
               letterSpacing: -0.6,
               marginBottom: 6,
