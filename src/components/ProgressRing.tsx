@@ -8,7 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Text } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -95,7 +95,14 @@ export default function ProgressRing({
             justifyContent: 'center',
           }}
         >
-          <Text style={{ fontSize: 14, fontWeight: '800', color: theme.colors.th }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontFamily: font.serif,
+              color: theme.colors.th,
+              letterSpacing: -0.5,
+            }}
+          >
             {resolvedLabel}
           </Text>
         </View>

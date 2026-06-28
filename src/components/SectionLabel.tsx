@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Text, TextStyle, StyleProp } from 'react-native';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 
 interface Props {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ export default function SectionLabel({ children, style }: Props) {
       style={[
         {
           fontSize: 11,
-          fontWeight: '700',
+          fontFamily: font.bodyBold,
           color: theme.colors.tm,
           letterSpacing: 0.8,
           textTransform: 'uppercase',

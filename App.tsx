@@ -1,9 +1,22 @@
 import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import {
+  Newsreader_500Medium,
+  Newsreader_600SemiBold,
+  Newsreader_500Medium_Italic,
+} from '@expo-google-fonts/newsreader';
+import {
+  HankenGrotesk_400Regular,
+  HankenGrotesk_600SemiBold,
+  HankenGrotesk_700Bold,
+  HankenGrotesk_800ExtraBold,
+} from '@expo-google-fonts/hanken-grotesk';
 import { ThemeProvider } from './src/theme';
 import RootNavigator from './src/navigation/RootNavigator';
 import ErrorBoundary from './src/components/ErrorBoundary';
@@ -29,6 +42,24 @@ import {
 initI18n();
 
 export default function App() {
+  // Garden typography pair: Newsreader (serif display) + Hanken Grotesk
+  // (UI body). We gate the first render on these so the screens never
+  // flash with the platform default font. Returning a solid background
+  // matching the dark splash colour keeps the boot transition seamless.
+  const [fontsLoaded] = useFonts({
+    Newsreader_500Medium,
+    Newsreader_600SemiBold,
+    Newsreader_500Medium_Italic,
+    HankenGrotesk_400Regular,
+    HankenGrotesk_600SemiBold,
+    HankenGrotesk_700Bold,
+    HankenGrotesk_800ExtraBold,
+  });
+
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: '#141310' }} />;
+  }
+
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>

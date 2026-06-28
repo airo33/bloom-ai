@@ -1,6 +1,6 @@
-// Color palettes — refreshed to a more premium "Kalo-style" aesthetic:
-// lime green accent (replaces the original purple), near-black dark mode,
-// subtle borders, minimal shadows.
+// Color palettes — "Garden" visual language (Bloom AI v2 redesign).
+// Botanical-green accent on warm near-black / cream paper surfaces.
+// Recovery as growth. Replaces the previous Kalo-style lime palette.
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -21,7 +21,7 @@ export interface Palette {
   // Nav
   nav: string;
   nb: string;
-  // Primary (accent) — formerly purple, now lime green
+  // Primary (accent) — botanical green
   pu: string;
   pl: string;
   pb: string;
@@ -30,88 +30,96 @@ export interface Palette {
   gn: string;
   gl: string;
   gb: string;
-  // Red (danger)
+  // Red (danger) — warm terracotta
   rd: string;
   rl: string;
   rb: string;
   // Yellow (warning)
   yl: string;
   yb: string;
-  // Blue (info)
+  // Blue (info / water)
   bl: string;
   bb: string;
-  // Orange (streak / flame) — new accent for stats
+  // Orange / clay (streak / flame) — warm terracotta
   or: string;
   ol: string;
   ob: string;
 }
 
 export const lightPalette: Palette = {
-  // Cleaner light bg, more like Kalo's day mode if it had one
-  bg: '#FAFAFA',
-  bg2: '#F4F4F5',
+  // Warm cream paper, pure-white cards
+  bg: '#F3EFE6',
+  bg2: '#ECE6D9',
   card: '#FFFFFF',
-  card2: '#F4F4F5',
-  bo: '#E4E4E7',
-  bo2: '#D4D4D8',
-  th: '#0A0A0A',
-  tb: '#3F3F46',
-  tm: '#71717A',
-  tl: '#A1A1AA',
+  card2: '#F1EDE2',
+  // Warm, low-contrast borders
+  bo: '#E8E2D5',
+  bo2: '#D8D0BF',
+  // Deep olive-black → sage greys
+  th: '#20251A',
+  tb: '#4A4F42',
+  tm: '#7D8472',
+  tl: '#A89F8C',
   nav: '#FFFFFF',
-  nb: '#E4E4E7',
-  // Lime green accent
-  pu: '#84CC16',
-  pl: '#F0FDE0',
-  pb: '#BEF264',
-  pt: '#3F6212',
-  gn: '#10B981',
-  gl: '#ECFDF5',
-  gb: '#A7F3D0',
-  rd: '#EF4444',
-  rl: '#FEF2F2',
-  rb: '#FCA5A5',
-  yl: '#FEFCE8',
-  yb: '#FDE047',
-  bl: '#EFF6FF',
-  bb: '#BFDBFE',
-  or: '#F97316',
-  ol: '#FFF7ED',
-  ob: '#FDBA74',
+  nb: '#E8E2D5',
+  // Botanical moss-green (deep enough for white surfaces)
+  pu: '#5F9437',
+  pl: '#EDF3E2',
+  pb: '#CFE3AB',
+  pt: '#4F7D2C',
+  // Slightly bluer success green so it reads distinct from the brand
+  gn: '#3F8B5F',
+  gl: '#E7F3EA',
+  gb: '#C5E2CF',
+  // Warm terracotta-red
+  rd: '#C0533F',
+  rl: '#FBECEA',
+  rb: '#F3CFC9',
+  // Muted ochre
+  yl: '#F5F0D8',
+  yb: '#A98F2E',
+  // Clean info / water blue
+  bl: '#E7F1F8',
+  bb: '#2E93B8',
+  // Warm terracotta streak / clay
+  or: '#B3733F',
+  ol: '#F6EBE1',
+  ob: '#ECD9C8',
 };
 
 export const darkPalette: Palette = {
-  // Deep near-black, single source of truth for surfaces
-  bg: '#0A0A0A',
-  bg2: '#111111',
-  card: '#171717',
-  card2: '#1F1F1F',
-  bo: '#262626',
-  bo2: '#3F3F46',
-  th: '#FAFAFA',
-  tb: '#D4D4D8',
-  tm: '#71717A',
-  tl: '#52525B',
-  nav: '#0A0A0A',
-  nb: '#262626',
-  // Bright lime for dark mode — the signature Kalo color
-  pu: '#B5E550',
-  pl: '#1F2509',
+  // Warm near-black with a hint of olive — not pure black
+  bg: '#141310',
+  bg2: '#1C1B16',
+  card: '#1C1B16',
+  card2: '#211F18',
+  bo: '#2A2820',
+  bo2: '#3A3A30',
+  // Warm white → sage grey text
+  th: '#F4F1E8',
+  tb: '#CFCABB',
+  tm: '#8A9479',
+  tl: '#5F6B56',
+  nav: '#16150F',
+  nb: '#2A2820',
+  // Soft, bright botanical green (the signature color)
+  pu: '#BFE39A',
+  pl: '#2A3320',
   pb: '#3D5512',
-  pt: '#D4F082',
-  gn: '#10B981',
-  gl: '#022C22',
-  gb: '#065F46',
-  rd: '#F87171',
-  rl: '#2A0F0F',
-  rb: '#7F1D1D',
-  yl: '#1F1A08',
-  yb: '#854D0E',
-  bl: '#0A1828',
-  bb: '#1E3A8A',
-  or: '#FB923C',
-  ol: '#2A1408',
-  ob: '#9A3412',
+  pt: '#D4F0A0',
+  gn: '#7FD6A0',
+  gl: '#102A1C',
+  gb: '#1F4A32',
+  rd: '#E8857C',
+  rl: '#2A1212',
+  rb: '#5A2A2A',
+  yl: '#2A2A18',
+  yb: '#D8C97A',
+  bl: '#102030',
+  bb: '#7FC6E0',
+  or: '#E8A87C',
+  ol: '#332420',
+  ob: '#5A3A28',
 };
 
 export const palettes: Record<ColorScheme, Palette> = {

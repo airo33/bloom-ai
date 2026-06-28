@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Stethoscope, Lock, Sparkles } from 'lucide-react-native';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import {
   useAppStore,
   selectCurrentPhase,
@@ -222,19 +222,28 @@ export default function HomeScreen() {
             }}
           >
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, color: theme.colors.tm, letterSpacing: -0.1 }}>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontFamily: font.bodyBold,
+                  color: theme.colors.tm,
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                }}
+              >
                 {greeting}
               </Text>
               <Text
                 style={{
-                  fontSize: 26,
-                  fontWeight: '800',
+                  fontSize: 28,
+                  fontFamily: font.serif,
                   color: theme.colors.th,
-                  marginTop: 2,
+                  marginTop: 4,
                   letterSpacing: -0.5,
                 }}
               >
                 {profile.name || t('common.friend')}
+                <Text style={{ fontFamily: font.serifItalic, color: theme.colors.pu }}>.</Text>
               </Text>
             </View>
 
@@ -290,7 +299,7 @@ export default function HomeScreen() {
 
         {/* Progress + stats card */}
         <MountIn delay={70}>
-          <Card style={{ marginBottom: 12 }} padding={18}>
+          <Card hero style={{ marginBottom: 12 }} padding={18}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
               <ProgressRing percent={pct} label="auto" size={84} strokeWidth={8} />
               <View style={{ flex: 1 }}>
@@ -298,8 +307,8 @@ export default function HomeScreen() {
                   style={{
                     fontSize: 11,
                     color: theme.colors.tm,
-                    fontWeight: '700',
-                    letterSpacing: 0.5,
+                    fontFamily: font.bodyBold,
+                    letterSpacing: 0.8,
                     textTransform: 'uppercase',
                   }}
                 >
@@ -307,19 +316,26 @@ export default function HomeScreen() {
                 </Text>
                 <Text
                   style={{
-                    fontSize: 24,
-                    fontWeight: '800',
+                    fontSize: 28,
+                    fontFamily: font.serif,
                     color: theme.colors.th,
                     marginTop: 2,
-                    letterSpacing: -0.5,
+                    letterSpacing: -0.6,
                   }}
                 >
                   {doneToday}
-                  <Text style={{ fontSize: 15, fontWeight: '500', color: theme.colors.tm }}>
+                  <Text style={{ fontSize: 15, fontFamily: font.bodyMed, color: theme.colors.tm }}>
                     {' / '}{totalToday} {t('home.doneSuffix')}
                   </Text>
                 </Text>
-                <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 4 }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontFamily: font.body,
+                    color: theme.colors.tm,
+                    marginTop: 4,
+                  }}
+                >
                   {t('home.dayLabel', { day: progress.day, weekday: dayLabel })}
                 </Text>
               </View>
@@ -381,10 +397,10 @@ export default function HomeScreen() {
           >
             <Text
               style={{
-                fontSize: 16,
-                fontWeight: '800',
+                fontSize: 21,
+                fontFamily: font.serif,
                 color: theme.colors.th,
-                letterSpacing: -0.3,
+                letterSpacing: -0.4,
               }}
             >
               {totalToday === 0 ? t('home.restDay') : t('home.tasksTitle')}

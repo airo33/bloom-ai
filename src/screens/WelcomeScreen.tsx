@@ -6,7 +6,7 @@ import { ArrowRight, KeyRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import Button from '../components/Button';
 import Logo from '../components/Logo';
-import { useTheme } from '../theme';
+import { useTheme, font } from '../theme';
 import type { RootStackScreenProps } from '../navigation/types';
 
 export default function WelcomeScreen({ navigation }: RootStackScreenProps<'Welcome'>) {
@@ -75,20 +75,21 @@ const styles = StyleSheet.create({
   },
   brand: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: font.bodyBold,
     letterSpacing: 3,
     marginBottom: 16,
   },
   heading: {
     fontSize: 36,
-    fontWeight: '800',
+    fontFamily: font.serif,
     textAlign: 'center',
     lineHeight: 42,
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
     marginBottom: 16,
   },
   subhead: {
     fontSize: 15,
+    fontFamily: font.body,
     textAlign: 'center',
     lineHeight: 22,
     letterSpacing: -0.1,
