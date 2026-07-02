@@ -96,6 +96,11 @@ interface AppState {
    *  first plan generation per App Store medical-app guidance. */
   medicalDisclaimerAccepted: boolean;
   acceptMedicalDisclaimer: () => void;
+  /** Recovery day on which we last surfaced an adaptive-plan
+   *  suggestion. Guarded so the same suggestion doesn't nag the user
+   *  more than once per day. */
+  lastAdaptationSuggestedDay: number;
+  markAdaptationSuggested: (day: number) => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
@@ -140,6 +145,7 @@ export const useAppStore = create<AppState>()(
       lastSeenPhaseName: null,
       language: null,
       medicalDisclaimerAccepted: false,
+      lastAdaptationSuggestedDay: 0,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
@@ -254,6 +260,8 @@ export const useAppStore = create<AppState>()(
 
       acceptMedicalDisclaimer: () => set({ medicalDisclaimerAccepted: true }),
 
+      markAdaptationSuggested: (day) => set({ lastAdaptationSuggestedDay: day }),
+
       resetAll: () =>
         set({
           profile: initialProfile,
@@ -306,6 +314,7 @@ export const useAppStore = create<AppState>()(
         lastSeenPhaseName: s.lastSeenPhaseName,
         language: s.language,
         medicalDisclaimerAccepted: s.medicalDisclaimerAccepted,
+        lastAdaptationSuggestedDay: s.lastAdaptationSuggestedDay,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true;

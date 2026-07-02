@@ -285,6 +285,38 @@
     "headerTitle": "KI-Recovery-Coach",
     "headerStatus": "Online · 24/7"
   },
+  "recovery": {
+    "title": "Recovery-Score",
+    "subtitle": "Wie dein Körper wirklich reagiert",
+    "empty": "Trage ein paar Tage ein, um deinen Score zu sehen",
+    "pain": "Schmerz",
+    "consistency": "Konstanz",
+    "momentum": "Momentum",
+    "avgPain": "Ø-Schmerz letzte {{days}} Tage · {{avg}}/10",
+    "bandPoor": "Braucht Aufmerksamkeit",
+    "bandFair": "Im Aufbau",
+    "bandGood": "Auf Kurs",
+    "bandStrong": "In voller Blüte"
+  },
+  "adaptation": {
+    "cardTitle": "Deine Genesungssignale",
+    "cardCta": "Ansehen",
+    "detectHighPain": "Der Schmerz liegt seit {{days}} Tagen bei {{avg}}/10 in Folge.",
+    "detectTrendingUp": "Der Schmerz steigt ({{avg}}/10 vs. Wochenanfang).",
+    "detectReadyToProgress": "Der Schmerz ist seit {{days}} Tagen niedrig — vielleicht bist du bereit für mehr.",
+    "modalTitle": "Vorgeschlagene Plan-Anpassung",
+    "kindDeEscalate": "Zurücknehmen",
+    "kindModify": "Auf sanftere Varianten wechseln",
+    "kindProgress": "Bereit für die nächste Stufe",
+    "kindDeEscalateBody": "Dein Körper zeigt uns, dass die aktuelle Phase gerade zu viel ist. Wir senken die Intensität um ~25%, tauschen die Belastungsübungen gegen isometrische und Beweglichkeitsvarianten und verlängern diese Phase um eine Woche.",
+    "kindModifyBody": "Der Schmerz steigt schleichend. Wir tauschen die schwersten Übungen gegen leichter belastende Alternativen bei gleicher Phasenstruktur — eine sanfte Korrektur, kein Umbau.",
+    "kindProgressBody": "Du hast dir einen härteren Plan verdient. Wir gehen früher in die nächste Phase und heben die wichtigsten Belastungsübungen auf die nächste Progression.",
+    "apply": "Vorschlag anwenden",
+    "notNow": "Nicht jetzt",
+    "applying": "Passe an…",
+    "errTitle": "Plan konnte nicht angepasst werden",
+    "errFallback": "Etwas ist schiefgelaufen. Bitte später erneut versuchen."
+  },
   "languagePicker": {
     "title": "Sprache",
     "subtitle": "Die App-Oberfläche und KI-Antworten nutzen diese Sprache.",

@@ -24,6 +24,10 @@ import AnimatedFlame from '../components/AnimatedFlame';
 import PhaseTransition from '../components/PhaseTransition';
 import HydrationGoalCelebration from '../components/HydrationGoalCelebration';
 import TaskCompleteToast from '../components/TaskCompleteToast';
+import RecoveryScoreCard from '../components/RecoveryScoreCard';
+import AdaptationSuggestion from '../components/AdaptationSuggestion';
+import { computeRecoveryScore } from '../lib/recoveryScore';
+import { detectAdaptation } from '../lib/planAdaptation';
 import type { RootStackParamList } from '../navigation/types';
 
 const SUB_TIER_BADGE = {
@@ -94,6 +98,9 @@ export default function HomeScreen() {
   const celebrateHydration = useAppStore((s) => s.celebrateHydration);
   const lastSeenPhaseName = useAppStore((s) => s.lastSeenPhaseName);
   const setLastSeenPhaseName = useAppStore((s) => s.setLastSeenPhaseName);
+  const logs = useAppStore((s) => s.logs);
+  const lastAdaptationSuggestedDay = useAppStore((s) => s.lastAdaptationSuggestedDay);
+  const markAdaptationSuggested = useAppStore((s) => s.markAdaptationSuggested);
 
   // Advance recovery day once per calendar day (store guards against double-fires)
   useEffect(() => {
@@ -115,6 +122,25 @@ export default function HomeScreen() {
   const streakMilestone = useMemo(
     () => nextUnseenMilestone(progress.streak, lastCelebratedStreak),
     [progress.streak, lastCelebratedStreak],
+  );
+
+  // Recovery Score chip on Home, hero card on Progress.
+  const recoveryBreakdown = useMemo(
+    () => computeRecoveryScore({ logs, streak: progress.streak }),
+    [logs, progress.streak],
+  );
+
+  // Adaptive-plan suggestion. detectAdaptation already handles the
+  // "once per day" guard via lastAdaptationSuggestedDay.
+  const adaptation = useMemo(
+    () =>
+      detectAdaptation({
+        logs,
+        streak: progress.streak,
+        currentDay: progress.day,
+        lastSuggestedDay: lastAdaptationSuggestedDay,
+      }),
+    [logs, progress.streak, progress.day, lastAdaptationSuggestedDay],
   );
 
   // useShallow prevents the infinite-render loop: the selector returns a
@@ -371,9 +397,21 @@ export default function HomeScreen() {
                 </Text>
                 {progress.streak > 1 ? t('home.streakKeep') : t('home.streakStart')}
               </Text>
+              <RecoveryScoreCard breakdown={recoveryBreakdown} variant="compact" />
             </View>
           </Card>
         </MountIn>
+
+        {/* Adaptive-plan suggestion — only rendered when detector fires,
+            guarded to once per recovery day via lastAdaptationSuggestedDay */}
+        {adaptation && (
+          <MountIn delay={110}>
+            <AdaptationSuggestion
+              suggestion={adaptation}
+              onSeen={() => markAdaptationSuggested(progress.day)}
+            />
+          </MountIn>
+        )}
 
         {/* Hydration */}
         <MountIn delay={140}>

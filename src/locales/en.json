@@ -285,6 +285,38 @@
     "headerTitle": "AI Recovery Coach",
     "headerStatus": "Online · 24/7"
   },
+  "recovery": {
+    "title": "Recovery Score",
+    "subtitle": "How your body's actually responding",
+    "empty": "Log a few days to see your score",
+    "pain": "Pain",
+    "consistency": "Consistency",
+    "momentum": "Momentum",
+    "avgPain": "Avg pain last {{days}} days · {{avg}}/10",
+    "bandPoor": "Needs attention",
+    "bandFair": "Building",
+    "bandGood": "On track",
+    "bandStrong": "Blooming"
+  },
+  "adaptation": {
+    "cardTitle": "Your recovery signals",
+    "cardCta": "Review",
+    "detectHighPain": "Pain has been {{avg}}/10 for {{days}} days in a row.",
+    "detectTrendingUp": "Pain is trending up ({{avg}}/10 vs earlier this week).",
+    "detectReadyToProgress": "Pain has been low for {{days}} days — you may be ready to push harder.",
+    "modalTitle": "Suggested plan change",
+    "kindDeEscalate": "Ease back",
+    "kindModify": "Swap for gentler variants",
+    "kindProgress": "Ready to progress",
+    "kindDeEscalateBody": "Your body is telling us the current phase is too much right now. We'll cut intensity by ~25%, swap the loading work for isometric and range-of-motion variants, and extend this phase by a week.",
+    "kindModifyBody": "Pain is creeping up. We'll swap the heaviest exercises for lower-load alternatives while keeping the phase structure — a soft correction, not a rebuild.",
+    "kindProgressBody": "You've earned a harder plan. We'll advance the phase early and upgrade the top loading exercises to the next progression.",
+    "apply": "Apply suggested changes",
+    "notNow": "Not now",
+    "applying": "Adjusting…",
+    "errTitle": "Couldn't adjust plan",
+    "errFallback": "Something went wrong. Try again later."
+  },
   "languagePicker": {
     "title": "Language",
     "subtitle": "The app interface and AI responses will use this language.",

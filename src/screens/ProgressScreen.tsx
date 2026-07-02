@@ -8,7 +8,9 @@ import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
 import PainChart from '../components/PainChart';
 import EmptyState from '../components/EmptyState';
+import RecoveryScoreCard from '../components/RecoveryScoreCard';
 import { moodFor } from '../data/moods';
+import { computeRecoveryScore } from '../lib/recoveryScore';
 
 interface StatCardProps {
   label: string;
@@ -95,6 +97,10 @@ export default function ProgressScreen() {
   }, [waterHistory, water]);
 
   const painPoints = useMemo(() => logs.map((l) => l.pain), [logs]);
+  const breakdown = useMemo(
+    () => computeRecoveryScore({ logs, streak }),
+    [logs, streak],
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
@@ -127,6 +133,9 @@ export default function ProgressScreen() {
         contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* Recovery Score — hero card, only useful once user has logs */}
+        <RecoveryScoreCard breakdown={breakdown} variant="hero" />
+
         {/* 2x2 stats grid */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
           <StatCard

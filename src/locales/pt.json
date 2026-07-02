@@ -285,6 +285,38 @@
     "headerTitle": "Coach de Recuperação IA",
     "headerStatus": "Online · 24/7"
   },
+  "recovery": {
+    "title": "Pontuação de Recuperação",
+    "subtitle": "Como seu corpo está realmente respondendo",
+    "empty": "Registre alguns dias para ver sua pontuação",
+    "pain": "Dor",
+    "consistency": "Consistência",
+    "momentum": "Impulso",
+    "avgPain": "Dor média últimos {{days}} dias · {{avg}}/10",
+    "bandPoor": "Precisa de atenção",
+    "bandFair": "Construindo",
+    "bandGood": "No caminho certo",
+    "bandStrong": "Florescendo"
+  },
+  "adaptation": {
+    "cardTitle": "Sinais da sua recuperação",
+    "cardCta": "Revisar",
+    "detectHighPain": "A dor está em {{avg}}/10 há {{days}} dias seguidos.",
+    "detectTrendingUp": "A dor está subindo ({{avg}}/10 vs antes desta semana).",
+    "detectReadyToProgress": "A dor tem sido baixa por {{days}} dias — talvez esteja pronto para mais.",
+    "modalTitle": "Mudança de plano sugerida",
+    "kindDeEscalate": "Reduza a carga",
+    "kindModify": "Trocar por variantes mais suaves",
+    "kindProgress": "Pronto para progredir",
+    "kindDeEscalateBody": "Seu corpo está dizendo que a fase atual está demais agora. Vamos reduzir a intensidade em ~25%, trocar o trabalho de carga por variantes isométricas e de mobilidade, e estender essa fase por uma semana.",
+    "kindModifyBody": "A dor está subindo aos poucos. Vamos trocar os exercícios mais pesados por alternativas de menor carga mantendo a estrutura da fase — uma correção suave, não uma reconstrução.",
+    "kindProgressBody": "Você ganhou um plano mais desafiador. Vamos avançar a fase mais cedo e atualizar os principais exercícios de carga para a próxima progressão.",
+    "apply": "Aplicar mudanças sugeridas",
+    "notNow": "Agora não",
+    "applying": "Ajustando…",
+    "errTitle": "Não foi possível ajustar o plano",
+    "errFallback": "Algo deu errado. Tente novamente mais tarde."
+  },
   "languagePicker": {
     "title": "Idioma",
     "subtitle": "A interface do app e as respostas da IA usarão este idioma.",
