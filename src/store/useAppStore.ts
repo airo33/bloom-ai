@@ -12,6 +12,7 @@ import type {
   FitnessLevel,
   PlanPhase,
 } from '../types/plan';
+import { DEFAULT_REMINDER_TIMES, type ReminderTimes } from '../lib/notifications';
 
 interface NotifPrefs {
   exercise: boolean;
@@ -101,6 +102,11 @@ interface AppState {
    *  more than once per day. */
   lastAdaptationSuggestedDay: number;
   markAdaptationSuggested: (day: number) => void;
+  /** User-customised reminder time bounds. See DEFAULT_REMINDER_TIMES
+   *  in lib/notifications.ts for the seed values that match the v1.7
+   *  hard-coded schedule (so existing users see no change). */
+  reminderTimes: ReminderTimes;
+  setReminderTimes: (times: ReminderTimes) => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
@@ -146,6 +152,7 @@ export const useAppStore = create<AppState>()(
       language: null,
       medicalDisclaimerAccepted: false,
       lastAdaptationSuggestedDay: 0,
+      reminderTimes: DEFAULT_REMINDER_TIMES,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
@@ -262,6 +269,8 @@ export const useAppStore = create<AppState>()(
 
       markAdaptationSuggested: (day) => set({ lastAdaptationSuggestedDay: day }),
 
+      setReminderTimes: (times) => set({ reminderTimes: times }),
+
       resetAll: () =>
         set({
           profile: initialProfile,
@@ -315,6 +324,7 @@ export const useAppStore = create<AppState>()(
         language: s.language,
         medicalDisclaimerAccepted: s.medicalDisclaimerAccepted,
         lastAdaptationSuggestedDay: s.lastAdaptationSuggestedDay,
+        reminderTimes: s.reminderTimes,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true;

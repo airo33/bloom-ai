@@ -32,8 +32,10 @@ import {
 } from '../lib/notifications';
 import { useAuth, signOut, displayNameFor } from '../lib/auth';
 import { archivePlan, deleteAccount } from '../lib/api';
+import TimeInput from '../components/TimeInput';
 import type { RootStackParamList } from '../navigation/types';
 import type { SubscriptionTier, FitnessLevel } from '../types/plan';
+import type { ReminderTimes, TimeOfDay } from '../lib/notifications';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -43,6 +45,8 @@ export default function ProfileScreen() {
   const plan = useAppStore((s) => s.plan);
   const tier = useAppStore((s) => s.subscriptionTier);
   const notifications = useAppStore((s) => s.notifications);
+  const reminderTimes = useAppStore((s) => s.reminderTimes);
+  const setReminderTimes = useAppStore((s) => s.setReminderTimes);
   const language = useAppStore((s) => s.language);
   const setNotificationPref = useAppStore((s) => s.setNotificationPref);
   const resetAll = useAppStore((s) => s.resetAll);
@@ -160,7 +164,7 @@ export default function ProfileScreen() {
       setPending(category);
       // Optimistic: update the store first so the switch flips immediately
       setNotificationPref(category, value);
-      const ok = await applyReminderToggle(category, value);
+      const ok = await applyReminderToggle(category, value, reminderTimes);
       if (!ok && value) {
         // Permission denied — revert the toggle and explain
         setNotificationPref(category, false);
@@ -175,11 +179,37 @@ export default function ProfileScreen() {
       }
       setPending(null);
     },
-    [pending, setNotificationPref, t],
+    [pending, setNotificationPref, reminderTimes, t],
   );
 
   const switchTrackColors = { true: theme.colors.pu, false: theme.colors.bo2 };
   const switchThumbColor = theme.scheme === 'dark' ? theme.colors.th : '#FFFFFF';
+
+  // Reminder time editors — only merge fields the user actually changed
+  // so unrelated categories keep their existing bounds.
+  const updateReminderTime = (
+    category: ReminderCategory,
+    key: 'start' | 'end' | 'time',
+    value: TimeOfDay,
+  ) => {
+    const next: ReminderTimes = {
+      ...reminderTimes,
+      exercise: { ...reminderTimes.exercise },
+      water: { ...reminderTimes.water },
+      journal: { ...reminderTimes.journal },
+    };
+    if (category === 'journal' && key === 'time') {
+      next.journal.time = value;
+    } else if (category === 'exercise' && (key === 'start' || key === 'end')) {
+      next.exercise[key] = value;
+    } else if (category === 'water' && (key === 'start' || key === 'end')) {
+      next.water[key] = value;
+    }
+    setReminderTimes(next);
+    // The App-level effect watches reminderTimes and re-schedules for
+    // whichever categories are currently enabled — no explicit reschedule
+    // call needed here.
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
@@ -243,6 +273,17 @@ export default function ProfileScreen() {
             }
             divider
           />
+          {notifications.exercise && (
+            <TimeRangeRow
+              labelStart={t('profile.reminderStart')}
+              timeStart={reminderTimes.exercise.start}
+              onChangeStart={(v) => updateReminderTime('exercise', 'start', v)}
+              labelEnd={t('profile.reminderEnd')}
+              timeEnd={reminderTimes.exercise.end}
+              onChangeEnd={(v) => updateReminderTime('exercise', 'end', v)}
+              divider
+            />
+          )}
           <Row
             iconBg={theme.colors.bl}
             iconColor={theme.colors.bb}
@@ -260,6 +301,17 @@ export default function ProfileScreen() {
             }
             divider
           />
+          {notifications.water && (
+            <TimeRangeRow
+              labelStart={t('profile.reminderStart')}
+              timeStart={reminderTimes.water.start}
+              onChangeStart={(v) => updateReminderTime('water', 'start', v)}
+              labelEnd={t('profile.reminderEnd')}
+              timeEnd={reminderTimes.water.end}
+              onChangeEnd={(v) => updateReminderTime('water', 'end', v)}
+              divider
+            />
+          )}
           <Row
             iconBg={theme.colors.gl}
             iconColor={theme.colors.gn}
@@ -275,7 +327,15 @@ export default function ProfileScreen() {
                 thumbColor={switchThumbColor}
               />
             }
+            divider={notifications.journal}
           />
+          {notifications.journal && (
+            <TimeRangeRow
+              labelStart={t('profile.reminderAt')}
+              timeStart={reminderTimes.journal.time}
+              onChangeStart={(v) => updateReminderTime('journal', 'time', v)}
+            />
+          )}
         </Card>
 
         <SectionLabel>{t('profile.support')}</SectionLabel>
@@ -552,6 +612,81 @@ function Row({ iconBg, iconColor, Icon, title, subtitle, control, divider }: Row
         <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 1 }}>{subtitle}</Text>
       </View>
       {control}
+    </View>
+  );
+}
+
+interface TimeRangeRowProps {
+  labelStart: string;
+  timeStart: string;
+  onChangeStart: (v: string) => void;
+  labelEnd?: string;
+  timeEnd?: string;
+  onChangeEnd?: (v: string) => void;
+  divider?: boolean;
+}
+
+/**
+ * Time picker row that sits under a Notifications switch. Two pills when
+ * the schedule spans a window (exercise / hydration), one pill for the
+ * single-shot journal reminder.
+ */
+function TimeRangeRow({
+  labelStart,
+  timeStart,
+  onChangeStart,
+  labelEnd,
+  timeEnd,
+  onChangeEnd,
+  divider,
+}: TimeRangeRowProps) {
+  const theme = useTheme();
+  const hasEnd = labelEnd !== undefined && timeEnd !== undefined && onChangeEnd !== undefined;
+  return (
+    <View
+      style={{
+        paddingHorizontal: 14,
+        paddingTop: 4,
+        paddingBottom: 14,
+        paddingLeft: 64, // align with the row title above (36 tile + 14 gap + 14 padding)
+        borderBottomWidth: divider ? 1 : 0,
+        borderBottomColor: theme.colors.bo,
+        flexDirection: 'row',
+        gap: 12,
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: 10,
+            color: theme.colors.tm,
+            marginBottom: 5,
+            letterSpacing: 0.6,
+            textTransform: 'uppercase',
+            fontWeight: '700',
+          }}
+        >
+          {labelStart}
+        </Text>
+        <TimeInput value={timeStart} onChange={onChangeStart} />
+      </View>
+      {hasEnd && (
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              fontSize: 10,
+              color: theme.colors.tm,
+              marginBottom: 5,
+              letterSpacing: 0.6,
+              textTransform: 'uppercase',
+              fontWeight: '700',
+            }}
+          >
+            {labelEnd}
+          </Text>
+          <TimeInput value={timeEnd!} onChange={onChangeEnd!} />
+        </View>
+      )}
     </View>
   );
 }

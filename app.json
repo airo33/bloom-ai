@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bloom AI",
     "slug": "recova",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -41,7 +41,8 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker"
     ],
     "extra": {
       "eas": {

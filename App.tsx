@@ -89,6 +89,7 @@ export default function App() {
 function NotificationsBootstrap(): null {
   const hydrated = useAppStore((s) => s.hydrated);
   const notifications = useAppStore((s) => s.notifications);
+  const reminderTimes = useAppStore((s) => s.reminderTimes);
   const language = useAppStore((s) => s.language);
   const { user } = useAuth();
 
@@ -109,12 +110,15 @@ function NotificationsBootstrap(): null {
     setupAnalytics().catch(() => {});
   }, []);
 
-  // Reapply notification schedules once Zustand hydrates
+  // Reapply notification schedules once Zustand hydrates, or whenever
+  // the user changes their reminder time bounds. The lib is idempotent
+  // — it cancels the old category schedule before scheduling the new
+  // one, so we can safely re-fire on every change.
   useEffect(() => {
     if (!hydrated) return;
-    reapplyAllFromStore(notifications).catch(() => {});
+    reapplyAllFromStore(notifications, reminderTimes).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
+  }, [hydrated, reminderTimes]);
 
   // Tell RevenueCat who the user is once we know — keeps purchase history
   // attached to the correct identity across re-installs.
