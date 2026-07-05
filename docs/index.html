@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bloom AI — AI-guided injury recovery</title>
+  <meta name="description" content="A personalized rehab plan for your specific injury, generated in minutes and adjusted by AI as your body responds." />
+
+  <meta property="og:title" content="Bloom AI — AI-guided injury recovery" />
+  <meta property="og:description" content="A phased rehab plan tailored to your injury. Adapts to your pain. Guided by AI." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Newsreader:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #F3EFE6;
+      --bg2: #ECE6D9;
+      --card: #FFFFFF;
+      --card2: #F1EDE2;
+      --bo: #E8E2D5;
+      --th: #20251A;
+      --tb: #4A4F42;
+      --tm: #7D8472;
+      --tl: #A89F8C;
+      --pu: #5F9437;
+      --pl: #EDF3E2;
+      --pb: #CFE3AB;
+      --pt: #4F7D2C;
+      --serif: 'Newsreader', Georgia, serif;
+      --sans: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--th);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--pu); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 22px; }
+    .section { padding: 72px 0; }
+    @media (max-width: 640px) { .section { padding: 48px 0; } }
+
+    nav {
+      padding: 20px 22px;
+      display: flex; justify-content: space-between; align-items: center;
+      max-width: 960px; margin: 0 auto;
+    }
+    nav .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--sans); font-weight: 700; letter-spacing: 2px;
+      font-size: 12px;
+    }
+    nav .logo-tile {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: #0F0F12;
+      display: flex; align-items: center; justify-content: center;
+    }
+    nav .brand-name { color: var(--th); text-transform: uppercase; }
+    nav .links { display: flex; gap: 22px; font-size: 14px; font-weight: 600; }
+    nav .links a { color: var(--tb); }
+    @media (max-width: 520px) { nav .links { display: none; } }
+
+    .hero { text-align: center; padding: 40px 22px 72px; }
+    .hero .kicker {
+      font-family: var(--sans); font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--tm); margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 8vw, 68px);
+      font-weight: 600; line-height: 1.05;
+      letter-spacing: -1.5px; color: var(--th);
+      max-width: 720px; margin: 0 auto 20px;
+    }
+    .hero h1 em { font-style: italic; font-weight: 500; color: var(--pu); }
+    .hero p.lede {
+      font-family: var(--sans); font-size: 18px;
+      line-height: 1.6; color: var(--tb);
+      max-width: 560px; margin: 0 auto 32px;
+    }
+    .cta-primary {
+      display: inline-block;
+      background: linear-gradient(150deg, #8FC15F, #5F9437);
+      color: #FFFFFF;
+      font-family: var(--sans); font-weight: 700; font-size: 15px;
+      padding: 15px 26px; border-radius: 14px; letter-spacing: -0.2px;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .cta-primary:hover { text-decoration: none; opacity: 0.92; transform: translateY(-1px); }
+    .cta-note { display: block; margin-top: 14px; font-size: 13px; color: var(--tm); }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .feat { background: var(--card); border: 1px solid var(--bo); border-radius: 22px; padding: 24px; }
+    .feat .icon-tile {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--pl); border: 1px solid var(--pb);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .feat h3 {
+      font-family: var(--serif); font-weight: 600; font-size: 22px;
+      letter-spacing: -0.4px; margin-bottom: 8px; color: var(--th);
+    }
+    .feat p { font-size: 15px; color: var(--tb); line-height: 1.55; }
+
+    .how { background: var(--bg2); }
+    .section-head { text-align: center; margin-bottom: 44px; }
+    .section-head .kicker {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--pu); margin-bottom: 10px;
+    }
+    .section-head h2 {
+      font-family: var(--serif); font-weight: 600;
+      font-size: clamp(28px, 5vw, 40px);
+      letter-spacing: -0.7px; color: var(--th);
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .step { background: var(--card); border-radius: 22px; padding: 26px; border: 1px solid var(--bo); }
+    .step-num {
+      font-family: var(--serif); font-size: 36px;
+      font-style: italic; font-weight: 500;
+      color: var(--pu); margin-bottom: 10px; line-height: 1;
+    }
+    .step h3 {
+      font-family: var(--sans); font-weight: 700; font-size: 16px;
+      letter-spacing: -0.2px; margin-bottom: 8px; color: var(--th);
+    }
+    .step p { font-size: 14px; color: var(--tb); line-height: 1.55; }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .price-card {
+      background: var(--card); border: 1px solid var(--bo);
+      border-radius: 22px; padding: 24px; position: relative;
+    }
+    .price-card.popular { border: 2px solid var(--pu); }
+    .price-card .badge {
+      position: absolute; top: -11px; left: 20px;
+      background: var(--pu); color: #FFFFFF;
+      font-size: 10px; font-weight: 800; letter-spacing: 1px;
+      padding: 4px 10px; border-radius: 999px; text-transform: uppercase;
+    }
+    .price-card h3 {
+      font-family: var(--sans); font-weight: 700; font-size: 14px;
+      color: var(--tm); text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .price-card .amount {
+      font-family: var(--serif); font-weight: 600; font-size: 40px;
+      letter-spacing: -1.2px; color: var(--th); line-height: 1;
+    }
+    .price-card .per { font-family: var(--sans); font-size: 14px; color: var(--tm); }
+    .price-card .trial { margin-top: 12px; font-size: 13px; color: var(--pt); font-weight: 600; }
+    .price-card .note { margin-top: 8px; font-size: 12px; color: var(--tm); line-height: 1.5; }
+
+    .faq { max-width: 720px; margin: 0 auto; }
+    .qa { border-bottom: 1px solid var(--bo); padding: 22px 0; }
+    .qa:last-child { border-bottom: none; }
+    .qa h4 {
+      font-family: var(--serif); font-weight: 500; font-size: 20px;
+      letter-spacing: -0.3px; margin-bottom: 8px; color: var(--th);
+    }
+    .qa p { font-size: 15px; color: var(--tb); line-height: 1.6; }
+
+    .cta-band {
+      background: #0F0F12; color: #F5EFE7;
+      text-align: center; padding: 72px 22px;
+    }
+    .cta-band h2 {
+      font-family: var(--serif); font-weight: 500; font-style: italic;
+      font-size: clamp(28px, 5vw, 44px);
+      color: #C8EB6B; letter-spacing: -0.6px; margin-bottom: 12px;
+    }
+    .cta-band p {
+      font-family: var(--sans); font-size: 16px; color: #B5B0A2;
+      max-width: 520px; margin: 0 auto 28px;
+    }
+
+    footer {
+      padding: 40px 22px 60px; text-align: center;
+      color: var(--tm); font-size: 13px;
+    }
+    footer .foot-links { display: flex; justify-content: center; gap: 22px; margin-bottom: 16px; }
+    footer .disclaimer {
+      max-width: 620px; margin: 12px auto 0;
+      font-size: 12px; line-height: 1.6; color: var(--tl);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="brand">
+      <div class="logo-tile" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 16 6 Q 17 13 25 16 Q 17 19 16 26 Q 15 19 7 16 Q 15 13 16 6 Z" fill="#C8EB6B"/>
+          <circle cx="16" cy="16" r="1.3" fill="#0F0F12"/>
+        </svg>
+      </div>
+      <span class="brand-name">Bloom AI</span>
+    </div>
+    <div class="links">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="kicker">AI-guided recovery · Bloom AI</div>
+    <h1>Recovery, <em>guided.</em></h1>
+    <p class="lede">A phased rehab plan tailored to your specific injury, generated in minutes and adjusted by AI as your body responds.</p>
+    <a href="#early-access" class="cta-primary">Get early access →</a>
+    <span class="cta-note">Android beta live · iOS coming soon</span>
+  </section>
+
+  <section class="section container">
+    <div class="section-head">
+      <div class="kicker">What it does</div>
+      <h2>Structured, evidence-based, <em style="font-family:var(--serif);font-style:italic;color:var(--pu);">personal.</em></h2>
+    </div>
+    <div class="features">
+      <div class="feat">
+        <div class="icon-tile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F7D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3l2 3 4 1-3 2 1 4-3.5-2-3.5 2 1-4-3-2 4-1z"/></svg>
+        </div>
+        <h3>Instant plan</h3>
+        <p>Describe what happened. The AI generates a full phased protocol — exercises, dosage, progression criteria, red flags — grounded in evidence-based physiotherapy. Under two minutes.</p>
+      </div>
+      <div class="feat">
+        <div class="icon-tile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F7D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 7L14 15L10 11L2 19"/><path d="M16 7h6v6"/></svg>
+        </div>
+        <h3>Adapts to your pain</h3>
+        <p>Log daily. The Recovery Score watches how your body's actually responding. If pain stays high for a few days, the AI suggests a plan adjustment — de-escalate, modify, or progress.</p>
+      </div>
+      <div class="feat">
+        <div class="icon-tile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F7D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>24/7 AI coach</h3>
+        <p>Ask anything about your exercises, pain, or progression. The AI is grounded in your specific plan, replies in your language, and knows when to point you toward a clinician.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section how" id="how">
+    <div class="container">
+      <div class="section-head">
+        <div class="kicker">How it works</div>
+        <h2>Three steps to your plan.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Describe your injury</h3>
+          <p>In your own words. When it happened, exact location, current pain, what makes it better or worse.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Get your plan</h3>
+          <p>A phased protocol matched to the biology of tissue healing — inflammation, proliferation, remodelling — with named exercises and progression criteria.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Log & adjust</h3>
+          <p>Daily pain and mood log. Watch your Recovery Score trend. The AI adjusts when you need it — you don't wait for the next PT appointment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container" id="pricing">
+    <div class="section-head">
+      <div class="kicker">Pricing</div>
+      <h2>Start free. Cancel anytime.</h2>
+    </div>
+    <div class="pricing">
+      <div class="price-card">
+        <h3>Weekly</h3>
+        <div class="amount">$7.99</div>
+        <div class="per">/ week</div>
+        <div class="trial">3-day free trial</div>
+        <div class="note">Full access · Cancel anytime</div>
+      </div>
+      <div class="price-card popular">
+        <div class="badge">Most popular</div>
+        <h3>Monthly</h3>
+        <div class="amount">$19.99</div>
+        <div class="per">/ month</div>
+        <div class="trial">7-day free trial</div>
+        <div class="note">37% cheaper than weekly · Everything included</div>
+      </div>
+      <div class="price-card">
+        <h3>Annual</h3>
+        <div class="amount">$49.99</div>
+        <div class="per">/ year</div>
+        <div class="trial">14-day free trial</div>
+        <div class="note">$4.17/mo effective · Save 79% vs monthly</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container" id="faq" style="background: var(--bg2); border-radius: 26px; margin: 0 22px 40px; padding-left: 32px; padding-right: 32px;">
+    <div class="section-head">
+      <div class="kicker">FAQ</div>
+      <h2>Straight answers.</h2>
+    </div>
+    <div class="faq">
+      <div class="qa">
+        <h4>Is this medical advice?</h4>
+        <p>No. Bloom AI is a wellness and education tool. It does not diagnose, treat, or replace professional medical care. AI-generated plans are general guidance grounded in published clinical protocols, not clinician-reviewed prescriptions for you personally. Always consult a qualified clinician about your injury.</p>
+      </div>
+      <div class="qa">
+        <h4>Does it replace physical therapy?</h4>
+        <p>No. Live PT gives you hands-on assessment, gait analysis, and a therapeutic relationship — AI can't do those. Bloom AI is built for people who don't easily access PT (no insurance, long wait lists, remote areas), or want a structured plan between clinic visits.</p>
+      </div>
+      <div class="qa">
+        <h4>What if pain gets worse?</h4>
+        <p>The Recovery Score tracks your pain trend. If pain stays high for a few days, the AI proactively suggests a plan adjustment — cut intensity, swap for gentler variants, or (if you've been coasting on low pain) progress. Every plan also lists red flags — symptoms that mean stop and see a clinician immediately.</p>
+      </div>
+      <div class="qa">
+        <h4>Which languages does it speak?</h4>
+        <p>Interface and AI responses in English, Spanish, Portuguese, and German. The AI generates plans and answers chat questions in your chosen language.</p>
+      </div>
+      <div class="qa">
+        <h4>Which platforms?</h4>
+        <p>Android beta available now. iOS coming later this year. Web version not planned — the daily reminders and pain log work best natively.</p>
+      </div>
+      <div class="qa">
+        <h4>How do I cancel a subscription?</h4>
+        <p>Cancel any time in your device's store account (Google Play). Cancellation takes effect at the end of your current billing period. Trials must be cancelled at least 24 hours before they end to avoid being charged.</p>
+      </div>
+      <div class="qa">
+        <h4>Is my data safe?</h4>
+        <p>Encrypted in transit and at rest. AI plan generation sends your injury description to our language model provider; we don't attach your name or email. You can request a full data export or delete your account any time from within the app. See our <a href="privacy.html">Privacy Policy</a> for detail.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" id="early-access">
+    <h2>Ready to bloom?</h2>
+    <p>Android beta is open. iOS on the way. Drop your email — we'll send the install link.</p>
+    <a href="mailto:i.arturcompany@gmail.com?subject=Bloom%20AI%20early%20access&body=Hi%2C%20I%27d%20like%20early%20access%20to%20Bloom%20AI.%20I%27m%20recovering%20from%3A%20%5Byour%20injury%5D.%20I%20use%20Android%20%2F%20iOS%3A%20%5Bplatform%5D.%20Thanks." class="cta-primary" style="background: linear-gradient(150deg, #BFE39A, #88B86A); color: #1D2A17;">Get early access →</a>
+  </section>
+
+  <footer>
+    <div class="foot-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="mailto:i.arturcompany@gmail.com">Contact</a>
+    </div>
+    <div>© <span id="year">2026</span> Bloom AI. All rights reserved.</div>
+    <p class="disclaimer">Bloom AI is a wellness and education tool. It does not diagnose, treat, cure, or prevent any disease, and does not replace professional medical advice. Always consult a qualified clinician about your injury.</p>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

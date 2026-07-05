@@ -17,7 +17,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const SRC = path.join(ROOT, 'legal');
-const OUT = path.join(SRC, 'html');
+// Output lives inside /docs so it deploys with the marketing landing on
+// GitHub Pages. The legal source markdown stays in /legal/.
+const OUT = path.join(ROOT, 'docs');
 
 const PAGES = [
   { md: 'privacy-policy.md', html: 'privacy.html', title: 'Privacy Policy · Bloom AI' },
@@ -249,11 +251,12 @@ function build() {
     const body = renderMarkdown(md);
     const html = pageHtml(p.title, body);
     fs.writeFileSync(path.join(OUT, p.html), html);
-    console.log(`✓ wrote legal/html/${p.html}`);
+    console.log(`✓ wrote docs/${p.html}`);
   }
 
-  fs.writeFileSync(path.join(OUT, 'index.html'), pageHtml('Bloom AI · Legal', INDEX_BODY));
-  console.log('✓ wrote legal/html/index.html');
+  // Deliberately does NOT emit an index.html — that path is owned by
+  // the marketing landing at docs/index.html. Legal pages are linked
+  // from the landing footer.
 }
 
 build();
