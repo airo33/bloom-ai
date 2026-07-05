@@ -4,6 +4,7 @@
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import Svg, { Polyline, Line, Circle, Text as SvgText } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 
 export default function PainChart({ points, height = 140, width = 290 }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const padding = { left: 24, right: 8, top: 12, bottom: 22 };
   const innerW = width - padding.left - padding.right;
@@ -44,7 +46,7 @@ export default function PainChart({ points, height = 140, width = 290 }: Props) 
           paddingVertical: 18,
         }}
       >
-        Log entries to see your pain trend
+        {t('recovery.painChartEmpty')}
       </Text>
     );
   }

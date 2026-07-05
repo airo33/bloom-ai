@@ -299,7 +299,8 @@
     "bandPoor": "Braucht Aufmerksamkeit",
     "bandFair": "Im Aufbau",
     "bandGood": "Auf Kurs",
-    "bandStrong": "In voller Blüte"
+    "bandStrong": "In voller Blüte",
+    "painChartEmpty": "Trage Einträge ein, um deinen Schmerztrend zu sehen"
   },
   "adaptation": {
     "cardTitle": "Deine Genesungssignale",

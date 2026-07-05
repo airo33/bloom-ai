@@ -57,8 +57,17 @@ export function detectAdaptation(input: {
   const prev3 = sorted.slice(-6, -3);
   const last7 = sorted.slice(-7);
 
-  // 1. High pain persistent — 3+ consecutive days ≥6
-  if (last3.length >= 3 && last3.every((l) => l.pain >= 6)) {
+  // The `.slice(-N)` windows grab the last N LOGS, but the copy we show
+  // the user says "for N days in a row" — which is only true when the
+  // logs are actually on consecutive recovery days. If the user skipped
+  // days in the middle, we'd otherwise mis-report the streak.
+  const consecutive3 = last3.length >= 3
+    && last3[2].day - last3[0].day === 2;
+  const consecutive7 = last7.length >= 7
+    && last7[6].day - last7[0].day === 6;
+
+  // 1. High pain persistent — 3 CONSECUTIVE days ≥6
+  if (consecutive3 && last3.every((l) => l.pain >= 6)) {
     const days = last3.length;
     const avgPain = mean(last3.map((l) => l.pain));
     return {
@@ -70,7 +79,11 @@ export function detectAdaptation(input: {
   }
 
   // 2. Trending up — 3-day avg ≥1.5 points higher than previous 3-day avg
-  if (last3.length >= 3 && prev3.length >= 3) {
+  //    Both windows must be internally consecutive so we're comparing
+  //    genuine trends, not "the two most-recent clusters of logs".
+  const consecutivePrev3 = prev3.length >= 3
+    && prev3[2].day - prev3[0].day === 2;
+  if (consecutive3 && consecutivePrev3) {
     const nowAvg = mean(last3.map((l) => l.pain));
     const prevAvg = mean(prev3.map((l) => l.pain));
     if (nowAvg - prevAvg >= 1.5) {
@@ -83,8 +96,8 @@ export function detectAdaptation(input: {
     }
   }
 
-  // 3. Sustained low pain — 7 consecutive days <3 AND streak ≥7
-  if (last7.length >= 7 && streak >= 7 && last7.every((l) => l.pain < 3)) {
+  // 3. Sustained low pain — 7 CONSECUTIVE days <3 AND streak ≥7
+  if (consecutive7 && streak >= 7 && last7.every((l) => l.pain < 3)) {
     const avgPain = mean(last7.map((l) => l.pain));
     return {
       kind: 'progress',

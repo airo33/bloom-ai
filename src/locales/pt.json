@@ -299,7 +299,8 @@
     "bandPoor": "Precisa de atenção",
     "bandFair": "Construindo",
     "bandGood": "No caminho certo",
-    "bandStrong": "Florescendo"
+    "bandStrong": "Florescendo",
+    "painChartEmpty": "Registre entradas para ver sua tendência de dor"
   },
   "adaptation": {
     "cardTitle": "Sinais da sua recuperação",

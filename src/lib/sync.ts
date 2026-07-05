@@ -63,7 +63,15 @@ interface CompletionRow {
   completed_on: string;
 }
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+// LOCAL date (see useAppStore for rationale). Sync uses this to key
+// per-day rows like water history — must match the client's day.
+const todayISO = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
 
 // ── PULL ────────────────────────────────────────────────────────────────
 

@@ -299,7 +299,8 @@
     "bandPoor": "Needs attention",
     "bandFair": "Building",
     "bandGood": "On track",
-    "bandStrong": "Blooming"
+    "bandStrong": "Blooming",
+    "painChartEmpty": "Log entries to see your pain trend"
   },
   "adaptation": {
     "cardTitle": "Your recovery signals",

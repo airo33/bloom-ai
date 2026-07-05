@@ -113,7 +113,19 @@ interface AppState {
   clearChat: () => void;
 }
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+// LOCAL calendar date, not UTC. toISOString() returns UTC which is
+// wrong for day-rollover: a user in San Francisco who opens the app at
+// 22:00 local (05:00 UTC next day) would get a phantom "new day" from
+// a UTC-derived string, and a user in Tokyo at 06:00 local would not
+// get their day advance until 09:00. Streak + Recovery Score depend on
+// this being right.
+const todayISO = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
 
 const initialProfile: UserProfile = {
   name: '',
@@ -199,9 +211,20 @@ export const useAppStore = create<AppState>()(
         })),
 
       addLog: (log) =>
-        set((s) => ({
-          logs: [...s.logs, { ...log, createdAt: new Date().toISOString() }],
-        })),
+        set((s) => {
+          // Dedupe by day: if the user hits Save twice on the same
+          // recovery day (or edits and re-saves), we replace the
+          // previous entry instead of appending. Otherwise Recovery
+          // Score / plan-adaptation logic sees the same day counted
+          // multiple times in their .slice(-N) windows.
+          const withoutSameDay = s.logs.filter((l) => l.day !== log.day);
+          return {
+            logs: [
+              ...withoutSameDay,
+              { ...log, createdAt: new Date().toISOString() },
+            ],
+          };
+        }),
 
       setNotificationPref: (key, value) =>
         set((s) => ({ notifications: { ...s.notifications, [key]: value } })),
@@ -280,6 +303,15 @@ export const useAppStore = create<AppState>()(
           subscriptionTier: null,
           chatHistory: [],
           notifications: { exercise: false, water: false, journal: false },
+          // Clear per-recovery-cycle memory so a fresh plan gets fresh
+          // milestone celebrations. Without this, a user who reset at
+          // streak=30 would never see the 30-day celebration again on
+          // the new cycle.
+          lastCelebratedStreak: 0,
+          lastAllDoneCelebratedDay: 0,
+          lastHydrationCelebratedDay: 0,
+          lastSeenPhaseName: null,
+          lastAdaptationSuggestedDay: 0,
         }),
 
       // Sign-out cleanup: drop everything that's user-specific so the next
@@ -295,6 +327,13 @@ export const useAppStore = create<AppState>()(
           logs: [],
           subscriptionTier: null,
           chatHistory: [],
+          // Same rationale as resetAll — celebration counters are
+          // per-user, not per-device.
+          lastCelebratedStreak: 0,
+          lastAllDoneCelebratedDay: 0,
+          lastHydrationCelebratedDay: 0,
+          lastSeenPhaseName: null,
+          lastAdaptationSuggestedDay: 0,
         }),
 
       appendChat: (role, content) =>
