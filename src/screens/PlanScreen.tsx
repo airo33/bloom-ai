@@ -30,6 +30,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
   const setPlan = useAppStore((s) => s.setPlan);
   const medicalDisclaimerAccepted = useAppStore((s) => s.medicalDisclaimerAccepted);
   const acceptMedicalDisclaimer = useAppStore((s) => s.acceptMedicalDisclaimer);
+  const firstExerciseCompleted = useAppStore((s) => s.firstExerciseCompleted);
 
   // Plan customization modal state
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -159,6 +160,72 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         contentContainerStyle={{ padding: 22, paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* First-time success prompt — only rendered before the user has
+            ever completed an exercise. Removes the "review plan → do
+            nothing → forget" trap. */}
+        {!firstExerciseCompleted && plan.exercises.length > 0 && (
+          <Pressable
+            onPress={() => navigation.navigate('Exercise', { exerciseId: plan.exercises[0].id })}
+            style={({ pressed }) => ({
+              backgroundColor: theme.colors.pl,
+              borderColor: theme.colors.pu,
+              borderWidth: 2,
+              borderRadius: 22,
+              padding: 18,
+              marginBottom: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 14,
+              opacity: pressed ? 0.9 : 1,
+            })}
+          >
+            <View
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 16,
+                backgroundColor: theme.colors.pu,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Sparkles size={24} color={theme.scheme === 'dark' ? '#1D2A17' : '#FFFFFF'} strokeWidth={2.4} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 17,
+                  fontFamily: font.serif,
+                  color: theme.colors.pt,
+                  letterSpacing: -0.3,
+                  marginBottom: 2,
+                }}
+              >
+                Start your first exercise
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontFamily: font.body,
+                  color: theme.colors.tb,
+                  lineHeight: 18,
+                }}
+              >
+                Under 5 minutes. This is where recovery begins.
+              </Text>
+            </View>
+            <Text
+              style={{
+                fontSize: 20,
+                color: theme.colors.pu,
+                fontFamily: font.bodyBold,
+              }}
+            >
+              →
+            </Text>
+          </Pressable>
+        )}
+
         {/* Summary */}
         <Card style={{ marginBottom: 14 }} padding={16}>
           <Text style={{ fontSize: 14, color: theme.colors.tb, lineHeight: 22 }}>

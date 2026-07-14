@@ -279,6 +279,26 @@
     "deleteFailed": "Löschen fehlgeschlagen",
     "deleteFailedFallback": "Konto konnte nicht gelöscht werden. Bitte später erneut versuchen."
   },
+  "firstExercise": {
+    "title": "Du hast angefangen.",
+    "subtitle": "Deine erste Übung, geschafft.",
+    "body": "Genesung besteht aus vielen kleinen Siegen wie diesem. Komm morgen wieder — so verändert sich Gewebe wirklich.",
+    "cta": "Weiter",
+    "planCta": "Starte deine erste Übung",
+    "planCtaSub": "Unter 5 Minuten. Hier beginnt die Genesung."
+  },
+  "share": {
+    "button": "Fortschritt teilen",
+    "cardKicker": "MEINE GENESUNG",
+    "cardScoreLabel": "Recovery-Score",
+    "cardDaysLabel": "Tage in Genesung",
+    "cardStreakLabel": "Tage-Serie",
+    "cardTagline": "KI-gestützt",
+    "modalTitle": "Teile deinen Fortschritt",
+    "modalSub": "Speichere das Bild oder teile es direkt. Inspiriere jemand anderen in Genesung.",
+    "shareCta": "Bild teilen",
+    "errShare": "Teilen fehlgeschlagen. Bitte erneut versuchen."
+  },
   "disclaimer": {
     "title": "Wichtig — bitte lesen",
     "body": "Bloom AI ist ein Wellness- und Bildungstool für allgemeine Genesungshinweise. Es diagnostiziert, behandelt oder ersetzt keine professionelle medizinische Versorgung. Konsultiere immer einen qualifizierten Kliniker zu deiner Verletzung, insbesondere bevor du eine Übung beginnst, beendest oder änderst.\n\nBei starken Schmerzen, Funktionsverlust, Taubheit, plötzlicher Schwellung, Fieber oder anderen Notfallsymptomen suche sofort medizinische Hilfe.",

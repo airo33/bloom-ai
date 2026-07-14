@@ -279,6 +279,26 @@
     "deleteFailed": "Exclusão falhou",
     "deleteFailedFallback": "Não foi possível excluir a conta. Tente novamente mais tarde."
   },
+  "firstExercise": {
+    "title": "Você começou.",
+    "subtitle": "Seu primeiro exercício, feito.",
+    "body": "Recuperação é uma série de pequenas vitórias como essa. Apareça amanhã — é assim que o tecido realmente muda.",
+    "cta": "Continuar",
+    "planCta": "Comece seu primeiro exercício",
+    "planCtaSub": "Menos de 5 minutos. É aqui que a recuperação começa."
+  },
+  "share": {
+    "button": "Compartilhar progresso",
+    "cardKicker": "MINHA RECUPERAÇÃO",
+    "cardScoreLabel": "Pontuação",
+    "cardDaysLabel": "dias recuperando",
+    "cardStreakLabel": "dias seguidos",
+    "cardTagline": "Guiado por IA",
+    "modalTitle": "Compartilhe seu progresso",
+    "modalSub": "Salve a imagem ou compartilhe diretamente. Inspire alguém que também está se recuperando.",
+    "shareCta": "Compartilhar imagem",
+    "errShare": "Não foi possível compartilhar. Tente novamente."
+  },
   "disclaimer": {
     "title": "Importante — por favor leia",
     "body": "Bloom AI é uma ferramenta de bem-estar e educação para orientação geral de recuperação. Não diagnostica, trata ou substitui cuidados médicos profissionais. Sempre consulte um clínico qualificado sobre sua lesão, especialmente antes de iniciar, parar ou alterar qualquer exercício.\n\nSe você sentir dor severa, perda de função, dormência, inchaço súbito, febre ou qualquer sintoma de emergência, procure atendimento médico imediato.",

@@ -107,6 +107,11 @@ interface AppState {
    *  hard-coded schedule (so existing users see no change). */
   reminderTimes: ReminderTimes;
   setReminderTimes: (times: ReminderTimes) => void;
+  /** Has the user ever completed at least one exercise? Used to fire
+   *  a one-time "you've begun" celebration on first completion — the
+   *  psychological anchor for a new habit forming. */
+  firstExerciseCompleted: boolean;
+  markFirstExerciseCompleted: () => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
   appendChat: (role: 'user' | 'assistant', content: string) => void;
@@ -165,6 +170,7 @@ export const useAppStore = create<AppState>()(
       medicalDisclaimerAccepted: false,
       lastAdaptationSuggestedDay: 0,
       reminderTimes: DEFAULT_REMINDER_TIMES,
+      firstExerciseCompleted: false,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
@@ -294,6 +300,8 @@ export const useAppStore = create<AppState>()(
 
       setReminderTimes: (times) => set({ reminderTimes: times }),
 
+      markFirstExerciseCompleted: () => set({ firstExerciseCompleted: true }),
+
       resetAll: () =>
         set({
           profile: initialProfile,
@@ -364,6 +372,7 @@ export const useAppStore = create<AppState>()(
         medicalDisclaimerAccepted: s.medicalDisclaimerAccepted,
         lastAdaptationSuggestedDay: s.lastAdaptationSuggestedDay,
         reminderTimes: s.reminderTimes,
+        firstExerciseCompleted: s.firstExerciseCompleted,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true;

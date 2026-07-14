@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -21,6 +21,7 @@ import { getCategory } from '../theme/categories';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import SectionLabel from '../components/SectionLabel';
+import FirstExerciseCelebration from '../components/FirstExerciseCelebration';
 import type { RootStackScreenProps } from '../navigation/types';
 
 export default function ExerciseScreen({
@@ -35,6 +36,20 @@ export default function ExerciseScreen({
   );
   const done = useAppStore((s) => s.progress.doneExerciseIds.includes(exerciseId));
   const toggle = useAppStore((s) => s.toggleExerciseDone);
+  const firstExerciseCompleted = useAppStore((s) => s.firstExerciseCompleted);
+  const markFirstExerciseCompleted = useAppStore((s) => s.markFirstExerciseCompleted);
+  const [showFirstCelebration, setShowFirstCelebration] = useState(false);
+
+  const handleToggle = () => {
+    const willBeDone = !done;
+    toggle(exercise!.id);
+    // Only fire the celebration on the FIRST-EVER completion (not on
+    // uncheck, not on re-check after uncheck).
+    if (willBeDone && !firstExerciseCompleted) {
+      markFirstExerciseCompleted();
+      setShowFirstCelebration(true);
+    }
+  };
 
   if (!exercise) {
     return (
@@ -251,7 +266,7 @@ export default function ExerciseScreen({
 
         <Button
           title={done ? 'Mark as incomplete' : 'Mark as complete'}
-          onPress={() => toggle(exercise.id)}
+          onPress={handleToggle}
           variant={done ? 'secondary' : 'primary'}
           icon={
             done ? (
@@ -262,6 +277,11 @@ export default function ExerciseScreen({
           }
         />
       </ScrollView>
+
+      <FirstExerciseCelebration
+        visible={showFirstCelebration}
+        onDismiss={() => setShowFirstCelebration(false)}
+      />
     </View>
   );
 }

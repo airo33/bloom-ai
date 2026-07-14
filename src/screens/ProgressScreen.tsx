@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Calendar, Flame, Activity, Droplet, BookOpen } from 'lucide-react-native';
+import { Calendar, Flame, Activity, Droplet, BookOpen, Share2 } from 'lucide-react-native';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
@@ -9,6 +9,7 @@ import SectionLabel from '../components/SectionLabel';
 import PainChart from '../components/PainChart';
 import EmptyState from '../components/EmptyState';
 import RecoveryScoreCard from '../components/RecoveryScoreCard';
+import ShareProgressModal from '../components/ShareProgressModal';
 import { moodFor } from '../data/moods';
 import { computeRecoveryScore } from '../lib/recoveryScore';
 
@@ -101,6 +102,7 @@ export default function ProgressScreen() {
     () => computeRecoveryScore({ logs, streak }),
     [logs, streak],
   );
+  const [shareOpen, setShareOpen] = useState(false);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top']}>
@@ -135,6 +137,39 @@ export default function ProgressScreen() {
       >
         {/* Recovery Score — hero card, only useful once user has logs */}
         <RecoveryScoreCard breakdown={breakdown} variant="hero" />
+
+        {/* Share progress — only when the score exists (>=2 logs) so
+            we don't invite sharing an empty card. */}
+        {breakdown && (
+          <Pressable
+            onPress={() => setShareOpen(true)}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderRadius: 14,
+              backgroundColor: theme.colors.card2,
+              borderWidth: 1,
+              borderColor: theme.colors.bo,
+              marginBottom: 14,
+              opacity: pressed ? 0.75 : 1,
+            })}
+          >
+            <Share2 size={16} color={theme.colors.tb} strokeWidth={2.2} />
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: font.bodyBold,
+                color: theme.colors.tb,
+              }}
+            >
+              Share progress
+            </Text>
+          </Pressable>
+        )}
 
         {/* 2x2 stats grid */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
@@ -289,6 +324,14 @@ export default function ProgressScreen() {
           ))
         )}
       </ScrollView>
+
+      <ShareProgressModal
+        visible={shareOpen}
+        onDismiss={() => setShareOpen(false)}
+        breakdown={breakdown}
+        day={day}
+        streak={streak}
+      />
     </SafeAreaView>
   );
 }
