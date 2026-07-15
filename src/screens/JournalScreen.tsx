@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Moon, Zap, Waves } from 'lucide-react-native';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Input from '../components/Input';
-import PainScale from '../components/PainScale';
+import Slider from '../components/Slider';
 import { MOOD_OPTIONS } from '../data/moods';
 import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
+
+// Contextual descriptor beneath the big pain number — matters more than
+// the number itself for making the screen feel "human" rather than
+// clinical. Bands mirror the pain scale's green/amber/red gradient.
+const PAIN_LABELS = [
+  'No pain',           // 0
+  'Barely there',      // 1
+  'A whisper',         // 2
+  'A gentle ache',     // 3
+  'Noticeable',        // 4
+  'Uncomfortable',     // 5
+  'Distracting',       // 6
+  'Sharp',             // 7
+  'Hard to ignore',    // 8
+  'Intense',           // 9
+  'Severe',            // 10
+];
 
 export default function JournalScreen({ navigation }: RootStackScreenProps<'Journal'>) {
   const theme = useTheme();
@@ -18,7 +35,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
   const water = useAppStore((s) => s.progress.water);
   const addLog = useAppStore((s) => s.addLog);
 
-  const [pain, setPain] = useState(0);
+  const [pain, setPain] = useState(3);
   const [mood, setMood] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [sleep, setSleep] = useState<number | null>(null);
@@ -36,7 +53,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
         return `${y}-${m}-${day}`;
       })(),
       pain,
-      mood: mood ?? MOOD_OPTIONS[2].value, // default "Good"
+      mood: mood ?? MOOD_OPTIONS[2].value,
       water,
       sleepQuality: sleep ?? undefined,
       energy: energy ?? undefined,
@@ -53,10 +70,29 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
     navigation.goBack();
   };
 
-  const painColor =
+  // Pain visuals — colour smoothly transitions across the gradient.
+  const painAccent =
     pain <= 3 ? theme.colors.gn : pain <= 6 ? theme.colors.yb : theme.colors.rd;
-  const painBg = pain <= 3 ? theme.colors.gl : pain <= 6 ? theme.colors.yl : theme.colors.rl;
-  const painBorder = pain <= 3 ? theme.colors.gb : pain <= 6 ? theme.colors.yb : theme.colors.rb;
+
+  const painTrackColors = useMemo(
+    () => [theme.colors.gn, theme.colors.yb, theme.colors.rd] as [string, string, string],
+    [theme.colors.gn, theme.colors.yb, theme.colors.rd],
+  );
+
+  const sleepTrackColors = useMemo(
+    () => [theme.colors.tl, theme.colors.pu] as [string, string],
+    [theme.colors.tl, theme.colors.pu],
+  );
+
+  const energyTrackColors = useMemo(
+    () => [theme.colors.tl, theme.colors.or] as [string, string],
+    [theme.colors.tl, theme.colors.or],
+  );
+
+  const stressTrackColors = useMemo(
+    () => [theme.colors.gn, theme.colors.rd] as [string, string],
+    [theme.colors.gn, theme.colors.rd],
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }} edges={['top', 'bottom']}>
@@ -64,11 +100,12 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        {/* Header */}
         <View
           style={{
             paddingHorizontal: 22,
             paddingTop: 12,
-            paddingBottom: 16,
+            paddingBottom: 18,
             flexDirection: 'row',
             alignItems: 'center',
             gap: 12,
@@ -96,19 +133,20 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
               style={{
                 fontSize: 11,
                 color: theme.colors.tm,
-                fontWeight: '700',
-                letterSpacing: 0.5,
+                fontFamily: font.bodyBold,
+                letterSpacing: 0.9,
                 textTransform: 'uppercase',
               }}
             >
-              Daily log
+              Daily check-in
             </Text>
             <Text
               style={{
-                fontSize: 24,
+                fontSize: 26,
                 fontFamily: font.serif,
                 color: theme.colors.th,
-                letterSpacing: -0.5,
+                letterSpacing: -0.6,
+                marginTop: 1,
               }}
             >
               {new Date().toLocaleDateString('en-US', {
@@ -123,38 +161,73 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* Pain */}
-          <Card style={{ marginBottom: 12 }} padding={18}>
+          {/* Pain hero — the visual anchor of the screen */}
+          <Card hero padding={22} style={{ marginBottom: 14 }}>
+            <Text
+              style={{
+                fontSize: 11,
+                fontFamily: font.bodyBold,
+                color: theme.colors.tm,
+                letterSpacing: 1.0,
+                textTransform: 'uppercase',
+              }}
+            >
+              How's your pain today?
+            </Text>
+
             <View
               style={{
                 flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 14,
+                alignItems: 'baseline',
+                marginTop: 8,
+                marginBottom: 4,
               }}
             >
-              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.colors.th, letterSpacing: -0.2 }}>
-                Pain level
-              </Text>
-              <View
+              <Text
                 style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 6,
-                  borderRadius: 12,
-                  backgroundColor: painBg,
-                  borderWidth: 1,
-                  borderColor: painBorder,
-                  minWidth: 56,
-                  alignItems: 'center',
+                  fontSize: 88,
+                  fontFamily: font.serif,
+                  color: painAccent,
+                  letterSpacing: -3,
+                  lineHeight: 92,
                 }}
               >
-                <Text style={{ fontSize: 18, fontWeight: '800', color: painColor, letterSpacing: -0.3 }}>
-                  {pain}/10
-                </Text>
-              </View>
+                {pain}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 22,
+                  fontFamily: font.serif,
+                  color: theme.colors.tl,
+                  marginLeft: 6,
+                  letterSpacing: -0.4,
+                }}
+              >
+                / 10
+              </Text>
             </View>
-            <PainScale value={pain} onChange={setPain} />
+
+            <Text
+              style={{
+                fontSize: 15,
+                fontFamily: font.serifItalic,
+                color: theme.colors.tb,
+                marginBottom: 22,
+                letterSpacing: -0.1,
+              }}
+            >
+              {PAIN_LABELS[pain]}
+            </Text>
+
+            <Slider
+              value={pain}
+              onChange={setPain}
+              max={10}
+              trackColors={painTrackColors}
+              accent={painAccent}
+            />
             <View
               style={{
                 flexDirection: 'row',
@@ -162,20 +235,25 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 marginTop: 8,
               }}
             >
-              <Text style={{ fontSize: 11, color: theme.colors.tl }}>No pain</Text>
-              <Text style={{ fontSize: 11, color: theme.colors.tl }}>Severe</Text>
+              <Text style={{ fontSize: 11, color: theme.colors.tl, fontFamily: font.body }}>
+                No pain
+              </Text>
+              <Text style={{ fontSize: 11, color: theme.colors.tl, fontFamily: font.body }}>
+                Severe
+              </Text>
             </View>
           </Card>
 
           {/* Mood */}
-          <Card style={{ marginBottom: 12 }} padding={18}>
+          <Card style={{ marginBottom: 14 }} padding={20}>
             <Text
               style={{
-                fontSize: 14,
-                fontWeight: '700',
-                color: theme.colors.th,
-                marginBottom: 12,
-                letterSpacing: -0.2,
+                fontSize: 11,
+                fontFamily: font.bodyBold,
+                color: theme.colors.tm,
+                letterSpacing: 1.0,
+                textTransform: 'uppercase',
+                marginBottom: 14,
               }}
             >
               How do you feel?
@@ -185,71 +263,147 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 const selected = mood === m.value;
                 const iconColor = selected
                   ? theme.scheme === 'dark'
-                    ? '#0A0A0A'
+                    ? '#1D2A17'
                     : '#FFFFFF'
                   : theme.colors.tb;
                 return (
                   <Pressable
                     key={m.id}
                     onPress={() => setMood(m.value)}
-                    style={{
+                    style={({ pressed }) => ({
                       flex: 1,
-                      paddingVertical: 14,
-                      borderRadius: 14,
-                      borderWidth: selected ? 2 : 1,
-                      borderColor: selected ? theme.colors.pu : theme.colors.bo,
+                      aspectRatio: 1,
+                      borderRadius: 18,
+                      borderWidth: selected ? 0 : 1,
+                      borderColor: theme.colors.bo,
                       backgroundColor: selected ? theme.colors.pu : theme.colors.card2,
                       alignItems: 'center',
-                      gap: 4,
-                    }}
+                      justifyContent: 'center',
+                      opacity: pressed ? 0.85 : 1,
+                    })}
                   >
-                    <m.Icon size={26} color={iconColor} strokeWidth={2} />
+                    <m.Icon size={28} color={iconColor} strokeWidth={2} />
                   </Pressable>
                 );
               })}
             </View>
+            {mood && (
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontFamily: font.serifItalic,
+                  color: theme.colors.tm,
+                  marginTop: 12,
+                  textAlign: 'center',
+                }}
+              >
+                {MOOD_OPTIONS.find((m) => m.value === mood)?.label}
+              </Text>
+            )}
           </Card>
 
-          {/* Sleep / Energy / Stress — optional sliders, render only if user wants */}
-          <Card style={{ marginBottom: 12 }} padding={18}>
-            <Text
+          {/* Sleep / Energy / Stress — optional compact sliders */}
+          <Card style={{ marginBottom: 14 }} padding={20}>
+            <View
               style={{
-                fontSize: 14,
-                fontWeight: '700',
-                color: theme.colors.th,
-                marginBottom: 12,
-                letterSpacing: -0.2,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 18,
               }}
             >
-              How are you feeling? <Text style={{ color: theme.colors.tm, fontWeight: '400' }}>(optional)</Text>
-            </Text>
-            <OptionalScale label="Sleep quality" value={sleep} onChange={setSleep} bandLow="Poor" bandHigh="Great" />
-            <View style={{ height: 12 }} />
-            <OptionalScale label="Energy" value={energy} onChange={setEnergy} bandLow="Drained" bandHigh="Energized" />
-            <View style={{ height: 12 }} />
-            <OptionalScale label="Stress" value={stress} onChange={setStress} bandLow="Calm" bandHigh="Stressed" />
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontFamily: font.bodyBold,
+                  color: theme.colors.tm,
+                  letterSpacing: 1.0,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Recovery signals
+              </Text>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: theme.colors.tl,
+                  fontFamily: font.body,
+                  fontStyle: 'italic',
+                }}
+              >
+                optional
+              </Text>
+            </View>
+
+            <MetricRow
+              Icon={Moon}
+              label="Sleep quality"
+              value={sleep}
+              onChange={setSleep}
+              trackColors={sleepTrackColors}
+              accent={theme.colors.pu}
+              iconBg={theme.colors.pl}
+              iconFg={theme.colors.pu}
+            />
+            <MetricRow
+              Icon={Zap}
+              label="Energy"
+              value={energy}
+              onChange={setEnergy}
+              trackColors={energyTrackColors}
+              accent={theme.colors.or}
+              iconBg={theme.colors.ol}
+              iconFg={theme.colors.or}
+            />
+            <MetricRow
+              Icon={Waves}
+              label="Stress"
+              value={stress}
+              onChange={setStress}
+              trackColors={stressTrackColors}
+              accent={stress != null && stress > 6 ? theme.colors.rd : theme.colors.gn}
+              iconBg={theme.colors.bl}
+              iconFg={theme.colors.bb}
+              isLast
+            />
           </Card>
 
           {/* Notes */}
-          <Card style={{ marginBottom: 14 }} padding={18}>
-            <Text
+          <Card style={{ marginBottom: 18 }} padding={20}>
+            <View
               style={{
-                fontSize: 14,
-                fontWeight: '700',
-                color: theme.colors.th,
-                marginBottom: 10,
-                letterSpacing: -0.2,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 12,
               }}
             >
-              Notes{' '}
-              <Text style={{ fontSize: 12, color: theme.colors.tm, fontWeight: '400' }}>
-                (optional)
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontFamily: font.bodyBold,
+                  color: theme.colors.tm,
+                  letterSpacing: 1.0,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Anything to note?
               </Text>
-            </Text>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: theme.colors.tl,
+                  fontFamily: font.body,
+                  fontStyle: 'italic',
+                }}
+              >
+                optional
+              </Text>
+            </View>
             <Input
               value={notes}
               onChangeText={setNotes}
-              placeholder="How did exercises feel? Any changes in pain or mobility?..."
+              placeholder="How did exercises feel? Any changes in pain or mobility?"
               multiline
             />
           </Card>
@@ -261,66 +415,108 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
   );
 }
 
-interface OptionalScaleProps {
+interface MetricRowProps {
+  Icon: React.FC<{ size: number; color: string; strokeWidth?: number }>;
   label: string;
   value: number | null;
   onChange: (v: number | null) => void;
-  bandLow: string;
-  bandHigh: string;
+  trackColors: [string, string, ...string[]];
+  accent: string;
+  iconBg: string;
+  iconFg: string;
+  isLast?: boolean;
 }
 
-function OptionalScale({ label, value, onChange, bandLow, bandHigh }: OptionalScaleProps) {
+function MetricRow({
+  Icon,
+  label,
+  value,
+  onChange,
+  trackColors,
+  accent,
+  iconBg,
+  iconFg,
+  isLast,
+}: MetricRowProps) {
   const theme = useTheme();
+  const empty = value == null;
+
   return (
-    <View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <Text style={{ fontSize: 13, color: theme.colors.tb, fontWeight: '600' }}>{label}</Text>
-        {value !== null && (
-          <Pressable hitSlop={10} onPress={() => onChange(null)}>
-            <Text style={{ fontSize: 11, color: theme.colors.tm }}>clear</Text>
-          </Pressable>
-        )}
-      </View>
-      <View style={{ flexDirection: 'row', gap: 4 }}>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => {
-          const selected = value === n;
-          return (
-            <Pressable
-              key={n}
-              hitSlop={4}
-              onPress={() => onChange(selected ? null : n)}
+    <View style={{ marginBottom: isLast ? 0 : 20 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: 10,
+        }}
+      >
+        <View
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: iconBg,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon size={16} color={iconFg} strokeWidth={2.2} />
+        </View>
+        <Text
+          style={{
+            flex: 1,
+            fontSize: 14,
+            fontFamily: font.bodyBold,
+            color: theme.colors.tb,
+            letterSpacing: -0.1,
+          }}
+        >
+          {label}
+        </Text>
+        {empty ? (
+          <Pressable hitSlop={8} onPress={() => onChange(5)}>
+            <Text
               style={{
-                flex: 1,
-                aspectRatio: 1,
-                borderRadius: 8,
-                borderWidth: selected ? 0 : 1,
-                borderColor: theme.colors.bo,
-                backgroundColor: selected ? theme.colors.pu : theme.colors.card2,
-                alignItems: 'center',
-                justifyContent: 'center',
+                fontSize: 12,
+                color: theme.colors.pu,
+                fontFamily: font.bodyBold,
               }}
             >
-              <Text
-                style={{
-                  fontSize: 11,
-                  fontWeight: '800',
-                  color: selected
-                    ? theme.scheme === 'dark'
-                      ? '#0A0A0A'
-                      : '#FFFFFF'
-                    : theme.colors.tb,
-                }}
-              >
-                {n}
+              Add
+            </Text>
+          </Pressable>
+        ) : (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Text
+              style={{
+                fontSize: 22,
+                fontFamily: font.serif,
+                color: theme.colors.th,
+                letterSpacing: -0.5,
+                lineHeight: 26,
+              }}
+            >
+              {value}
+            </Text>
+            <Pressable hitSlop={8} onPress={() => onChange(null)}>
+              <Text style={{ fontSize: 11, color: theme.colors.tl, fontFamily: font.body }}>
+                clear
               </Text>
             </Pressable>
-          );
-        })}
+          </View>
+        )}
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-        <Text style={{ fontSize: 10, color: theme.colors.tl }}>{bandLow}</Text>
-        <Text style={{ fontSize: 10, color: theme.colors.tl }}>{bandHigh}</Text>
-      </View>
+      {!empty && (
+        <Slider
+          value={value ?? 5}
+          onChange={onChange}
+          max={10}
+          trackColors={trackColors}
+          accent={accent}
+          height={36}
+        />
+      )}
     </View>
   );
 }
