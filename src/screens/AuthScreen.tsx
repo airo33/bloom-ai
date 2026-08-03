@@ -8,7 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mail, Lock, User as UserIcon, ArrowRight } from 'lucide-react-native';
+import { Mail, Lock, User as UserIcon, ArrowRight, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { useTheme, font } from '../theme';
@@ -29,6 +29,7 @@ export default function AuthScreen() {
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const onPrimary = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
@@ -145,12 +146,28 @@ export default function AuthScreen() {
             value={password}
             onChangeText={setPassword}
             placeholder={mode === 'signup' ? t('auth.passwordPlaceholderSignUp') : t('auth.passwordPlaceholderSignIn')}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             autoCapitalize="none"
             autoComplete={mode === 'signup' ? 'new-password' : 'password'}
             returnKeyType="go"
             onSubmitEditing={submit}
             editable={!busy}
+            rightSlot={
+              <Pressable
+                onPress={() => setShowPassword((s) => !s)}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showPassword ? t('auth.hidePassword') : t('auth.showPassword')
+                }
+              >
+                {showPassword ? (
+                  <EyeOff size={18} color={theme.colors.tm} strokeWidth={2} />
+                ) : (
+                  <Eye size={18} color={theme.colors.tm} strokeWidth={2} />
+                )}
+              </Pressable>
+            }
           />
 
           {error && (
@@ -224,9 +241,10 @@ function FieldLabel({ children }: { children: string }) {
 
 interface InputWithIconProps extends React.ComponentProps<typeof Input> {
   Icon: React.FC<{ size: number; color: string; strokeWidth?: number }>;
+  rightSlot?: React.ReactNode;
 }
 
-function InputWithIcon({ Icon, ...inputProps }: InputWithIconProps) {
+function InputWithIcon({ Icon, rightSlot, ...inputProps }: InputWithIconProps) {
   const theme = useTheme();
   return (
     <View style={{ position: 'relative', justifyContent: 'center' }}>
@@ -243,7 +261,21 @@ function InputWithIcon({ Icon, ...inputProps }: InputWithIconProps) {
       >
         <Icon size={18} color={theme.colors.tm} strokeWidth={2} />
       </View>
-      <Input {...inputProps} style={{ paddingLeft: 42 }} />
+      <Input
+        {...inputProps}
+        style={{ paddingLeft: 42, paddingRight: rightSlot ? 44 : undefined }}
+      />
+      {rightSlot && (
+        <View
+          style={{
+            position: 'absolute',
+            right: 12,
+            zIndex: 2,
+          }}
+        >
+          {rightSlot}
+        </View>
+      )}
     </View>
   );
 }

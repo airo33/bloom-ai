@@ -33,6 +33,8 @@
     "passwordLabel": "CONTRASEÑA",
     "passwordPlaceholderSignUp": "Al menos 6 caracteres",
     "passwordPlaceholderSignIn": "Tu contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "signIn": "Iniciar sesión",
     "createAccount": "Crear cuenta",
     "switchToSignUpPrefix": "¿No tienes cuenta? ",
