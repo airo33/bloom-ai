@@ -11,6 +11,10 @@
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-512.png" />
+  <link rel="apple-touch-icon" href="./icon-512.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Newsreader:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
@@ -174,14 +178,47 @@
     .price-card .trial { margin-top: 12px; font-size: 13px; color: var(--pt); font-weight: 600; }
     .price-card .note { margin-top: 8px; font-size: 12px; color: var(--tm); line-height: 1.5; }
 
-    .faq { max-width: 720px; margin: 0 auto; }
-    .qa { border-bottom: 1px solid var(--bo); padding: 22px 0; }
-    .qa:last-child { border-bottom: none; }
+    /* Editorial two-column FAQ — heading left, Q&A right. Stacks on mobile. */
+    .faq-wrap {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .faq-head {
+      position: sticky;
+      top: 24px;
+    }
+    .faq-head .kicker {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--pu); margin-bottom: 10px;
+    }
+    .faq-head h2 {
+      font-family: var(--serif); font-weight: 600;
+      font-size: clamp(28px, 4vw, 36px);
+      letter-spacing: -0.6px; color: var(--th); line-height: 1.1;
+    }
+    .faq-head p {
+      margin-top: 14px; font-size: 14px; color: var(--tm); line-height: 1.6;
+    }
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+    .qa {
+      background: var(--card);
+      border: 1px solid var(--bo);
+      border-radius: 18px;
+      padding: 22px 24px;
+      transition: border-color 0.15s ease;
+    }
+    .qa:hover { border-color: var(--pb); }
     .qa h4 {
-      font-family: var(--serif); font-weight: 500; font-size: 20px;
+      font-family: var(--serif); font-weight: 600; font-size: 19px;
       letter-spacing: -0.3px; margin-bottom: 8px; color: var(--th);
     }
     .qa p { font-size: 15px; color: var(--tb); line-height: 1.6; }
+    @media (max-width: 820px) {
+      .faq-wrap { grid-template-columns: 1fr; gap: 24px; }
+      .faq-head { position: static; }
+    }
 
     .cta-band {
       background: #0F0F12; color: #F5EFE7;
@@ -367,39 +404,42 @@
     </div>
   </section>
 
-  <section class="section container" id="faq" style="background: var(--bg2); border-radius: 26px; margin: 0 22px 40px; padding-left: 32px; padding-right: 32px;">
-    <div class="section-head">
-      <div class="kicker">FAQ</div>
-      <h2>Straight answers.</h2>
-    </div>
-    <div class="faq">
-      <div class="qa">
-        <h4>Is this medical advice?</h4>
-        <p>No. Bloom AI is a wellness and education tool. It does not diagnose, treat, or replace professional medical care. AI-generated plans are general guidance grounded in published clinical protocols, not clinician-reviewed prescriptions for you personally. Always consult a qualified clinician about your injury.</p>
+  <section class="section container" id="faq" style="background: var(--bg2); border-radius: 26px; margin: 0 22px 40px; padding-left: 40px; padding-right: 40px;">
+    <div class="faq-wrap">
+      <div class="faq-head">
+        <div class="kicker">FAQ</div>
+        <h2>Straight answers.</h2>
+        <p>Everything people ask before they download.</p>
       </div>
-      <div class="qa">
-        <h4>Does it replace physical therapy?</h4>
-        <p>No. Live PT gives you hands-on assessment, gait analysis, and a therapeutic relationship — AI can't do those. Bloom AI is built for people who don't easily access PT (no insurance, long wait lists, remote areas), or want a structured plan between clinic visits.</p>
-      </div>
-      <div class="qa">
-        <h4>What if pain gets worse?</h4>
-        <p>The Recovery Score tracks your pain trend. If pain stays high for a few days, the AI proactively suggests a plan adjustment — cut intensity, swap for gentler variants, or (if you've been coasting on low pain) progress. Every plan also lists red flags — symptoms that mean stop and see a clinician immediately.</p>
-      </div>
-      <div class="qa">
-        <h4>Which languages does it speak?</h4>
-        <p>Interface and AI responses in English, Spanish, Portuguese, and German. The AI generates plans and answers chat questions in your chosen language.</p>
-      </div>
-      <div class="qa">
-        <h4>Which platforms?</h4>
-        <p>Android beta available now. iOS coming later this year. Web version not planned — the daily reminders and pain log work best natively.</p>
-      </div>
-      <div class="qa">
-        <h4>How do I cancel a subscription?</h4>
-        <p>Cancel any time in your device's store account (Google Play). Cancellation takes effect at the end of your current billing period. Trials must be cancelled at least 24 hours before they end to avoid being charged.</p>
-      </div>
-      <div class="qa">
-        <h4>Is my data safe?</h4>
-        <p>Encrypted in transit and at rest. AI plan generation sends your injury description to our language model provider; we don't attach your name or email. You can request a full data export or delete your account any time from within the app. See our <a href="privacy.html">Privacy Policy</a> for detail.</p>
+      <div class="faq-list">
+        <div class="qa">
+          <h4>Is this medical advice?</h4>
+          <p>No. Bloom AI is a wellness and education tool. It does not diagnose, treat, or replace professional medical care. AI-generated plans are general guidance grounded in published clinical protocols, not clinician-reviewed prescriptions for you personally. Always consult a qualified clinician about your injury.</p>
+        </div>
+        <div class="qa">
+          <h4>Does it replace physical therapy?</h4>
+          <p>No. Live PT gives you hands-on assessment, gait analysis, and a therapeutic relationship — AI can't do those. Bloom AI is built for people who don't easily access PT (no insurance, long wait lists, remote areas), or want a structured plan between clinic visits.</p>
+        </div>
+        <div class="qa">
+          <h4>What if pain gets worse?</h4>
+          <p>The Recovery Score tracks your pain trend. If pain stays high for a few days, the AI proactively suggests a plan adjustment — cut intensity, swap for gentler variants, or (if you've been coasting on low pain) progress. Every plan also lists red flags — symptoms that mean stop and see a clinician immediately.</p>
+        </div>
+        <div class="qa">
+          <h4>Which languages does it speak?</h4>
+          <p>Interface and AI responses in English, Spanish, Portuguese, and German. The AI generates plans and answers chat questions in your chosen language.</p>
+        </div>
+        <div class="qa">
+          <h4>Which platforms?</h4>
+          <p>Android beta available now. iOS coming later this year. Web version not planned — the daily reminders and pain log work best natively.</p>
+        </div>
+        <div class="qa">
+          <h4>How do I cancel a subscription?</h4>
+          <p>Cancel any time in your device's store account (Google Play). Cancellation takes effect at the end of your current billing period. Trials must be cancelled at least 24 hours before they end to avoid being charged.</p>
+        </div>
+        <div class="qa">
+          <h4>Is my data safe?</h4>
+          <p>Encrypted in transit and at rest. AI plan generation sends your injury description to our language model provider; we don't attach your name or email. You can request a full data export or delete your account any time from within the app. See our <a href="privacy.html">Privacy Policy</a> for detail.</p>
+        </div>
       </div>
     </div>
   </section>
