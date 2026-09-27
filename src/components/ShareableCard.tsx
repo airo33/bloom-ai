@@ -6,6 +6,7 @@
 import React, { forwardRef } from 'react';
 import { View, Text } from 'react-native';
 import { Sprout } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { font } from '../theme';
 import { scoreBand, type RecoveryBreakdown } from '../lib/recoveryScore';
 
@@ -28,17 +29,18 @@ const BAND_COLORS: Record<ReturnType<typeof scoreBand>, string> = {
   strong: '#5F9437',
 };
 
-const BAND_LABELS: Record<ReturnType<typeof scoreBand>, string> = {
-  poor: 'BUILDING',
-  fair: 'ON TRACK',
-  good: 'STRONG',
-  strong: 'THRIVING',
+const BAND_LABEL_KEY: Record<ReturnType<typeof scoreBand>, string> = {
+  poor: 'share.bandBuilding',
+  fair: 'share.bandOnTrack',
+  good: 'share.bandStrong',
+  strong: 'share.bandThriving',
 };
 
 const ShareableCard = forwardRef<View, Props>(function ShareableCard(
   { breakdown, day, streak },
   ref,
 ) {
+  const { t } = useTranslation();
   const band = scoreBand(breakdown.score);
   const accent = BAND_COLORS[band];
 
@@ -88,7 +90,7 @@ const ShareableCard = forwardRef<View, Props>(function ShareableCard(
             letterSpacing: 1.2,
           }}
         >
-          MY RECOVERY
+          {t('share.cardKicker')}
         </Text>
       </View>
 
@@ -103,7 +105,7 @@ const ShareableCard = forwardRef<View, Props>(function ShareableCard(
             marginBottom: 8,
           }}
         >
-          RECOVERY SCORE
+          {t('share.cardScoreLabel').toUpperCase()}
         </Text>
         <Text
           style={{
@@ -133,15 +135,15 @@ const ShareableCard = forwardRef<View, Props>(function ShareableCard(
               letterSpacing: 1.2,
             }}
           >
-            {BAND_LABELS[band]}
+            {t(BAND_LABEL_KEY[band])}
           </Text>
         </View>
       </View>
 
       {/* Stats row */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
-        <StatCell value={String(day)} label="days recovering" />
-        <StatCell value={String(streak)} label="day streak" />
+        <StatCell value={String(day)} label={t('share.cardDaysLabel')} />
+        <StatCell value={String(streak)} label={t('share.cardStreakLabel')} />
       </View>
 
       {/* Footer */}
@@ -153,7 +155,7 @@ const ShareableCard = forwardRef<View, Props>(function ShareableCard(
             color: '#6B655B',
           }}
         >
-          AI-guided injury recovery
+          {t('share.cardTagline')}
         </Text>
       </View>
     </View>

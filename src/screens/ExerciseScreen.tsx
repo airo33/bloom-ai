@@ -15,6 +15,7 @@ import {
   Check,
   RotateCcw,
 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
@@ -29,6 +30,7 @@ export default function ExerciseScreen({
   navigation,
 }: RootStackScreenProps<'Exercise'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { exerciseId } = route.params;
 
   const exercise = useAppStore((s) =>
@@ -56,10 +58,10 @@ export default function ExerciseScreen({
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <Text style={{ fontSize: 16, color: theme.colors.tm, textAlign: 'center' }}>
-            Exercise not found.
+            {t('exercise.notFound')}
           </Text>
           <View style={{ height: 16 }} />
-          <Button title="Back" onPress={() => navigation.goBack()} />
+          <Button title={t('common.back')} onPress={() => navigation.goBack()} />
         </View>
       </SafeAreaView>
     );
@@ -160,9 +162,9 @@ export default function ExerciseScreen({
       <View style={{ paddingHorizontal: 22, paddingTop: 14, flexDirection: 'row', gap: 10 }}>
         {(
           [
-            { Icon: Clock, value: exercise.time ?? '—', label: 'Duration' },
-            { Icon: Repeat, value: exercise.dosage ?? exercise.reps ?? '—', label: 'Dosage' },
-            { Icon: TrendingUp, value: exercise.tempo ?? '—', label: 'Tempo' },
+            { Icon: Clock, value: exercise.time ?? '—', label: t('exercise.statDuration') },
+            { Icon: Repeat, value: exercise.dosage ?? exercise.reps ?? '—', label: t('exercise.statDosage') },
+            { Icon: TrendingUp, value: exercise.tempo ?? '—', label: t('exercise.statTempo') },
           ] as const
         ).map(({ Icon, value, label }) => (
           <Card key={label} style={{ flex: 1, alignItems: 'center' }} padding={12}>
@@ -191,7 +193,7 @@ export default function ExerciseScreen({
         contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 18, paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
-        <SectionLabel>How to do it</SectionLabel>
+        <SectionLabel>{t('exercise.howTo')}</SectionLabel>
         <Card style={{ marginBottom: 14 }} padding={16}>
           {exercise.steps.map((step, i) => (
             <View
@@ -228,7 +230,7 @@ export default function ExerciseScreen({
 
         <InfoBox
           icon={<FlaskConical size={16} color={theme.colors.bb} strokeWidth={2.2} />}
-          title="Clinical rationale"
+          title={t('exercise.clinicalRationale')}
           body={exercise.clinicalRationale}
           bg={theme.colors.bl}
           border={theme.colors.bb}
@@ -237,7 +239,7 @@ export default function ExerciseScreen({
 
         <InfoBox
           icon={<Sprout size={16} color={theme.colors.gn} strokeWidth={2.2} />}
-          title="Benefit"
+          title={t('exercise.benefit')}
           body={exercise.benefit}
           bg={theme.colors.gl}
           border={theme.colors.gb}
@@ -246,7 +248,7 @@ export default function ExerciseScreen({
 
         <InfoBox
           icon={<AlertTriangle size={16} color={theme.colors.yb} strokeWidth={2.2} />}
-          title="Caution"
+          title={t('exercise.caution')}
           body={exercise.warning}
           bg={theme.colors.yl}
           border={theme.colors.yb}
@@ -255,7 +257,7 @@ export default function ExerciseScreen({
 
         <InfoBox
           icon={<Siren size={16} color={theme.colors.rd} strokeWidth={2.2} />}
-          title="Stop and see a doctor if"
+          title={t('exercise.stopSeeDoctor')}
           body={exercise.redFlag}
           bg={theme.colors.rl}
           border={theme.colors.rb}
@@ -265,7 +267,7 @@ export default function ExerciseScreen({
         <View style={{ height: 6 }} />
 
         <Button
-          title={done ? 'Mark as incomplete' : 'Mark as complete'}
+          title={done ? t('exercise.markIncomplete') : t('exercise.markComplete')}
           onPress={handleToggle}
           variant={done ? 'secondary' : 'primary'}
           icon={

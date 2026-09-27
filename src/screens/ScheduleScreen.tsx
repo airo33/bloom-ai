@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft, ChevronRight, Check, Layers, Calendar, Coffee } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
@@ -64,15 +65,17 @@ function dayTypeFor(count: number): DayType {
   return 'full';
 }
 
-const DAY_TYPE_LABEL: Record<DayType, string> = {
-  rest: 'Rest day',
-  light: 'Light day',
-  regular: 'Regular',
-  full: 'Full session',
+// Maps a DayType to its schedule.* i18n key suffix.
+const DAY_TYPE_KEY: Record<DayType, string> = {
+  rest: 'schedule.dayTypeRest',
+  light: 'schedule.dayTypeLight',
+  regular: 'schedule.dayTypeRegular',
+  full: 'schedule.dayTypeFull',
 };
 
 export default function ScheduleScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const plan = useAppStore((s) => s.plan);
@@ -153,7 +156,7 @@ export default function ScheduleScreen() {
               textTransform: 'uppercase',
             }}
           >
-            Recovery schedule
+            {t('schedule.eyebrow')}
           </Text>
           <Text
             style={{
@@ -282,9 +285,9 @@ export default function ScheduleScreen() {
         {!plan ? (
           <EmptyState
             Icon={Calendar}
-            title="No schedule yet"
-            message="Finish onboarding to generate your weekly recovery schedule."
-            ctaLabel="Start onboarding"
+            title={t('schedule.noScheduleTitle')}
+            message={t('schedule.noScheduleBody')}
+            ctaLabel={t('schedule.startOnboarding')}
             onCta={() => nav.navigate('Welcome')}
           />
         ) : (
@@ -304,7 +307,7 @@ export default function ScheduleScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: '800', color: theme.colors.th, letterSpacing: -0.3 }}>
-                    {isToday ? 'Today — ' : ''}
+                    {isToday ? t('schedule.todayPrefix') : ''}
                     {selectedDate.toLocaleDateString('en-US', {
                       weekday: 'long',
                       month: 'short',
@@ -312,7 +315,9 @@ export default function ScheduleScreen() {
                     })}
                   </Text>
                   <Text style={{ fontSize: 12, color: theme.colors.tm, marginTop: 3 }}>
-                    Day {recoveryDayForSelected > 0 ? recoveryDayForSelected : '—'}
+                    {t('common.dayNumber', {
+                      day: recoveryDayForSelected > 0 ? recoveryDayForSelected : '—',
+                    })}
                   </Text>
                 </View>
                 <View
@@ -333,7 +338,7 @@ export default function ScheduleScreen() {
                       letterSpacing: 0.3,
                     }}
                   >
-                    {DAY_TYPE_LABEL[dayType]}
+                    {t(DAY_TYPE_KEY[dayType])}
                   </Text>
                 </View>
               </View>
@@ -368,15 +373,19 @@ export default function ScheduleScreen() {
             )}
 
             <SectionLabel>
-              {isToday ? "Today's exercises" : isPast ? 'Planned exercises' : 'Upcoming exercises'}
+              {isToday
+                ? t('schedule.todaysExercises')
+                : isPast
+                ? t('schedule.plannedExercises')
+                : t('schedule.upcomingExercises')}
             </SectionLabel>
 
             {dayExercises.length === 0 ? (
               <View style={{ marginBottom: 12 }}>
                 <EmptyState
                   Icon={Coffee}
-                  title="Rest day"
-                  message="Recovery happens during rest. Hydrate well and sleep 7-9h tonight."
+                  title={t('schedule.restDayTitle')}
+                  message={t('schedule.restDayBody')}
                 />
               </View>
             ) : (
@@ -390,11 +399,13 @@ export default function ScheduleScreen() {
                       if (isToday) nav.navigate('Exercise', { exerciseId: ex.id });
                       else
                         showToast(
-                          `Available on ${selectedDate.toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            month: 'long',
-                            day: 'numeric',
-                          })}`,
+                          t('schedule.availableOn', {
+                            date: selectedDate.toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              month: 'long',
+                              day: 'numeric',
+                            }),
+                          }),
                         );
                     }}
                     style={({ pressed }) => ({
@@ -478,7 +489,7 @@ export default function ScheduleScreen() {
                     marginBottom: 10,
                   }}
                 >
-                  Day {log.day} log
+                  {t('schedule.dayLog', { day: log.day })}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 7, flexWrap: 'wrap' }}>
                   <View
@@ -506,7 +517,7 @@ export default function ScheduleScreen() {
                             : theme.colors.rd,
                       }}
                     >
-                      Pain {log.pain}/10
+                      {t('common.painValue', { pain: log.pain })}
                     </Text>
                   </View>
                   {(() => {
@@ -539,7 +550,7 @@ export default function ScheduleScreen() {
                     }}
                   >
                     <Text style={{ fontSize: 12, color: theme.colors.bb, fontWeight: '700' }}>
-                      {log.water}/8 water
+                      {t('common.waterValue', { count: log.water })}
                     </Text>
                   </View>
                 </View>

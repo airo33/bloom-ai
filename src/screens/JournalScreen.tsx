@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Moon, Zap, Waves } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Button from '../components/Button';
@@ -12,25 +13,13 @@ import { MOOD_OPTIONS } from '../data/moods';
 import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
 
-// Contextual descriptor beneath the big pain number — matters more than
-// the number itself for making the screen feel "human" rather than
-// clinical. Bands mirror the pain scale's green/amber/red gradient.
-const PAIN_LABELS = [
-  'No pain',           // 0
-  'Barely there',      // 1
-  'A whisper',         // 2
-  'A gentle ache',     // 3
-  'Noticeable',        // 4
-  'Uncomfortable',     // 5
-  'Distracting',       // 6
-  'Sharp',             // 7
-  'Hard to ignore',    // 8
-  'Intense',           // 9
-  'Severe',            // 10
-];
-
 export default function JournalScreen({ navigation }: RootStackScreenProps<'Journal'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
+  // Contextual descriptor beneath the big pain number — matters more than
+  // the number itself for making the screen feel "human" rather than
+  // clinical. Bands mirror the pain scale's green/amber/red gradient.
+  const painLabels = t('journal.painLabels', { returnObjects: true }) as string[];
   const day = useAppStore((s) => s.progress.day);
   const water = useAppStore((s) => s.progress.water);
   const addLog = useAppStore((s) => s.addLog);
@@ -138,7 +127,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 textTransform: 'uppercase',
               }}
             >
-              Daily check-in
+              {t('journal.eyebrow')}
             </Text>
             <Text
               style={{
@@ -174,7 +163,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 textTransform: 'uppercase',
               }}
             >
-              How's your pain today?
+              {t('journal.painQuestion')}
             </Text>
 
             <View
@@ -218,7 +207,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 letterSpacing: -0.1,
               }}
             >
-              {PAIN_LABELS[pain]}
+              {painLabels[pain]}
             </Text>
 
             <Slider
@@ -236,10 +225,10 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
               }}
             >
               <Text style={{ fontSize: 11, color: theme.colors.tl, fontFamily: font.body }}>
-                No pain
+                {t('journal.painNoPain')}
               </Text>
               <Text style={{ fontSize: 11, color: theme.colors.tl, fontFamily: font.body }}>
-                Severe
+                {t('journal.painSevere')}
               </Text>
             </View>
           </Card>
@@ -256,7 +245,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                 marginBottom: 14,
               }}
             >
-              How do you feel?
+              {t('journal.moodQuestion')}
             </Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {MOOD_OPTIONS.map((m) => {
@@ -321,7 +310,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                   textTransform: 'uppercase',
                 }}
               >
-                Recovery signals
+                {t('journal.recoverySignals')}
               </Text>
               <Text
                 style={{
@@ -331,13 +320,13 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                   fontStyle: 'italic',
                 }}
               >
-                optional
+                {t('journal.optional')}
               </Text>
             </View>
 
             <MetricRow
               Icon={Moon}
-              label="Sleep quality"
+              label={t('journal.sleepQuality')}
               value={sleep}
               onChange={setSleep}
               trackColors={sleepTrackColors}
@@ -347,7 +336,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             />
             <MetricRow
               Icon={Zap}
-              label="Energy"
+              label={t('journal.energy')}
               value={energy}
               onChange={setEnergy}
               trackColors={energyTrackColors}
@@ -357,7 +346,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
             />
             <MetricRow
               Icon={Waves}
-              label="Stress"
+              label={t('journal.stress')}
               value={stress}
               onChange={setStress}
               trackColors={stressTrackColors}
@@ -387,7 +376,7 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                   textTransform: 'uppercase',
                 }}
               >
-                Anything to note?
+                {t('journal.notesQuestion')}
               </Text>
               <Text
                 style={{
@@ -397,18 +386,18 @@ export default function JournalScreen({ navigation }: RootStackScreenProps<'Jour
                   fontStyle: 'italic',
                 }}
               >
-                optional
+                {t('journal.optional')}
               </Text>
             </View>
             <Input
               value={notes}
               onChangeText={setNotes}
-              placeholder="How did exercises feel? Any changes in pain or mobility?"
+              placeholder={t('journal.notesPlaceholder')}
               multiline
             />
           </Card>
 
-          <Button title="Save entry" onPress={save} />
+          <Button title={t('journal.saveEntry')} onPress={save} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -439,6 +428,7 @@ function MetricRow({
   isLast,
 }: MetricRowProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const empty = value == null;
 
   return (
@@ -483,7 +473,7 @@ function MetricRow({
                 fontFamily: font.bodyBold,
               }}
             >
-              Add
+              {t('journal.add')}
             </Text>
           </Pressable>
         ) : (
@@ -501,7 +491,7 @@ function MetricRow({
             </Text>
             <Pressable hitSlop={8} onPress={() => onChange(null)}>
               <Text style={{ fontSize: 11, color: theme.colors.tl, fontFamily: font.body }}>
-                clear
+                {t('journal.clear')}
               </Text>
             </Pressable>
           </View>

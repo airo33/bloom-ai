@@ -19,24 +19,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, Bug, Lightbulb, Heart, MoreHorizontal } from 'lucide-react-native';
 import Constants from 'expo-constants';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { submitFeedback, type FeedbackCategory } from '../lib/api';
 
 interface CatOption {
   key: FeedbackCategory;
-  label: string;
+  labelKey: string;
   Icon: React.FC<{ size: number; color: string; strokeWidth?: number }>;
 }
 
 const CATEGORIES: CatOption[] = [
-  { key: 'bug', label: 'Bug', Icon: Bug },
-  { key: 'idea', label: 'Idea', Icon: Lightbulb },
-  { key: 'praise', label: 'Praise', Icon: Heart },
-  { key: 'other', label: 'Other', Icon: MoreHorizontal },
+  { key: 'bug', labelKey: 'feedback.catBug', Icon: Bug },
+  { key: 'idea', labelKey: 'feedback.catIdea', Icon: Lightbulb },
+  { key: 'praise', labelKey: 'feedback.catPraise', Icon: Heart },
+  { key: 'other', labelKey: 'feedback.catOther', Icon: MoreHorizontal },
 ];
 
 export default function FeedbackScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const nav = useNavigation();
   const [category, setCategory] = useState<FeedbackCategory>('idea');
   const [message, setMessage] = useState('');
@@ -48,18 +50,18 @@ export default function FeedbackScreen() {
   const submit = async () => {
     const text = message.trim();
     if (text.length < 5) {
-      Alert.alert('Too short', 'Please write at least a few words so we can act on it.');
+      Alert.alert(t('feedback.tooShortTitle'), t('feedback.tooShortBody'));
       return;
     }
     setSending(true);
     try {
       await submitFeedback({ category, message: text, appVersion });
-      Alert.alert('Thanks', 'Your feedback was sent. We read every one.', [
-        { text: 'OK', onPress: () => nav.goBack() },
+      Alert.alert(t('feedback.thanksTitle'), t('feedback.thanksBody'), [
+        { text: t('common.ok'), onPress: () => nav.goBack() },
       ]);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Could not send feedback. Try again later.';
-      Alert.alert("Couldn't send", msg);
+      const msg = e instanceof Error ? e.message : t('feedback.errFallback');
+      Alert.alert(t('feedback.errTitle'), msg);
     } finally {
       setSending(false);
     }
@@ -100,7 +102,7 @@ export default function FeedbackScreen() {
                 letterSpacing: -0.6,
               }}
             >
-              Send feedback
+              {t('feedback.title')}
             </Text>
           </View>
 
@@ -112,7 +114,7 @@ export default function FeedbackScreen() {
               lineHeight: 21,
             }}
           >
-            Bug, idea, or kind word — we read everything. App version is attached automatically so we can match it to a specific build.
+            {t('feedback.intro')}
           </Text>
 
           {/* Category picker */}
@@ -126,7 +128,7 @@ export default function FeedbackScreen() {
               marginBottom: 10,
             }}
           >
-            Category
+            {t('feedback.categoryLabel')}
           </Text>
           <View
             style={{
@@ -135,7 +137,7 @@ export default function FeedbackScreen() {
               marginBottom: 22,
             }}
           >
-            {CATEGORIES.map(({ key, label, Icon }) => {
+            {CATEGORIES.map(({ key, labelKey, Icon }) => {
               const active = key === category;
               return (
                 <Pressable
@@ -166,7 +168,7 @@ export default function FeedbackScreen() {
                       letterSpacing: -0.1,
                     }}
                   >
-                    {label}
+                    {t(labelKey)}
                   </Text>
                 </Pressable>
               );
@@ -183,7 +185,7 @@ export default function FeedbackScreen() {
               marginBottom: 10,
             }}
           >
-            Your message
+            {t('feedback.messageLabel')}
           </Text>
           <TextInput
             value={message}
@@ -192,12 +194,12 @@ export default function FeedbackScreen() {
             textAlignVertical="top"
             placeholder={
               category === 'bug'
-                ? 'Tell us what happened, what you expected, and how to reproduce.'
+                ? t('feedback.phBug')
                 : category === 'idea'
-                  ? 'Describe what would make Bloom AI more useful for your recovery.'
+                  ? t('feedback.phIdea')
                   : category === 'praise'
-                    ? 'What worked well for you?'
-                    : 'Anything on your mind.'
+                    ? t('feedback.phPraise')
+                    : t('feedback.phOther')
             }
             placeholderTextColor={theme.colors.tl}
             style={{
@@ -213,7 +215,7 @@ export default function FeedbackScreen() {
             }}
           />
           <Text style={{ fontSize: 11, color: theme.colors.tl, marginBottom: 22 }}>
-            App version: {appVersion}
+            {t('feedback.appVersionLabel', { version: appVersion })}
           </Text>
 
           <Pressable
@@ -238,7 +240,7 @@ export default function FeedbackScreen() {
                   letterSpacing: -0.2,
                 }}
               >
-                Send feedback
+                {t('feedback.title')}
               </Text>
             )}
           </Pressable>

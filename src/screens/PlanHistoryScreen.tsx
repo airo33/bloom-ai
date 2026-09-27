@@ -8,6 +8,7 @@ import { View, Text, ScrollView, Pressable, RefreshControl, Alert } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, History } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { listPlanHistory, type PlanHistoryEntry } from '../lib/api';
 import EmptyState from '../components/EmptyState';
@@ -26,14 +27,15 @@ function fmtDate(iso: string) {
   }
 }
 
-const SOURCE_LABEL: Record<PlanHistoryEntry['source'], string> = {
-  ai: 'AI generated',
-  fallback: 'Offline template',
-  adjusted: 'AI adjusted',
+const SOURCE_KEY: Record<PlanHistoryEntry['source'], string> = {
+  ai: 'planHistory.srcAi',
+  fallback: 'planHistory.srcFallback',
+  adjusted: 'planHistory.srcAdjusted',
 };
 
 export default function PlanHistoryScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const nav = useNavigation();
   const [entries, setEntries] = useState<PlanHistoryEntry[] | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,11 +48,11 @@ export default function PlanHistoryScreen() {
     } catch (e: unknown) {
       setEntries([]);
       if (!silent) {
-        const msg = e instanceof Error ? e.message : 'Could not load plan history.';
-        Alert.alert("Couldn't load", msg);
+        const msg = e instanceof Error ? e.message : t('planHistory.errLoadFallback');
+        Alert.alert(t('planHistory.errLoadTitle'), msg);
       }
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -98,7 +100,7 @@ export default function PlanHistoryScreen() {
               letterSpacing: -0.6,
             }}
           >
-            Plan history
+            {t('profile.planHistory')}
           </Text>
         </View>
 
@@ -107,8 +109,8 @@ export default function PlanHistoryScreen() {
         ) : entries.length === 0 ? (
           <EmptyState
             Icon={History}
-            title="No previous plans"
-            message="When you regenerate or adjust your plan, the old version is archived here so you can see how it changed."
+            title={t('planHistory.noneTitle')}
+            message={t('planHistory.noneBody')}
           />
         ) : (
           entries.map((e) => (
@@ -140,7 +142,7 @@ export default function PlanHistoryScreen() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  Archived {fmtDate(e.archived_at)}
+                  {t('planHistory.archived', { date: fmtDate(e.archived_at) })}
                 </Text>
                 <View
                   style={{
@@ -158,7 +160,7 @@ export default function PlanHistoryScreen() {
                       letterSpacing: 0.4,
                     }}
                   >
-                    {SOURCE_LABEL[e.source].toUpperCase()}
+                    {t(SOURCE_KEY[e.source]).toUpperCase()}
                   </Text>
                 </View>
               </View>
@@ -172,7 +174,7 @@ export default function PlanHistoryScreen() {
                 }}
                 numberOfLines={2}
               >
-                {e.plan.title ?? 'Recovery plan'}
+                {e.plan.title ?? t('planHistory.planFallbackTitle')}
               </Text>
               <Text
                 style={{
@@ -181,8 +183,10 @@ export default function PlanHistoryScreen() {
                   marginBottom: 6,
                 }}
               >
-                {e.plan.phases?.length ?? 0} phases ·{' '}
-                {e.plan.exercises?.length ?? 0} exercises
+                {t('planHistory.phasesExercises', {
+                  phases: e.plan.phases?.length ?? 0,
+                  exercises: e.plan.exercises?.length ?? 0,
+                })}
               </Text>
               {e.adjustment && (
                 <View
@@ -202,7 +206,7 @@ export default function PlanHistoryScreen() {
                       marginBottom: 2,
                     }}
                   >
-                    YOUR REQUEST
+                    {t('planHistory.yourRequest')}
                   </Text>
                   <Text
                     style={{

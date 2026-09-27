@@ -9,6 +9,7 @@ import { View, Text, Modal, Pressable, ActivityIndicator, Alert } from 'react-na
 import ViewShot, { captureRef, type ViewShotRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import { X, Share2 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import type { RecoveryBreakdown } from '../lib/recoveryScore';
 import ShareableCard from './ShareableCard';
@@ -29,6 +30,7 @@ export default function ShareProgressModal({
   streak,
 }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const cardRef = useRef<ViewShotRef>(null);
   const [busy, setBusy] = useState(false);
 
@@ -44,16 +46,16 @@ export default function ShareProgressModal({
       });
       const available = await Sharing.isAvailableAsync();
       if (!available) {
-        Alert.alert('Sharing not available on this device.');
+        Alert.alert(t('share.errNotAvailable'));
         return;
       }
       await Sharing.shareAsync(uri, {
         mimeType: 'image/png',
-        dialogTitle: 'Share your progress',
+        dialogTitle: t('share.modalTitle'),
         UTI: 'public.png',
       });
     } catch (e) {
-      Alert.alert("Couldn't share", 'Please try again.');
+      Alert.alert(t('share.errShare'));
     } finally {
       setBusy(false);
     }
@@ -91,7 +93,7 @@ export default function ShareProgressModal({
                 letterSpacing: -0.4,
               }}
             >
-              Share your progress
+              {t('share.modalTitle')}
             </Text>
             <Text
               style={{
@@ -101,7 +103,7 @@ export default function ShareProgressModal({
                 marginTop: 2,
               }}
             >
-              Save it or post to a story
+              {t('share.modalSub')}
             </Text>
           </View>
           <Pressable
@@ -171,7 +173,7 @@ export default function ShareProgressModal({
                 color: theme.scheme === 'dark' ? '#1D2A17' : '#FFFFFF',
               }}
             >
-              {busy ? 'Preparing…' : 'Share image'}
+              {busy ? t('share.preparing') : t('share.shareCta')}
             </Text>
           </Pressable>
         </View>

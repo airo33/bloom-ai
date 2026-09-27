@@ -16,6 +16,7 @@ import CategoryTile from '../components/CategoryTile';
 import SectionLabel from '../components/SectionLabel';
 import Input from '../components/Input';
 import MedicalDisclaimer from '../components/MedicalDisclaimer';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import { getCategory } from '../theme/categories';
@@ -25,6 +26,7 @@ import type { RootStackScreenProps } from '../navigation/types';
 
 export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const plan = useAppStore((s) => s.plan);
   const profile = useAppStore((s) => s.profile);
   const setPlan = useAppStore((s) => s.setPlan);
@@ -42,7 +44,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
     if (!plan || adjustBusy) return;
     const text = adjustText.trim();
     if (text.length < 3) {
-      setAdjustError('Tell me what to change');
+      setAdjustError(t('plan.errTellChange'));
       return;
     }
     setAdjustBusy(true);
@@ -68,7 +70,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
     } catch (err) {
       const msg =
         err instanceof ApiError && err.code === 'off_topic'
-          ? err.message || 'Please describe the change in terms of your recovery.'
+          ? err.message || t('plan.errOffTopicFallback')
           : err instanceof Error
             ? err.message
             : String(err);
@@ -77,7 +79,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
     } finally {
       setAdjustBusy(false);
     }
-  }, [plan, adjustText, adjustBusy, profile, setPlan]);
+  }, [plan, adjustText, adjustBusy, profile, setPlan, t]);
 
   // Defensive fallback: if user lands here without a plan, route them to Welcome
   if (!plan) {
@@ -85,10 +87,10 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bg }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <Text style={{ fontSize: 16, color: theme.colors.tm, textAlign: 'center' }}>
-            No plan loaded yet.
+            {t('plan.noPlanLoaded')}
           </Text>
           <View style={{ height: 16 }} />
-          <Button title="Start onboarding" onPress={() => navigation.replace('Welcome')} />
+          <Button title={t('schedule.startOnboarding')} onPress={() => navigation.replace('Welcome')} />
         </View>
       </SafeAreaView>
     );
@@ -109,7 +111,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 8 }}>
             <Sparkles size={14} color={headerFgMuted} strokeWidth={2.4} />
             <Text style={{ fontSize: 12, color: headerFgMuted, fontWeight: '700', letterSpacing: 0.4 }}>
-              AI CLINICAL PLAN
+              {t('plan.headerEyebrow')}
             </Text>
           </View>
           <Text
@@ -126,9 +128,9 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {(
               [
-                { value: plan.totalWeeks, label: 'weeks' },
-                { value: plan.phases.length, label: 'phases' },
-                { value: plan.exercises.length, label: 'exercises' },
+                { value: plan.totalWeeks, label: t('plan.statWeeks') },
+                { value: plan.phases.length, label: t('plan.statPhases') },
+                { value: plan.exercises.length, label: t('plan.statExercises') },
               ] as const
             ).map((stat) => (
               <View
@@ -201,7 +203,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                   marginBottom: 2,
                 }}
               >
-                Start your first exercise
+                {t('firstExercise.planCta')}
               </Text>
               <Text
                 style={{
@@ -211,7 +213,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                   lineHeight: 18,
                 }}
               >
-                Under 5 minutes. This is where recovery begins.
+                {t('firstExercise.planCtaSub')}
               </Text>
             </View>
             <Text
@@ -234,7 +236,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         </Card>
 
         {/* Clinical goals */}
-        <SectionLabel>Clinical goals</SectionLabel>
+        <SectionLabel>{t('plan.clinicalGoals')}</SectionLabel>
         <View
           style={{
             backgroundColor: theme.colors.bl,
@@ -265,7 +267,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         </View>
 
         {/* Red flags */}
-        <SectionLabel>See a doctor if</SectionLabel>
+        <SectionLabel>{t('plan.seeDoctorIf')}</SectionLabel>
         <View
           style={{
             backgroundColor: theme.colors.rl,
@@ -296,7 +298,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         </View>
 
         {/* Exercises */}
-        <SectionLabel>All exercises in this plan</SectionLabel>
+        <SectionLabel>{t('plan.allExercises')}</SectionLabel>
         <Card style={{ marginBottom: 18 }} padding={0}>
           {plan.exercises.map((ex, i) => {
             const c = getCategory(ex.category);
@@ -359,15 +361,14 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
         >
           <ListChecks size={16} color={theme.colors.tm} strokeWidth={2} />
           <Text style={{ flex: 1, fontSize: 12, color: theme.colors.tm, lineHeight: 18 }}>
-            Evidence-based protocol. Post-surgical: follow your surgeon's
-            restrictions first. Stop any exercise causing sharp pain.
+            {t('plan.safetyNote')}
           </Text>
         </View>
 
-        <Button title="Choose your plan" onPress={() => navigation.navigate('Subscription')} />
+        <Button title={t('plan.choosePlan')} onPress={() => navigation.navigate('Subscription')} />
         <View style={{ height: 10 }} />
         <Button
-          title="Adjust this plan"
+          title={t('plan.adjustPlanBtn')}
           variant="secondary"
           onPress={() => setAdjustOpen(true)}
           icon={<Wand2 size={16} color={theme.colors.th} strokeWidth={2.2} />}
@@ -409,7 +410,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                   letterSpacing: -0.3,
                 }}
               >
-                Adjust your plan
+                {t('plan.adjustModalTitle')}
               </Text>
               <Pressable
                 onPress={() => setAdjustOpen(false)}
@@ -427,8 +428,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                 lineHeight: 20,
               }}
             >
-              Describe what to change. Examples: "no pool exercises, no gym
-              equipment", "make week 1 lighter", "I don't have a foam roller".
+              {t('plan.adjustModalBody')}
             </Text>
             <Input
               value={adjustText}
@@ -436,7 +436,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
                 setAdjustText(t);
                 if (adjustError) setAdjustError(null);
               }}
-              placeholder="What should change?"
+              placeholder={t('plan.adjustPlaceholder')}
               multiline
               editable={!adjustBusy}
               style={{ minHeight: 100, marginBottom: 14 }}
@@ -459,7 +459,7 @@ export default function PlanScreen({ navigation }: RootStackScreenProps<'Plan'>)
               </View>
             )}
             <Button
-              title={adjustBusy ? 'Updating…' : 'Regenerate plan'}
+              title={adjustBusy ? t('plan.updating') : t('plan.regenerate')}
               onPress={submitAdjustment}
               loading={adjustBusy}
               icon={

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, Flame, Activity, Droplet, BookOpen, Share2 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import Card from '../components/Card';
@@ -78,6 +79,7 @@ function StatCard({ label, value, unit, Icon, iconBg, iconFg, filledIcon }: Stat
 
 export default function ProgressScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const day = useAppStore((s) => s.progress.day);
   const streak = useAppStore((s) => s.progress.streak);
   const water = useAppStore((s) => s.progress.water);
@@ -117,7 +119,7 @@ export default function ProgressScreen() {
             marginBottom: 3,
           }}
         >
-          Analytics
+          {t('progress.eyebrow')}
         </Text>
         <Text
           style={{
@@ -127,7 +129,7 @@ export default function ProgressScreen() {
             letterSpacing: -0.6,
           }}
         >
-          Your progress
+          {t('progress.title')}
         </Text>
       </View>
 
@@ -166,7 +168,7 @@ export default function ProgressScreen() {
                 color: theme.colors.tb,
               }}
             >
-              Share progress
+              {t('share.button')}
             </Text>
           </Pressable>
         )}
@@ -174,14 +176,14 @@ export default function ProgressScreen() {
         {/* 2x2 stats grid */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
           <StatCard
-            label="Days"
+            label={t('progress.statDays')}
             value={String(day)}
             Icon={Calendar}
             iconBg={theme.colors.pl}
             iconFg={theme.colors.pt}
           />
           <StatCard
-            label="Streak"
+            label={t('progress.statStreak')}
             value={String(streak)}
             Icon={Flame}
             iconBg={theme.colors.ol}
@@ -192,7 +194,7 @@ export default function ProgressScreen() {
 
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
           <StatCard
-            label="Avg pain"
+            label={t('progress.statAvgPain')}
             value={avgPain ?? '—'}
             unit={avgPain ? '/ 10' : undefined}
             Icon={Activity}
@@ -200,9 +202,9 @@ export default function ProgressScreen() {
             iconFg={theme.colors.gn}
           />
           <StatCard
-            label="Hydration"
+            label={t('progress.statHydration')}
             value={avgWater}
-            unit="avg / day"
+            unit={t('progress.hydrationUnit')}
             Icon={Droplet}
             iconBg={theme.colors.bl}
             iconFg={theme.colors.bb}
@@ -211,19 +213,19 @@ export default function ProgressScreen() {
         </View>
 
         {/* Pain over time */}
-        <SectionLabel>Pain over time</SectionLabel>
+        <SectionLabel>{t('progress.painOverTime')}</SectionLabel>
         <Card style={{ marginBottom: 16 }} padding={16}>
           <PainChart points={painPoints} />
         </Card>
 
         {/* Log history */}
-        <SectionLabel>Log history</SectionLabel>
+        <SectionLabel>{t('progress.logHistory')}</SectionLabel>
 
         {logs.length === 0 ? (
           <EmptyState
             Icon={BookOpen}
-            title="No logs yet"
-            message="Tap the plus button on the nav bar to log your first entry. We'll plot trends as you go."
+            title={t('progress.noLogsTitle')}
+            message={t('progress.noLogsBody')}
           />
         ) : (
           [...logs].reverse().map((log) => (
@@ -237,7 +239,7 @@ export default function ProgressScreen() {
                   letterSpacing: -0.2,
                 }}
               >
-                Day {log.day} ·{' '}
+                {t('common.dayNumber', { day: log.day })} ·{' '}
                 <Text style={{ fontWeight: '400', color: theme.colors.tm }}>
                   {new Date(log.createdAt).toLocaleDateString('en-US', {
                     month: 'short',
@@ -271,7 +273,7 @@ export default function ProgressScreen() {
                           : theme.colors.rd,
                     }}
                   >
-                    Pain {log.pain}/10
+                    {t('common.painValue', { pain: log.pain })}
                   </Text>
                 </View>
                 {(() => {
@@ -304,7 +306,7 @@ export default function ProgressScreen() {
                   }}
                 >
                   <Text style={{ fontSize: 12, color: theme.colors.bb, fontWeight: '700' }}>
-                    {log.water}/8 water
+                    {t('common.waterValue', { count: log.water })}
                   </Text>
                 </View>
               </View>

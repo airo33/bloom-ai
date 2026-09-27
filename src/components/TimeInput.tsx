@@ -30,7 +30,7 @@ function toHHMM(date: Date): TimeOfDay {
 
 export default function TimeInput({ value, onChange }: Props) {
   const theme = useTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showing, setShowing] = useState(false);
   const [draft, setDraft] = useState<Date | null>(null);
 
@@ -141,7 +141,7 @@ export default function TimeInput({ value, onChange }: Props) {
                       fontSize: 15,
                     }}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -163,7 +163,7 @@ export default function TimeInput({ value, onChange }: Props) {
                       fontSize: 15,
                     }}
                   >
-                    Done
+                    {t('common.done')}
                   </Text>
                 </Pressable>
               </View>
