@@ -57,8 +57,11 @@ interface AppState {
   // Subscription
   subscriptionTier: SubscriptionTier;
 
-  // Chat history (ephemeral, but persisted so users can scroll back)
-  chatHistory: { role: 'user' | 'assistant'; content: string; ts: number }[];
+  // Chat history (ephemeral, but persisted so users can scroll back).
+  // `imageUri` is a local device file path shown in the transcript when the
+  // user attached an injury photo — the image bytes are never stored, only
+  // this on-device reference for display.
+  chatHistory: { role: 'user' | 'assistant'; content: string; ts: number; imageUri?: string }[];
 
   // Notifications
   notifications: NotifPrefs;
@@ -114,7 +117,7 @@ interface AppState {
   markFirstExerciseCompleted: () => void;
   resetAll: () => void;
   clearUserData: () => void;       // sign-out cleanup
-  appendChat: (role: 'user' | 'assistant', content: string) => void;
+  appendChat: (role: 'user' | 'assistant', content: string, imageUri?: string) => void;
   clearChat: () => void;
 }
 
@@ -344,9 +347,9 @@ export const useAppStore = create<AppState>()(
           lastAdaptationSuggestedDay: 0,
         }),
 
-      appendChat: (role, content) =>
+      appendChat: (role, content, imageUri) =>
         set((s) => ({
-          chatHistory: [...s.chatHistory, { role, content, ts: Date.now() }],
+          chatHistory: [...s.chatHistory, { role, content, ts: Date.now(), imageUri }],
         })),
 
       clearChat: () => set({ chatHistory: [] }),

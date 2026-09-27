@@ -5,9 +5,28 @@
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+/** A plain text segment of a message. */
+export interface TextContentPart {
+  type: 'text';
+  text: string;
+}
+
+/** An image segment — a base64 data URL or a public https URL. */
+export interface ImageContentPart {
+  type: 'image_url';
+  image_url: { url: string };
+}
+
+/**
+ * Message content is either a plain string (the common text case) or, for
+ * vision requests, an OpenAI-compatible array of text/image parts. Groq's
+ * chat/completions endpoint accepts this array verbatim on vision models.
+ */
+export type MessageContent = string | Array<TextContentPart | ImageContentPart>;
+
 export interface MessagePart {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content: MessageContent;
 }
 
 export interface CallOptions {

@@ -7,23 +7,22 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, Send, Stethoscope, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, Send, Stethoscope, Trash2, ImagePlus, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme, font } from '../theme';
 import { useAppStore } from '../store/useAppStore';
 import TypingDots from '../components/TypingDots';
 import { chatPhysio } from '../lib/api';
+import { pickInjuryPhoto, type InjuryPhoto } from '../lib/injuryPhoto';
 import { track } from '../lib/analytics';
 import type { RootStackScreenProps } from '../navigation/types';
 
-const SUGGESTED_PROMPTS = [
-  'What should I do if my pain increases?',
-  'Can I skip a day if I feel tired?',
-  'How do I know when to progress?',
-  'Is some pain during exercises normal?',
-];
+const SUGGESTED_PROMPT_KEYS = ['prompt1', 'prompt2', 'prompt3', 'prompt4'] as const;
 
 export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>) {
   const theme = useTheme();
@@ -35,43 +34,77 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
 
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState<InjuryPhoto | null>(null);
+  const [attaching, setAttaching] = useState(false);
+  // Local URIs that failed to load (e.g. cache evicted after an app restart) —
+  // we hide those thumbnails and just show the text.
+  const [failedImages, setFailedImages] = useState<Record<string, true>>({});
   const scrollRef = useRef<ScrollView>(null);
 
-  // Auto-scroll to the bottom whenever messages or typing state change
+  // Auto-scroll to the bottom whenever messages, typing, or the photo preview change
   useEffect(() => {
     const t = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
     return () => clearTimeout(t);
-  }, [chatHistory.length, sending]);
+  }, [chatHistory.length, sending, pendingPhoto]);
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, photo?: InjuryPhoto | null) => {
       const trimmed = text.trim();
-      if (!trimmed || sending) return;
+      if ((!trimmed && !photo) || sending) return;
 
-      appendChat('user', trimmed);
+      appendChat('user', trimmed, photo?.uri);
       setInput('');
+      setPendingPhoto(null);
       setSending(true);
-      track('chat_sent', { length: trimmed.length });
+      track('chat_sent', { length: trimmed.length, hasPhoto: !!photo });
 
       try {
         const result = await chatPhysio({
           plan,
           history: chatHistory.map((m) => ({ role: m.role, content: m.content })),
           userMessage: trimmed,
+          image: photo ? { base64: photo.base64, mimeType: photo.mimeType } : undefined,
         });
         appendChat('assistant', result.reply);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        appendChat(
-          'assistant',
-          `Sorry, I had trouble reaching the server (${msg.slice(0, 80)}). Please try again.`,
-        );
+        appendChat('assistant', t('chat.serverErr', { error: msg.slice(0, 80) }));
       } finally {
         setSending(false);
       }
     },
-    [appendChat, chatHistory, plan, sending],
+    [appendChat, chatHistory, plan, sending, t],
   );
+
+  const attachPhoto = useCallback(async (source: 'camera' | 'library') => {
+    setAttaching(true);
+    try {
+      const res = await pickInjuryPhoto(source);
+      if (res.ok) {
+        setPendingPhoto(res.photo);
+      } else if (res.reason === 'permission') {
+        Alert.alert(
+          source === 'camera' ? t('chat.permCameraTitle') : t('chat.permPhotoTitle'),
+          source === 'camera' ? t('chat.permCameraBody') : t('chat.permPhotoBody'),
+        );
+      } else if (res.reason === 'error') {
+        Alert.alert(t('chat.photoErrTitle'), res.message ?? t('chat.photoErrBody'));
+      }
+    } finally {
+      setAttaching(false);
+    }
+  }, [t]);
+
+  const promptPhotoSource = useCallback(() => {
+    if (sending || attaching) return;
+    Alert.alert(t('chat.photoSheetTitle'), t('chat.photoSheetBody'), [
+      { text: t('chat.takePhoto'), onPress: () => attachPhoto('camera') },
+      { text: t('chat.chooseLibrary'), onPress: () => attachPhoto('library') },
+      { text: t('common.cancel'), style: 'cancel' },
+    ]);
+  }, [attachPhoto, sending, attaching, t]);
+
+  const canSend = (!!input.trim() || !!pendingPhoto) && !sending && !attaching;
 
   const userBg = theme.colors.pu;
   const userFg = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
@@ -212,7 +245,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
                   marginBottom: 6,
                 }}
               >
-                Ask me anything
+                {t('chat.emptyTitle')}
               </Text>
               <Text
                 style={{
@@ -222,8 +255,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
                   marginBottom: 22,
                 }}
               >
-                I know your rehab plan. Ask about pain, progressions, modifications,
-                or anything that's worrying you.
+                {t('chat.emptyBody')}
               </Text>
               <Text
                 style={{
@@ -235,29 +267,32 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
                   marginBottom: 10,
                 }}
               >
-                Suggested
+                {t('chat.suggestedLabel')}
               </Text>
-              {SUGGESTED_PROMPTS.map((p) => (
-                <Pressable
-                  key={p}
-                  onPress={() => sendMessage(p)}
-                  disabled={sending}
-                  style={({ pressed }) => ({
-                    backgroundColor: theme.colors.card,
-                    borderRadius: 14,
-                    borderWidth: 1,
-                    borderColor: theme.colors.bo,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    marginBottom: 8,
-                    opacity: pressed ? 0.85 : 1,
-                  })}
-                >
-                  <Text style={{ fontSize: 14, color: theme.colors.th, fontWeight: '600' }}>
-                    {p}
-                  </Text>
-                </Pressable>
-              ))}
+              {SUGGESTED_PROMPT_KEYS.map((k) => {
+                const label = t(`chat.${k}`);
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => sendMessage(label)}
+                    disabled={sending}
+                    style={({ pressed }) => ({
+                      backgroundColor: theme.colors.card,
+                      borderRadius: 14,
+                      borderWidth: 1,
+                      borderColor: theme.colors.bo,
+                      paddingHorizontal: 14,
+                      paddingVertical: 12,
+                      marginBottom: 8,
+                      opacity: pressed ? 0.85 : 1,
+                    })}
+                  >
+                    <Text style={{ fontSize: 14, color: theme.colors.th, fontWeight: '600' }}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
           ) : (
             chatHistory.map((m, i) => {
@@ -283,15 +318,33 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
                       paddingVertical: 11,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        lineHeight: 21,
-                        color: isUser ? userFg : theme.colors.th,
-                      }}
-                    >
-                      {m.content}
-                    </Text>
+                    {m.imageUri && !failedImages[m.imageUri] && (
+                      <Image
+                        source={{ uri: m.imageUri }}
+                        onError={() =>
+                          setFailedImages((prev) => ({ ...prev, [m.imageUri as string]: true }))
+                        }
+                        style={{
+                          width: 200,
+                          height: 200,
+                          borderRadius: 12,
+                          marginBottom: m.content ? 8 : 0,
+                          backgroundColor: theme.colors.card2,
+                        }}
+                        resizeMode="cover"
+                      />
+                    )}
+                    {!!m.content && (
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          lineHeight: 21,
+                          color: isUser ? userFg : theme.colors.th,
+                        }}
+                      >
+                        {m.content}
+                      </Text>
+                    )}
                   </View>
                 </View>
               );
@@ -317,7 +370,7 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
           )}
         </ScrollView>
 
-        {/* Input bar */}
+        {/* Input area */}
         <View
           style={{
             paddingHorizontal: 14,
@@ -326,58 +379,114 @@ export default function ChatScreen({ navigation }: RootStackScreenProps<'Chat'>)
             borderTopWidth: 1,
             borderTopColor: theme.colors.bo,
             backgroundColor: theme.colors.bg,
-            flexDirection: 'row',
-            alignItems: 'flex-end',
-            gap: 8,
           }}
         >
-          <TextInput
-            value={input}
-            onChangeText={setInput}
-            placeholder="Ask about exercises, pain, progression…"
-            placeholderTextColor={theme.colors.tm}
-            multiline
-            editable={!sending}
-            style={{
-              flex: 1,
-              minHeight: 44,
-              maxHeight: 120,
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.bo,
-              borderWidth: 1,
-              borderRadius: 14,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              fontSize: 14,
-              color: theme.colors.th,
-              lineHeight: 20,
-            }}
-          />
-          <Pressable
-            onPress={() => sendMessage(input)}
-            disabled={sending || !input.trim()}
-            style={({ pressed }) => ({
-              width: 44,
-              height: 44,
-              borderRadius: 14,
-              backgroundColor: input.trim() && !sending ? theme.colors.pu : theme.colors.card2,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: pressed ? 0.85 : 1,
-            })}
-          >
-            <Send
-              size={20}
-              color={
-                input.trim() && !sending
-                  ? theme.scheme === 'dark'
-                    ? '#0A0A0A'
-                    : '#FFFFFF'
-                  : theme.colors.tl
-              }
-              strokeWidth={2.2}
+          {/* Pending injury photo preview */}
+          {pendingPhoto && (
+            <View style={{ flexDirection: 'row', marginBottom: 10, paddingLeft: 2 }}>
+              <View>
+                <Image
+                  source={{ uri: pendingPhoto.uri }}
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 12,
+                    backgroundColor: theme.colors.card2,
+                  }}
+                  resizeMode="cover"
+                />
+                <Pressable
+                  onPress={() => setPendingPhoto(null)}
+                  hitSlop={8}
+                  style={{
+                    position: 'absolute',
+                    top: -6,
+                    right: -6,
+                    width: 22,
+                    height: 22,
+                    borderRadius: 11,
+                    backgroundColor: theme.colors.th,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 2,
+                    borderColor: theme.colors.bg,
+                  }}
+                >
+                  <X size={12} color={theme.colors.bg} strokeWidth={3} />
+                </Pressable>
+              </View>
+            </View>
+          )}
+
+          {/* Row: attach · text · send */}
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+            <Pressable
+              onPress={promptPhotoSource}
+              disabled={sending || attaching}
+              hitSlop={4}
+              style={({ pressed }) => ({
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                backgroundColor: theme.colors.card,
+                borderWidth: 1,
+                borderColor: theme.colors.bo,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: pressed ? 0.7 : sending || attaching ? 0.5 : 1,
+              })}
+            >
+              {attaching ? (
+                <ActivityIndicator size="small" color={theme.colors.tm} />
+              ) : (
+                <ImagePlus size={20} color={theme.colors.tb} strokeWidth={2.2} />
+              )}
+            </Pressable>
+
+            <TextInput
+              value={input}
+              onChangeText={setInput}
+              placeholder={t('chat.inputPlaceholder')}
+              placeholderTextColor={theme.colors.tm}
+              multiline
+              editable={!sending}
+              style={{
+                flex: 1,
+                minHeight: 44,
+                maxHeight: 120,
+                backgroundColor: theme.colors.card,
+                borderColor: theme.colors.bo,
+                borderWidth: 1,
+                borderRadius: 14,
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                fontSize: 14,
+                color: theme.colors.th,
+                lineHeight: 20,
+              }}
             />
-          </Pressable>
+            <Pressable
+              onPress={() => sendMessage(input, pendingPhoto)}
+              disabled={!canSend}
+              style={({ pressed }) => ({
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                backgroundColor: canSend ? theme.colors.pu : theme.colors.card2,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: pressed ? 0.85 : 1,
+              })}
+            >
+              <Send
+                size={20}
+                color={
+                  canSend ? (theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF') : theme.colors.tl
+                }
+                strokeWidth={2.2}
+              />
+            </Pressable>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

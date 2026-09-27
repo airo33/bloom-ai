@@ -237,6 +237,9 @@ export async function chatPhysio(opts: {
   plan: RehabPlan | null;
   history: ChatMessage[];
   userMessage: string;
+  /** Optional injury photo (compressed JPEG base64). Sent for this message
+   *  only — never persisted client- or server-side. */
+  image?: { base64: string; mimeType: string };
 }): Promise<ChatResult> {
   const { data, error } = await supabase.functions.invoke<ChatResult & { error?: string }>(
     'chat-physio',
