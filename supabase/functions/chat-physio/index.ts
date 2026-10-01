@@ -6,6 +6,9 @@
 import { preflight, json } from '../_shared/cors.ts';
 import {
   callLLM,
+  CHAT_MODEL,
+  FALLBACK_MODEL,
+  VISION_MODEL,
   type MessagePart,
   type MessageContent,
   type ImageContentPart,
@@ -21,20 +24,6 @@ interface RequestBody {
   /** ISO 639-1 code: 'en', 'es', 'pt', 'de'. Falls back to English. */
   language?: string;
 }
-
-// Llama 3.1 8B Instant — Groq's fastest model. Good enough for short
-// clinical Q&A grounded on the plan; swap to llama-3.3-70b-versatile if
-// quality becomes an issue. Configurable via secret (`supabase secrets set
-// GROQ_CHAT_MODEL=...`) since Groq occasionally moves models behind a
-// higher account tier or retires them outright.
-const MODEL = Deno.env.get('GROQ_CHAT_MODEL')?.trim() || 'llama-3.1-8b-instant';
-
-// Vision model — used ONLY when the message includes a photo. Groq serves its
-// multimodal models as "preview" and rotates the IDs, so this is configurable
-// via a secret (`supabase secrets set GROQ_VISION_MODEL=...`) with a current
-// default. Set it to whatever your Groq console lists under vision models.
-const VISION_MODEL =
-  Deno.env.get('GROQ_VISION_MODEL')?.trim() || 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 const MAX_HISTORY = 12;
 
@@ -166,11 +155,15 @@ Deno.serve(async (req: Request) => {
     userContent = userMessage;
   }
 
-  const model = hasImage ? VISION_MODEL : MODEL;
+  const model = hasImage ? VISION_MODEL : CHAT_MODEL;
 
   try {
     const resp = await callLLM({
       model,
+      // Vision has one configured model (no known-good fallback lineup to
+      // degrade to); text chat falls back to FALLBACK_MODEL on a 404 or a
+      // too-tight rate ceiling.
+      fallbackModels: hasImage ? undefined : [FALLBACK_MODEL],
       maxTokens: hasImage ? 700 : 600,
       messages: [
         { role: 'system', content: buildSystem(body.plan, body.language) },

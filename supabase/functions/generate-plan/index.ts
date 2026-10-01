@@ -1,11 +1,12 @@
 // supabase/functions/generate-plan/index.ts
 //
-// Generates a personalized rehab plan via Groq (Llama 3.3 70B).
+// Generates a personalized rehab plan via Groq (model = GROQ_PLAN_MODEL secret,
+// with automatic fallback if it's decommissioned).
 // Input: { name, age, fitnessLevel, injury }
 // Output: a RehabPlan JSON matching src/types/plan.ts
 
 import { preflight, json } from '../_shared/cors.ts';
-import { callLLM, parseJsonFromLLM } from '../_shared/llm.ts';
+import { callLLM, parseJsonFromLLM, PLAN_MODEL, FALLBACK_MODEL } from '../_shared/llm.ts';
 
 interface RequestBody {
   name?: string;
@@ -35,9 +36,10 @@ function languageDirective(code?: string): string {
   return `\n\nIMPORTANT: Respond entirely in ${name}. EVERY string value in the JSON — title, summary, clinicalGoals, redFlags, phase names, goals, exercise names, steps, clinicalRationale, benefit, warning, redFlag, tips — must be written in ${name}. Do not use English anywhere except for the JSON keys themselves.`;
 }
 
-// Llama 3.3 70B Versatile — Groq's flagship general-purpose model.
-// Strong at structured JSON output + clinical reasoning.
-const MODEL = 'llama-3.3-70b-versatile';
+// Plan generation needs strong structured-JSON + clinical reasoning, so it uses
+// the larger PLAN_MODEL (configurable via the GROQ_PLAN_MODEL secret), with an
+// automatic fallback to FALLBACK_MODEL if that model is ever decommissioned.
+const MODEL = PLAN_MODEL;
 
 // -----------------------------------------------------------------------------
 // System message: high-quality clinical persona with explicit reasoning rules.
@@ -300,6 +302,7 @@ Deno.serve(async (req: Request) => {
   try {
     const resp = await callLLM({
       model: MODEL,
+      fallbackModels: [FALLBACK_MODEL],
       maxTokens: 6000,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT + languageDirective(body.language) },

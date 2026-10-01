@@ -7,7 +7,7 @@
 // note instead of a fresh injury description.
 
 import { preflight, json } from '../_shared/cors.ts';
-import { callLLM, parseJsonFromLLM } from '../_shared/llm.ts';
+import { callLLM, parseJsonFromLLM, PLAN_MODEL, FALLBACK_MODEL } from '../_shared/llm.ts';
 
 interface RequestBody {
   plan: unknown;     // existing RehabPlan
@@ -20,7 +20,9 @@ interface RequestBody {
   language?: string;
 }
 
-const MODEL = 'llama-3.3-70b-versatile';
+// Same model as generate-plan (configurable via GROQ_PLAN_MODEL, with
+// automatic fallback to FALLBACK_MODEL if it's decommissioned).
+const MODEL = PLAN_MODEL;
 
 const LANGUAGE_NAMES: Record<string, string> = {
   en: 'English',
@@ -98,6 +100,7 @@ Deno.serve(async (req: Request) => {
   try {
     const resp = await callLLM({
       model: MODEL,
+      fallbackModels: [FALLBACK_MODEL],
       maxTokens: 6000,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT + languageDirective(body.language) },
