@@ -14,7 +14,8 @@
     "friend": "Friend",
     "painValue": "Pain {{pain}}/10",
     "waterValue": "{{count}}/8 water",
-    "dayNumber": "Day {{day}}"
+    "dayNumber": "Day {{day}}",
+    "unknownError": "Unknown error"
   },
   "welcome": {
     "brand": "BLOOM",
@@ -163,6 +164,10 @@
     "greetingAfternoon": "Good afternoon",
     "greetingEvening": "Good evening",
     "today": "Today",
+    "tierWeekly": "WEEKLY",
+    "tierMonthly": "MONTHLY",
+    "tierAnnual": "ANNUAL",
+    "tierTrial": "TRIAL",
     "doneSuffix": "done",
     "dayLabel": "Day {{day}} · {{weekday}}",
     "streak_one": "{{count}}-day streak",
@@ -491,5 +496,14 @@
     "errLoadTitle": "Couldn't load",
     "errLoadFallback": "Could not load plan history.",
     "planFallbackTitle": "Recovery plan"
+  },
+  "notifications": {
+    "exerciseTitle": "Time for your recovery exercises",
+    "exerciseBody": "A few minutes of movement now keeps your progress on track.",
+    "waterTitle": "Hydration check-in",
+    "waterBody": "Joints heal faster when you stay hydrated. Drink a glass.",
+    "journalTitle": "Log your day",
+    "journalBody": "How was today? Pain, mood, anything you noticed.",
+    "channelName": "Recovery reminders"
   }
 }

@@ -14,7 +14,8 @@
     "friend": "Freund",
     "painValue": "Schmerz {{pain}}/10",
     "waterValue": "{{count}}/8 Wasser",
-    "dayNumber": "Tag {{day}}"
+    "dayNumber": "Tag {{day}}",
+    "unknownError": "Unbekannter Fehler"
   },
   "welcome": {
     "brand": "BLOOM",
@@ -163,6 +164,10 @@
     "greetingAfternoon": "Guten Tag",
     "greetingEvening": "Guten Abend",
     "today": "Heute",
+    "tierWeekly": "WÖCHENTLICH",
+    "tierMonthly": "MONATLICH",
+    "tierAnnual": "JÄHRLICH",
+    "tierTrial": "TESTPHASE",
     "doneSuffix": "erledigt",
     "dayLabel": "Tag {{day}} · {{weekday}}",
     "streak_one": "{{count}}-Tage-Serie",
@@ -491,5 +496,14 @@
     "errLoadTitle": "Laden fehlgeschlagen",
     "errLoadFallback": "Planverlauf konnte nicht geladen werden.",
     "planFallbackTitle": "Genesungsplan"
+  },
+  "notifications": {
+    "exerciseTitle": "Zeit für deine Reha-Übungen",
+    "exerciseBody": "Ein paar Minuten Bewegung jetzt halten deinen Fortschritt am Laufen.",
+    "waterTitle": "Flüssigkeits-Check",
+    "waterBody": "Gelenke heilen schneller, wenn du ausreichend trinkst. Trink ein Glas.",
+    "journalTitle": "Trag deinen Tag ein",
+    "journalBody": "Wie war heute? Schmerzen, Stimmung, alles, was dir aufgefallen ist.",
+    "channelName": "Genesungs-Erinnerungen"
   }
 }

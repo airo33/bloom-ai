@@ -30,11 +30,11 @@ import { computeRecoveryScore } from '../lib/recoveryScore';
 import { detectAdaptation } from '../lib/planAdaptation';
 import type { RootStackParamList } from '../navigation/types';
 
-const SUB_TIER_BADGE = {
-  weekly: 'WEEKLY',
-  monthly: 'MONTHLY',
-  annual: 'ANNUAL',
-  trial: 'TRIAL',
+const SUB_TIER_BADGE_KEY = {
+  weekly: 'home.tierWeekly',
+  monthly: 'home.tierMonthly',
+  annual: 'home.tierAnnual',
+  trial: 'home.tierTrial',
 } as const;
 
 function greetingKeyFor(hour: number): string {
@@ -221,7 +221,9 @@ export default function HomeScreen() {
     }
   }, [i18n.language]);
 
-  const subBadge = tier ? SUB_TIER_BADGE[tier as keyof typeof SUB_TIER_BADGE] : null;
+  const subBadge = tier
+    ? t(SUB_TIER_BADGE_KEY[tier as keyof typeof SUB_TIER_BADGE_KEY])
+    : null;
   // Chat is part of all paid tiers per subscriptionTiers.ts; "trial" is the
   // skip-onboarding path which gets read-only access.
   const isPaid = tier === 'weekly' || tier === 'monthly' || tier === 'annual';

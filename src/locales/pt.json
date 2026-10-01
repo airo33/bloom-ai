@@ -14,7 +14,8 @@
     "friend": "Amigo",
     "painValue": "Dor {{pain}}/10",
     "waterValue": "{{count}}/8 água",
-    "dayNumber": "Dia {{day}}"
+    "dayNumber": "Dia {{day}}",
+    "unknownError": "Erro desconhecido"
   },
   "welcome": {
     "brand": "BLOOM",
@@ -163,6 +164,10 @@
     "greetingAfternoon": "Boa tarde",
     "greetingEvening": "Boa noite",
     "today": "Hoje",
+    "tierWeekly": "SEMANAL",
+    "tierMonthly": "MENSAL",
+    "tierAnnual": "ANUAL",
+    "tierTrial": "TESTE",
     "doneSuffix": "feitos",
     "dayLabel": "Dia {{day}} · {{weekday}}",
     "streak_one": "sequência de {{count}} dia",
@@ -491,5 +496,14 @@
     "errLoadTitle": "Não foi possível carregar",
     "errLoadFallback": "Não foi possível carregar o histórico de planos.",
     "planFallbackTitle": "Plano de recuperação"
+  },
+  "notifications": {
+    "exerciseTitle": "Hora dos seus exercícios de recuperação",
+    "exerciseBody": "Alguns minutos de movimento agora mantêm seu progresso em dia.",
+    "waterTitle": "Check-in de hidratação",
+    "waterBody": "As articulações se recuperam mais rápido quando você se mantém hidratado. Beba um copo.",
+    "journalTitle": "Registre seu dia",
+    "journalBody": "Como foi o dia hoje? Dor, humor, qualquer coisa que tenha notado.",
+    "channelName": "Lembretes de recuperação"
   }
 }

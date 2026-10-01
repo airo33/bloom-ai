@@ -707,6 +707,7 @@ interface ProfileHeaderProps {
 
 function ProfileHeader({ name, email, fitnessLevel, age, tier }: ProfileHeaderProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const initial = (name?.trim() || 'F').charAt(0).toUpperCase();
   const onPrimary = theme.scheme === 'dark' ? '#0A0A0A' : '#FFFFFF';
 
@@ -716,13 +717,17 @@ function ProfileHeader({ name, email, fitnessLevel, age, tier }: ProfileHeaderPr
     switch (tier) {
       case 'monthly':
       case 'annual':
-        return { label: tier === 'annual' ? 'PRO · ANNUAL' : 'PRO · MONTHLY', bg: theme.colors.pu, fg: onPrimary };
+        return {
+          label: tier === 'annual' ? t('profile.tierAnnual') : t('profile.tierMonthly'),
+          bg: theme.colors.pu,
+          fg: onPrimary,
+        };
       case 'weekly':
-        return { label: 'TRIAL · WEEKLY', bg: theme.colors.pl, fg: theme.colors.pt };
+        return { label: t('profile.tierTrialWeekly'), bg: theme.colors.pl, fg: theme.colors.pt };
       case 'trial':
-        return { label: 'TRIAL', bg: theme.colors.card2, fg: theme.colors.tb };
+        return { label: t('profile.tierTrial'), bg: theme.colors.card2, fg: theme.colors.tb };
       default:
-        return { label: 'FREE', bg: theme.colors.card2, fg: theme.colors.tm };
+        return { label: t('profile.tierFree'), bg: theme.colors.card2, fg: theme.colors.tm };
     }
   })();
 
@@ -836,10 +841,10 @@ function ProfileHeader({ name, email, fitnessLevel, age, tier }: ProfileHeaderPr
                 }}
               >
                 <Text style={{ fontSize: 10, color: theme.colors.tm, fontWeight: '700', letterSpacing: 0.4 }}>
-                  FITNESS
+                  {t('profile.fitnessLabel')}
                 </Text>
                 <Text style={{ fontSize: 13, color: theme.colors.th, fontWeight: '700', letterSpacing: -0.2 }}>
-                  {fitnessLevel}
+                  {t(`onboarding.fitness${fitnessLevel}`)}
                 </Text>
               </View>
             )}
@@ -856,7 +861,7 @@ function ProfileHeader({ name, email, fitnessLevel, age, tier }: ProfileHeaderPr
                 }}
               >
                 <Text style={{ fontSize: 10, color: theme.colors.tm, fontWeight: '700', letterSpacing: 0.4 }}>
-                  AGE
+                  {t('profile.ageLabel')}
                 </Text>
                 <Text style={{ fontSize: 13, color: theme.colors.th, fontWeight: '700', letterSpacing: -0.2 }}>
                   {age}

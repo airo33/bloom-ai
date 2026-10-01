@@ -75,7 +75,7 @@ async function extractFunctionsError(err: unknown): Promise<ExtractedError> {
           const code = typeof b.error === 'string' ? b.error : undefined;
           const msg = typeof b.message === 'string'
             ? b.message
-            : code ?? 'Unknown error';
+            : code ?? i18n.t('common.unknownError');
           return { msg, code, status };
         }
       } catch {
@@ -86,7 +86,7 @@ async function extractFunctionsError(err: unknown): Promise<ExtractedError> {
       return { msg: String((err as { message: unknown }).message), status };
     }
   }
-  return { msg: 'Unknown error', status };
+  return { msg: i18n.t('common.unknownError'), status };
 }
 
 /** Kept for backwards compat in chatPhysio. */

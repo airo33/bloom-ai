@@ -13,6 +13,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { i18n } from './i18n';
 
 export type ReminderCategory = 'exercise' | 'water' | 'journal';
 
@@ -38,20 +39,20 @@ const EXERCISE_SLOT_COUNT = 5;
 /** Minutes between water pings. */
 const WATER_INTERVAL_MIN = 90;
 
-const COPY: Record<ReminderCategory, { title: string; body: string }> = {
-  exercise: {
-    title: 'Time for your recovery exercises',
-    body: 'A few minutes of movement now keeps your progress on track.',
-  },
-  water: {
-    title: 'Hydration check-in',
-    body: 'Joints heal faster when you stay hydrated. Drink a glass.',
-  },
-  journal: {
-    title: 'Log your day',
-    body: 'How was today? Pain, mood, anything you noticed.',
-  },
+const COPY_KEY: Record<ReminderCategory, { title: string; body: string }> = {
+  exercise: { title: 'notifications.exerciseTitle', body: 'notifications.exerciseBody' },
+  water: { title: 'notifications.waterTitle', body: 'notifications.waterBody' },
+  journal: { title: 'notifications.journalTitle', body: 'notifications.journalBody' },
 };
+
+/** Resolved fresh at schedule time so a language change before the next
+ *  toggle/reapply is reflected in newly-scheduled notifications. */
+function copyFor(category: ReminderCategory): { title: string; body: string } {
+  return {
+    title: i18n.t(COPY_KEY[category].title),
+    body: i18n.t(COPY_KEY[category].body),
+  };
+}
 
 interface Slot { hour: number; minute: number }
 type ScheduledMap = Partial<Record<ReminderCategory, string[]>>;
@@ -156,7 +157,7 @@ export function setupNotificationHandler(): void {
 export async function ensureAndroidChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;
   await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL, {
-    name: 'Recovery reminders',
+    name: i18n.t('notifications.channelName'),
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 200, 200, 200],
     lightColor: '#84CC16',
@@ -199,11 +200,12 @@ async function scheduleCategory(
   await cancelCategory(category);
   const newIds: string[] = [];
 
+  const copy = copyFor(category);
   for (const slot of computeSlots(category, times)) {
     const id = await Notifications.scheduleNotificationAsync({
       content: {
-        title: COPY[category].title,
-        body: COPY[category].body,
+        title: copy.title,
+        body: copy.body,
         ...(Platform.OS === 'android' ? { channelId: ANDROID_CHANNEL } : {}),
       },
       trigger: {
