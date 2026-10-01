@@ -24,8 +24,10 @@ interface RequestBody {
 
 // Llama 3.1 8B Instant — Groq's fastest model. Good enough for short
 // clinical Q&A grounded on the plan; swap to llama-3.3-70b-versatile if
-// quality becomes an issue.
-const MODEL = 'llama-3.1-8b-instant';
+// quality becomes an issue. Configurable via secret (`supabase secrets set
+// GROQ_CHAT_MODEL=...`) since Groq occasionally moves models behind a
+// higher account tier or retires them outright.
+const MODEL = Deno.env.get('GROQ_CHAT_MODEL')?.trim() || 'llama-3.1-8b-instant';
 
 // Vision model — used ONLY when the message includes a photo. Groq serves its
 // multimodal models as "preview" and rotates the IDs, so this is configurable
