@@ -149,7 +149,9 @@ function CompactChip({ breakdown }: { breakdown: RecoveryBreakdown | null }) {
           color: theme.colors.pt,
           letterSpacing: 0.4,
           textTransform: 'uppercase',
+          flexShrink: 1,
         }}
+        numberOfLines={1}
       >
         {t('recovery.title')}
       </Text>

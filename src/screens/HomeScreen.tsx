@@ -393,7 +393,11 @@ export default function HomeScreen() {
               >
                 <AnimatedFlame size={18} color={theme.colors.or} intensity={0.25} />
               </View>
-              <Text style={{ fontSize: 14, color: theme.colors.tb, flex: 1 }}>
+              <Text
+                style={{ fontSize: 14, color: theme.colors.tb, flex: 1 }}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
                 <Text style={{ fontWeight: '800', color: theme.colors.th }}>
                   {t('home.streak', { count: progress.streak })}
                 </Text>
